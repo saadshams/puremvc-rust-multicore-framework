@@ -1,6 +1,9 @@
-pub mod interfaces;
-pub mod patterns;
+mod interfaces;
+pub use interfaces::IMediator;
+pub use interfaces::INotification;
+pub use interfaces::IProxy;
 
-pub use patterns::mediator::Mediator;
-pub use patterns::observer::Notification;
-pub use patterns::proxy::Proxy;
+mod patterns;
+pub use patterns::Mediator;
+pub use patterns::Notification;
+pub use patterns::Proxy;

@@ -1,6 +1,5 @@
 use std::any::Any;
-use puremvc_rust_multicore_framework::interfaces::INotification;
-use puremvc_rust_multicore_framework::patterns::observer::Notification;
+use puremvc::{INotification, Notification};
 
 #[test]
 fn test_name_accessor() {

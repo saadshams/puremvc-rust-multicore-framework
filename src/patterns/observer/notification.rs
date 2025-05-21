@@ -1,5 +1,5 @@
 use std::any::Any;
-use crate::interfaces::INotification;
+use crate::INotification;
 
 pub struct Notification {
     name: String,

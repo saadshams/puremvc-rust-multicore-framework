@@ -1,6 +1,8 @@
-pub mod imediator;
+mod imediator;
 pub use imediator::IMediator;
-pub mod inotification;
+
+mod inotification;
 pub use inotification::INotification;
-pub mod iproxy;
+
+mod iproxy;
 pub use iproxy::IProxy;

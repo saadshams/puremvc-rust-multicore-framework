@@ -1,2 +1,2 @@
-pub mod mediator;
+mod mediator;
 pub use mediator::Mediator;

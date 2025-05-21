@@ -1,5 +1,4 @@
-use puremvc_rust_multicore_framework::interfaces::IProxy;
-use puremvc_rust_multicore_framework::patterns::proxy::Proxy;
+use puremvc::{IProxy, Proxy};
 
 #[test]
 fn test_name_accessor() {

@@ -1,2 +1,2 @@
-pub mod notification;
+mod notification;
 pub use notification::Notification;

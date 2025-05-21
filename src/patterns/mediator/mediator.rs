@@ -1,5 +1,5 @@
 use std::any::Any;
-use crate::interfaces::IMediator;
+use crate::IMediator;
 
 pub struct Mediator {
     name: String,

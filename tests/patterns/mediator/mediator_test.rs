@@ -1,6 +1,5 @@
 use std::any::Any;
-use puremvc_rust_multicore_framework::interfaces::IMediator;
-use puremvc_rust_multicore_framework::patterns::mediator::Mediator;
+use puremvc::{IMediator, Mediator};
 
 #[test]
 fn test_name_accessor() {

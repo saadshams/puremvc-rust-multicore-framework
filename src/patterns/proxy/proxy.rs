@@ -1,5 +1,5 @@
 use std::any::Any;
-use crate::interfaces::IProxy;
+use crate::IProxy;
 
 pub struct Proxy {
     name: String,

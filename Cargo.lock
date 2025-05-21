@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "puremvc-rust-multicore-framework"
-version = "0.1.0"
+name = "puremvc"
+version = "1.0.0"
