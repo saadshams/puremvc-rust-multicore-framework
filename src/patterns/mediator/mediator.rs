@@ -1,5 +1,5 @@
 use std::any::Any;
-use crate::IMediator;
+use crate::{IMediator, INotification};
 
 pub struct Mediator {
     name: String,
@@ -26,7 +26,15 @@ impl IMediator for Mediator {
     fn set_view(&mut self, view: Option<Box<dyn Any>>) {
         self.view = view;
     }
-    
+
+    fn list_notification_interests(&mut self) -> Vec<String> {
+        vec![]
+    }
+
+    fn handle_notification(&mut self, _notification: &dyn INotification) {
+        
+    }
+
     fn on_register(&mut self) {
         
     }
