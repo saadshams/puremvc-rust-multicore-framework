@@ -1,7 +1,3 @@
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 ## Dependencies
 cargo fetch
 
@@ -27,8 +23,4 @@ cargo clean
 cargo check
 
 # Publish
-<<<<<<< Updated upstream
 cargo publish
-=======
-cargo publish
->>>>>>> Stashed changes
