@@ -18,8 +18,8 @@ impl INotification for Notification {
         &self.name
     }
 
-    fn get_body(&self) -> Option<&Box<dyn Any>> {
-        self.body.as_ref()
+    fn get_body(&mut self) -> Option<&mut Box<dyn Any>> {
+        self.body.as_mut()
     }
 
     fn set_body(&mut self, body: Option<Box<dyn Any>>) {
