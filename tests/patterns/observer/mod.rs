@@ -1,1 +1,1 @@
-pub mod notification_test;
+mod notification_test;

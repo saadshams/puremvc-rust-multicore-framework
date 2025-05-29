@@ -1,1 +1,1 @@
-pub mod mediator_test;
+mod mediator_test;

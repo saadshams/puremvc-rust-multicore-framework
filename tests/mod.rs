@@ -1,1 +1,1 @@
-pub mod patterns;
+mod patterns;

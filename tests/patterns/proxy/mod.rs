@@ -1,1 +1,1 @@
-pub mod proxy_test;
+mod proxy_test;
