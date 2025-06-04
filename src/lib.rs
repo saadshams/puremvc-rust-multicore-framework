@@ -1,6 +1,10 @@
+mod core;
+pub use core::Model;
+
 mod interfaces;
 pub use interfaces::ICommand;
 pub use interfaces::IMediator;
+pub use interfaces::IModel;
 pub use interfaces::INotification;
 pub use interfaces::IProxy;
 

@@ -1,3 +1,6 @@
+mod imodel;
+pub use imodel::IModel;
+
 mod icommand;
 pub use icommand::ICommand;
 

@@ -288,6 +288,7 @@ name = "puremvc"
 version = "1.0.0"
 dependencies = [
  "criterion",
+ "once_cell",
 ]
 
 [[package]]
