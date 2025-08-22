@@ -9,18 +9,25 @@ pub struct Proxy {
 impl Proxy {
     pub const NAME: &'static str = "Proxy";
 
-    pub fn new(name: Option<String>, data: Option<Box<dyn Any + Sync + Send>>) -> Proxy {
-        Self { name: name.unwrap_or_else(|| Self::NAME.to_string()), data }
+    pub fn new(name: Option<String>, data: Option<Box<dyn Any + Sync + Send>>) -> Self {
+        Self {
+            name: name.unwrap_or_else(|| Self::NAME.to_string()),
+            data
+        }
     }
 }
 
 impl IProxy for Proxy {
-    fn get_proxy_name(&self) -> &str {
+    fn name(&self) -> &str {
         &self.name
     }
 
-    fn get_data(&self) -> Option<&(dyn Any + Sync + Send)> {
+    fn data(&self) -> Option<&(dyn Any + Sync + Send)> {
         self.data.as_deref()
+    }
+
+    fn data_mut(&mut self) -> Option<&mut (dyn Any + Sync + Send)> {
+        self.data.as_deref_mut()
     }
 
     fn set_data(&mut self, data: Option<Box<dyn Any + Sync + Send>>) {

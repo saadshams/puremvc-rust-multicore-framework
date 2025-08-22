@@ -9,21 +9,28 @@ pub struct Mediator {
 impl Mediator {
     pub const NAME: &'static str = "Mediator";
     
-    pub fn new(name: Option<String>, view: Option<Box<dyn Any>>) -> Mediator {
-        Self { name: name.unwrap_or_else(|| Self::NAME.to_string()), view }
+    pub fn new(name: Option<String>, view: Option<Box<dyn Any>>) -> Self {
+        Self {
+            name: name.unwrap_or_else(|| Self::NAME.to_string()),
+            view
+        }
     }
 }
 
 impl IMediator for Mediator {
-    fn get_mediator_name(&self) -> &str {
+    fn name(&self) -> &str {
         &self.name
     }
 
-    fn get_view_component(&self) -> Option<&dyn Any> {
+    fn component(&self) -> Option<&dyn Any> {
         self.view.as_deref()
     }
 
-    fn set_view(&mut self, view: Option<Box<dyn Any>>) {
+    fn component_mut(&mut self) -> &mut Option<Box<dyn Any>> {
+        &mut self.view
+    }
+
+    fn set_component_mut(&mut self, view: Option<Box<dyn Any>>) {
         self.view = view;
     }
 

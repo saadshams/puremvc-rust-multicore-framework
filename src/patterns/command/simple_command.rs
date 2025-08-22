@@ -1,8 +1,12 @@
 use crate::INotification;
 use crate::interfaces::ICommand;
 
-pub struct SimpleCommand {
+pub struct SimpleCommand;
 
+impl SimpleCommand {
+    pub fn new() -> Self {
+        Self {}
+    }
 }
 
 impl ICommand for SimpleCommand {

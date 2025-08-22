@@ -8,21 +8,25 @@ pub struct Notification {
 }
 
 impl Notification {
-    pub fn new(name: String, body: Option<Box<dyn Any>>, type_: Option<String>) -> Notification {
-        Self {name, body, type_}
+    pub fn new(name: String, body: Option<Box<dyn Any>>, type_: Option<String>) -> Self {
+        Self {
+            name,
+            body,
+            type_
+        }
     }
 }
 
 impl INotification for Notification {
-    fn get_name(&self) -> &str {
+    fn name(&self) -> &str {
         &self.name
     }
 
-    fn get_body(&mut self) -> Option<&mut Box<dyn Any>> {
+    fn body(&mut self) -> Option<&mut Box<dyn Any>> {
         self.body.as_mut()
     }
 
-    fn set_body(&mut self, body: Option<Box<dyn Any>>) {
+    fn set_body_mut(&mut self, body: Option<Box<dyn Any>>) {
         self.body = body;
     }
 

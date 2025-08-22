@@ -9,7 +9,7 @@ fn test_simple_command_execute() {
     let mut command = SimpleCommandTestCommand::new();
     command.execute(&mut note);
 
-    let body = note.get_body().unwrap();
+    let body = note.body().unwrap();
     let vo = body.downcast_ref::<SimpleCommandTestVO>().unwrap();
 
     assert_eq!(vo.result, 10, "Expecting vo.result == 10");
@@ -19,13 +19,13 @@ pub struct SimpleCommandTestCommand(SimpleCommand);
 
 impl SimpleCommandTestCommand {
     pub fn new() -> Self {
-        Self(SimpleCommand{})
+        Self(SimpleCommand)
     }
 }
 
 impl ICommand for SimpleCommandTestCommand {
     fn execute(&mut self, notification: &mut dyn INotification) {
-        if let Some(body) = notification.get_body() {
+        if let Some(body) = notification.body() {
             if let Some(vo) = body.downcast_mut::<SimpleCommandTestVO>() {
                 vo.result = 2 * vo.input;
             }

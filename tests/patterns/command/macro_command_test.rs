@@ -9,7 +9,7 @@ fn test_macro_command_execute() {
     let mut command = MacroCommandTestCommand::new();
     command.execute(&mut note);
 
-    let vo = note.get_body().unwrap().downcast_ref::<MacroCommandTestVO>().unwrap();
+    let vo = note.body().unwrap().downcast_ref::<MacroCommandTestVO>().unwrap();
     assert_eq!(vo.result1, 10, "Expecting vo.result == 10");
     assert_eq!(vo.result2, 25, "Expecting vo.result == 25");
 }
@@ -44,7 +44,7 @@ impl MacroCommandTestSub1Command {
 
 impl ICommand for MacroCommandTestSub1Command {
     fn execute(&mut self, notification: &mut dyn INotification) {
-        if let Some(body) = notification.get_body() {
+        if let Some(body) = notification.body() {
             if let Some(vo) = body.downcast_mut::<MacroCommandTestVO>() {
                 vo.result1 = 2 * vo.input;
             }
@@ -62,7 +62,7 @@ impl MacroCommandTestSub2Command {
 
 impl ICommand for MacroCommandTestSub2Command {
     fn execute(&mut self, notification: &mut dyn INotification) {
-        if let Some(body) = notification.get_body() {
+        if let Some(body) = notification.body() {
             if let Some(vo) = body.downcast_mut::<MacroCommandTestVO>() {
                 vo.result2 = vo.input * vo.input;
             }

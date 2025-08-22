@@ -1,16 +1,20 @@
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, Mutex};
-use crate::{IModel};
+use crate::{IModel, IProxy};
 
 static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IModel>>>> = LazyLock::new(|| Default::default());
 
 pub struct Model {
     pub key: String,
+    proxy_map: Mutex<HashMap<String, Arc<dyn IProxy>>>,
 }
 
 impl Model {
     pub fn new(key: String) -> Self {
-        Self { key }
+        Self {
+            key,
+            proxy_map: Mutex::new(HashMap::new()),
+        }
     }
     
     pub fn get_instance(key: String, factory: impl Fn(String) -> Box<dyn IModel>) -> Arc<dyn IModel> {
@@ -20,33 +24,37 @@ impl Model {
             .clone()
     }
 
-    // pub fn print_registry() {
-    //     let registry = INSTANCE_MAP.lock().unwrap();
-    //     println!("Registry {{");
-    //     for (k, v) in registry.iter() {
-    //         println!("    {k} : {v:?}")
-    //     }
-    //     println!("}}");
-    // }
+    pub fn print_registry() {
+        let registry = INSTANCE_MAP.lock().unwrap();
+        println!("Registry {{");
+        for (k, v) in registry.iter() {
+            println!("    {} : {}", k, v.key());
+        }
+        println!("}}");
+    }
 }
 
 impl IModel for Model {
-    
+    fn key(&self) -> &str {
+        &self.key
+    }
+
+    fn register_proxy(&self, proxy: Arc<dyn IProxy>) {
+        self.proxy_map.lock().unwrap().insert(proxy.name().to_string(), proxy);
+    }
+
+    fn retrieve_proxy(&self, name: &str) -> Option<Arc<dyn IProxy>> {
+        self.proxy_map.lock().unwrap().get(name).cloned()
+    }
+
+    fn has_proxy(&self, name: &str) -> bool {
+        self.proxy_map.lock().unwrap().contains_key(name)
+    }
+
+    fn remove_proxy(&self, name: &str) -> Option<Arc<dyn IProxy>> {
+        self.proxy_map.lock().unwrap().remove(name)
+    }
 }
-
-// #[derive(Debug)]
-// pub struct Foo {
-//     pub key: String,
-// }
-
-// #[derive(Debug)]
-// pub struct MyFoo(Foo);
-
-// impl MyFoo {
-//     pub fn new(key: String) -> Self {
-//         Self(Foo { key })
-//     }
-// }
 
 
 
