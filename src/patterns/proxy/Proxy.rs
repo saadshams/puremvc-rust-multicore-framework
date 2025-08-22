@@ -9,9 +9,9 @@ pub struct Proxy {
 impl Proxy {
     pub const NAME: &'static str = "Proxy";
 
-    pub fn new(name: Option<String>, data: Option<Box<dyn Any + Sync + Send>>) -> Self {
+    pub fn new(name: Option<&str>, data: Option<Box<dyn Any + Sync + Send>>) -> Self {
         Self {
-            name: name.unwrap_or_else(|| Self::NAME.to_string()),
+            name: name.unwrap_or(Self::NAME).to_string(),
             data
         }
     }

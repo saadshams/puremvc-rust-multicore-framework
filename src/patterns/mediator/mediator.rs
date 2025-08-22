@@ -9,9 +9,9 @@ pub struct Mediator {
 impl Mediator {
     pub const NAME: &'static str = "Mediator";
     
-    pub fn new(name: Option<String>, view: Option<Box<dyn Any>>) -> Self {
+    pub fn new(name: Option<&str>, view: Option<Box<dyn Any>>) -> Self {
         Self {
-            name: name.unwrap_or_else(|| Self::NAME.to_string()),
+            name: name.unwrap_or(Self::NAME).to_string(),
             view
         }
     }

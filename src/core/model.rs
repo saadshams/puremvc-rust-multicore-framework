@@ -55,8 +55,3 @@ impl IModel for Model {
         self.proxy_map.lock().unwrap().remove(name)
     }
 }
-
-
-
-
-

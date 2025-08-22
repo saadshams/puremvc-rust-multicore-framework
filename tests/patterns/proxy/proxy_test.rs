@@ -6,14 +6,14 @@ fn test_name_accessor() {
     assert_eq!(proxy.name(), Proxy::NAME);
     assert!(proxy.data().is_none());
     
-    let proxy = Proxy::new(Some("TestProxy".to_string()), None);
+    let proxy = Proxy::new(Some("TestProxy"), None);
     assert_eq!(proxy.name(), "TestProxy");
     assert!(proxy.data().is_none());
 }
 
 #[test]
 fn test_data_accessors() {
-    let mut proxy = Proxy::new(Some("colors".to_string()), None);
+    let mut proxy = Proxy::new(Some("colors"), None);
     let colors = vec!["red".to_string(), "green".to_string(), "blue".to_string()];
     proxy.set_data(Some(Box::new(colors)));
     
@@ -29,7 +29,7 @@ fn test_data_accessors() {
 
 #[test]
 fn test_constructor() {
-    let proxy = Proxy::new(Some("colors".to_string()), Some(Box::new(vec!["red".to_string(), "green".to_string(), "blue".to_string()])));
+    let proxy = Proxy::new(Some("colors"), Some(Box::new(vec!["red".to_string(), "green".to_string(), "blue".to_string()])));
     let data = proxy.data()
         .and_then(|d| d.downcast_ref::<Vec<String>>())
         .expect("Expected a Vec<String>");

@@ -12,6 +12,6 @@ fn test_name_accessor() {
 fn test_view_accessor() {
     let view = Box::new(()) as Box<dyn Any>;
 
-    let mediator = Mediator::new(Some(Mediator::NAME.to_string()), Some(view));
+    let mediator = Mediator::new(Some(Mediator::NAME), Some(view));
     assert!(mediator.component().is_some());
 }

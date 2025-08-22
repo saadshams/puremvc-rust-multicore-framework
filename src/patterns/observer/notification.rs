@@ -8,9 +8,9 @@ pub struct Notification {
 }
 
 impl Notification {
-    pub fn new(name: String, body: Option<Box<dyn Any>>, type_: Option<String>) -> Self {
+    pub fn new(name: &str, body: Option<Box<dyn Any>>, type_: Option<String>) -> Self {
         Self {
-            name,
+            name: name.to_string(),
             body,
             type_
         }

@@ -4,7 +4,7 @@ use puremvc::{ICommand, INotification, Notification, SimpleCommand};
 fn test_simple_command_execute() {
     let vo = SimpleCommandTestVO::new(5);
 
-    let mut note = Notification::new("SimpleCommandTestNote".to_string(), Some(Box::new(vo)), None);
+    let mut note = Notification::new("SimpleCommandTestNote", Some(Box::new(vo)), None);
 
     let mut command = SimpleCommandTestCommand::new();
     command.execute(&mut note);
