@@ -23,15 +23,6 @@ impl Model {
             .or_insert_with(|| Arc::from(factory(key)))
             .clone()
     }
-
-    pub fn print_registry() {
-        let registry = INSTANCE_MAP.lock().unwrap();
-        println!("Registry {{");
-        for (k, v) in registry.iter() {
-            println!("    {} : {}", k, v.key());
-        }
-        println!("}}");
-    }
 }
 
 impl IModel for Model {

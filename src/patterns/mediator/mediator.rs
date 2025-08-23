@@ -1,18 +1,19 @@
 use std::any::Any;
+use std::rc::{Rc, Weak};
 use crate::{IMediator, INotification};
 
 pub struct Mediator {
     name: String,
-    view: Option<Box<dyn Any>>
+    component: Option<Weak<dyn Any>>,
 }
 
 impl Mediator {
     pub const NAME: &'static str = "Mediator";
-    
-    pub fn new(name: Option<&str>, view: Option<Box<dyn Any>>) -> Self {
+
+    pub fn new(name: Option<&str>, component: Option<Rc<dyn Any>>) -> Self {
         Self {
             name: name.unwrap_or(Self::NAME).to_string(),
-            view
+            component: component.map(|rc| Rc::downgrade(&rc)),
         }
     }
 }
@@ -22,16 +23,12 @@ impl IMediator for Mediator {
         &self.name
     }
 
-    fn component(&self) -> Option<&dyn Any> {
-        self.view.as_deref()
+    fn component(&self) -> Option<Rc<dyn Any>> {
+        self.component.as_ref().and_then(|weak| weak.upgrade())
     }
 
-    fn component_mut(&mut self) -> &mut Option<Box<dyn Any>> {
-        &mut self.view
-    }
-
-    fn set_component_mut(&mut self, view: Option<Box<dyn Any>>) {
-        self.view = view;
+    fn set_component(&mut self, view: Rc<dyn Any>) {
+        self.component = Some(Rc::downgrade(&view));
     }
 
     fn list_notification_interests(&mut self) -> Vec<String> {

@@ -1,4 +1,5 @@
 use std::any::Any;
+use std::rc::Rc;
 use puremvc::{IMediator, Mediator};
 
 #[test]
@@ -10,8 +11,8 @@ fn test_name_accessor() {
 
 #[test]
 fn test_view_accessor() {
-    let view = Box::new(()) as Box<dyn Any>;
+    let view: Rc<dyn Any> = Rc::new(());
 
-    let mediator = Mediator::new(Some(Mediator::NAME), Some(view));
+    let mediator = Mediator::new(Some("MyMediator"), Some(Rc::clone(&view)));
     assert!(mediator.component().is_some());
 }
