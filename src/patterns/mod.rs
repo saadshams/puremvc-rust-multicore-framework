@@ -9,4 +9,5 @@ mod mediator;
 pub use mediator::Mediator;
 
 mod observer;
+pub use observer::Observer;
 pub use observer::Notification;

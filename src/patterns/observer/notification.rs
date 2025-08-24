@@ -26,7 +26,7 @@ impl INotification for Notification {
         self.body.as_mut()
     }
 
-    fn set_body_mut(&mut self, body: Option<Box<dyn Any>>) {
+    fn set_body(&mut self, body: Option<Box<dyn Any>>) {
         self.body = body;
     }
 
