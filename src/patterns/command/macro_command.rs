@@ -21,7 +21,7 @@ impl MacroCommand {
 
     pub fn execute(&mut self, notification: &mut dyn INotification) {
         while !self.sub_commands.is_empty() {
-            let factory = self.sub_commands.remove(0); // FIFO
+            let factory = self.sub_commands.remove(0);
             let mut command = factory();
             // command.initialize_notifier(&self.multiton_key);
             command.execute(notification);
