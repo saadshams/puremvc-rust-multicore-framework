@@ -13,12 +13,14 @@ impl Model {
     pub fn new(key: String) -> Self {
         Self {
             key,
-            proxy_map: Mutex::new(HashMap::new()),
+            proxy_map: Mutex::new(HashMap::new())
         }
     }
     
     pub fn get_instance(key: String, factory: impl Fn(String) -> Box<dyn IModel>) -> Arc<dyn IModel> {
-        INSTANCE_MAP.lock().unwrap()
+        INSTANCE_MAP
+            .lock()
+            .unwrap()
             .entry(key.clone())
             .or_insert_with(|| Arc::from(factory(key)))
             .clone()

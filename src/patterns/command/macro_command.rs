@@ -1,7 +1,9 @@
 use crate::{ICommand, INotification};
 
 pub struct MacroCommand {
-    sub_commands: Vec<Box<dyn Fn() -> Box<dyn ICommand>>>
+    // sub_commands: Vec<Box<dyn Fn() -> Box<dyn ICommand>>>
+    sub_commands: Vec<Box<dyn Fn() -> Box<dyn ICommand + Send + Sync> + Send + Sync>>,
+
 }
 
 impl MacroCommand {
@@ -15,15 +17,17 @@ impl MacroCommand {
         
     }
 
-    pub fn add_sub_command(&mut self, factory: impl Fn() -> Box<dyn ICommand> + 'static) {
+    // pub fn add_sub_command(&mut self, factory: impl Fn() -> Box<dyn ICommand> + 'static) {
+    //     self.sub_commands.push(Box::new(factory));
+    // }
+
+    pub fn add_sub_command(&mut self, factory: impl Fn() -> Box<dyn ICommand + Send + Sync> + Send + Sync + 'static, ) {
         self.sub_commands.push(Box::new(factory));
     }
 
     pub fn execute(&mut self, notification: &mut dyn INotification) {
-        while !self.sub_commands.is_empty() {
-            let factory = self.sub_commands.remove(0);
+        while let Some(factory) = self.sub_commands.pop() {
             let mut command = factory();
-            // command.initialize_notifier(&self.multiton_key);
             command.execute(notification);
         }
     }

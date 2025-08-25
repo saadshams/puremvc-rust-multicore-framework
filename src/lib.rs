@@ -1,5 +1,6 @@
 mod core;
 pub use core::Model;
+pub use core::Controller;
 
 mod interfaces;
 pub use interfaces::ICommand;

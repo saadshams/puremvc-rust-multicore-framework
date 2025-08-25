@@ -15,3 +15,6 @@ pub use inotification::INotification;
 
 mod iproxy;
 pub use iproxy::IProxy;
+
+mod icontroller;
+pub use icontroller::IController;
