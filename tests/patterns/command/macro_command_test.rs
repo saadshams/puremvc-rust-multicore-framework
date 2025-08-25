@@ -41,7 +41,7 @@ pub struct MacroCommandTestSub1Command(SimpleCommand);
 
 impl MacroCommandTestSub1Command {
     pub fn new() -> Self {
-        Self(SimpleCommand{})
+        Self(SimpleCommand)
     }
 }
 
