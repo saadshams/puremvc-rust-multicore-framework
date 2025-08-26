@@ -53,7 +53,7 @@ impl IController for Controller {
     fn remove_command(&self, notification_name: &str) {
         let mut map = self.command_map.lock().unwrap();
 
-        if let Some(factory) = map.get(notification_name) {
+        if let Some(_factory) = map.get(notification_name) {
             // The command exists, do whatever extra logic you need here
             println!("Removing command for notification: {}", notification_name);
 

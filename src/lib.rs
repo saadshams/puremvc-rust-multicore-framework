@@ -1,11 +1,13 @@
 mod core;
-pub use core::Model;
 pub use core::Controller;
+pub use core::Model;
+pub use core::View;
 
 mod interfaces;
+pub use interfaces::IController;
+pub use interfaces::IModel;
 pub use interfaces::ICommand;
 pub use interfaces::IMediator;
-pub use interfaces::IModel;
 pub use interfaces::INotification;
 pub use interfaces::IObserver;
 pub use interfaces::IProxy;
