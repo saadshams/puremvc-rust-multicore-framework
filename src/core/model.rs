@@ -46,12 +46,12 @@ impl IModel for Model {
         proxy.lock().unwrap().on_register();
     }
 
-    fn retrieve_proxy(&self, name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {
-        self.proxy_map.lock().unwrap().get(name).cloned()
+    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {
+        self.proxy_map.lock().unwrap().get(proxy_name).cloned()
     }
 
-    fn has_proxy(&self, name: &str) -> bool {
-        self.proxy_map.lock().unwrap().contains_key(name)
+    fn has_proxy(&self, proxy_name: &str) -> bool {
+        self.proxy_map.lock().unwrap().contains_key(proxy_name)
     }
 
     fn remove_proxy(&self, name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {

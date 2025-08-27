@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, Mutex};
-use crate::IMediator;
+use crate::{IMediator, IProxy};
 use crate::interfaces::IView;
 
 static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IView>>>> = LazyLock::new(|| Default::default());
 
 pub struct View {
     pub key: String,
-    mediator_map: Mutex<HashMap<String, Arc<Mutex<dyn IMediator>>>>,
+    mediator_map: Mutex<HashMap<String, Arc<Mutex<dyn IMediator + Send>>>>,
 }
 
 impl View {
@@ -33,8 +33,8 @@ impl IView for View {
         &self.key
     }
 
-    fn register_mediator(&self, mut mediator: Arc<dyn IMediator>) {
-        let name = mediator.name().to_string();
+    fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator + Send>>) {
+        let name = mediator.lock().unwrap().name().to_string();
 
         {
             // lock only for insertion
@@ -43,10 +43,10 @@ impl IView for View {
         }
 
         // call after releasing lock to avoid deadlocks
-        mediator.on_register();
+        mediator.lock().unwrap().on_register();
     }
 
-    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<dyn IMediator>> {
+    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator + Send>>> {
         self.mediator_map.lock().unwrap().get(mediator_name).cloned()
     }
 
