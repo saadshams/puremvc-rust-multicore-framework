@@ -7,7 +7,7 @@ static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IView>>>> = LazyLock
 
 pub struct View {
     pub key: String,
-    mediator_map: Mutex<HashMap<String, Arc<dyn IMediator>>>,
+    mediator_map: Mutex<HashMap<String, Arc<Mutex<dyn IMediator>>>>,
 }
 
 impl View {
@@ -33,8 +33,17 @@ impl IView for View {
         &self.key
     }
 
-    fn register_mediator(&self, mediator: Arc<dyn IMediator>) {
+    fn register_mediator(&self, mut mediator: Arc<dyn IMediator>) {
+        let name = mediator.name().to_string();
 
+        {
+            // lock only for insertion
+            let mut map = self.mediator_map.lock().unwrap();
+            map.insert(name, Arc::clone(&mediator));
+        }
+
+        // call after releasing lock to avoid deadlocks
+        mediator.on_register();
     }
 
     fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<dyn IMediator>> {

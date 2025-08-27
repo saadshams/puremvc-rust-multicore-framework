@@ -6,7 +6,7 @@ static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IModel>>>> = LazyLoc
 
 pub struct Model {
     pub key: String,
-    proxy_map: Mutex<HashMap<String, Arc<dyn IProxy>>>,
+    proxy_map: Mutex<HashMap<String, Arc<Mutex<dyn IProxy + Send>>>>,
 }
 
 impl Model {
@@ -32,11 +32,21 @@ impl IModel for Model {
         &self.key
     }
 
-    fn register_proxy(&self, proxy: Arc<dyn IProxy>) {
-        self.proxy_map.lock().unwrap().insert(proxy.name().to_string(), proxy);
+    fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy + Send>>) {
+        // Lock the proxy to get a reference to call `name()`
+        let name = proxy.lock().unwrap().name().to_string();
+
+        // Insert into the map while holding the proxy_map lock
+        {
+            let mut map = self.proxy_map.lock().unwrap();
+            map.insert(name, Arc::clone(&proxy));
+        }
+
+        // Call mutable method after releasing the map lock
+        proxy.lock().unwrap().on_register();
     }
 
-    fn retrieve_proxy(&self, name: &str) -> Option<Arc<dyn IProxy>> {
+    fn retrieve_proxy(&self, name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {
         self.proxy_map.lock().unwrap().get(name).cloned()
     }
 
@@ -44,7 +54,14 @@ impl IModel for Model {
         self.proxy_map.lock().unwrap().contains_key(name)
     }
 
-    fn remove_proxy(&self, name: &str) -> Option<Arc<dyn IProxy>> {
-        self.proxy_map.lock().unwrap().remove(name)
+    fn remove_proxy(&self, name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {
+        let removed = self.proxy_map.lock().unwrap().remove(name);
+
+        if let Some(proxy) = &removed {
+            // if proxy is Arc<dyn IProxy>, you can call the method via deref:
+            proxy.lock().unwrap().on_remove();
+        }
+
+        removed
     }
 }
