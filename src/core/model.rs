@@ -33,32 +33,26 @@ impl IModel for Model {
     }
 
     fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy + Send>>) {
-        // Lock the proxy to get a reference to call `name()`
-        let name = proxy.lock().unwrap().name().to_string();
-
-        // Insert into the map while holding the proxy_map lock
-        {
-            let mut map = self.proxy_map.lock().unwrap();
-            map.insert(name, Arc::clone(&proxy));
-        }
-
-        // Call mutable method after releasing the map lock
+        let mut map = self.proxy_map.lock().unwrap();
+        map.insert(proxy.lock().unwrap().name().to_string(), Arc::clone(&proxy));
         proxy.lock().unwrap().on_register();
     }
 
-    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {
-        self.proxy_map.lock().unwrap().get(proxy_name).cloned()
+    fn retrieve_proxy(&self, name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {
+        let map = self.proxy_map.lock().unwrap();
+        map.get(name).cloned()
     }
 
     fn has_proxy(&self, proxy_name: &str) -> bool {
-        self.proxy_map.lock().unwrap().contains_key(proxy_name)
+        let map = self.proxy_map.lock().unwrap();
+        map.contains_key(proxy_name)
     }
 
-    fn remove_proxy(&self, name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {
-        let removed = self.proxy_map.lock().unwrap().remove(name);
+    fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {
+        let mut map = self.proxy_map.lock().unwrap();
+        let removed = map.remove(proxy_name);
 
         if let Some(proxy) = &removed {
-            // if proxy is Arc<dyn IProxy>, you can call the method via deref:
             proxy.lock().unwrap().on_remove();
         }
 

@@ -34,20 +34,23 @@ impl IController for Controller {
     }
 
     fn execute_command(&self, notification: &mut dyn INotification) {
-        if let Some(factory) = self.command_map.lock().unwrap().get(notification.name()) {
+        let map = self.command_map.lock().unwrap();
+        if let Some(factory) = map.get(notification.name()) {
             let mut instance = factory();
             // instance.initialize_notifier(&self.multiton_key);
             instance.execute(notification);
         }
     }
 
-    fn register_command(&self, notification_name: String, factory: Box<dyn Fn() -> Box<dyn ICommand> + Send + Sync>) {
+    fn register_command(&self, notification_name: &str, factory: Box<dyn Fn() -> Box<dyn ICommand> + Send + Sync>) {
         // todo register with view
-        self.command_map.lock().unwrap().insert(notification_name, factory);
+        let mut map = self.command_map.lock().unwrap();
+        map.insert(notification_name.to_string(), factory);
     }
 
     fn has_command(&self, notification_name: &str) -> bool {
-        self.command_map.lock().unwrap().contains_key(notification_name)
+        let map = self.command_map.lock().unwrap();
+        map.contains_key(notification_name)
     }
 
     fn remove_command(&self, notification_name: &str) {
