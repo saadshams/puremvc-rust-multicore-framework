@@ -11,28 +11,20 @@ pub struct View {
 }
 
 impl View {
-    pub fn new(key: String) -> Self {
+    pub fn new(key: &str) -> Self {
         Self {
-            key,
+            key: key.to_string(),
             mediator_map: Mutex::new(HashMap::new()),
         }
     }
 
-    pub fn get_instance(key: String, factory: impl Fn(String) -> Box<dyn IView>) -> Arc<dyn IView> {
-        INSTANCE_MAP
-            .lock()
-            .unwrap()
-            .entry(key.clone())
-            .or_insert_with(|| Arc::from(factory(key)))
-            .clone()
+    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> Box<dyn IView>) -> Arc<dyn IView> {
+        let mut map = INSTANCE_MAP.lock().unwrap();
+        map.entry(key.to_string()).or_insert_with(|| Arc::from(factory(key))).clone()
     }
 }
 
 impl IView for View {
-    fn key(&self) -> &str {
-        &self.key
-    }
-
     fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator + Send>>) {
         let mut map = self.mediator_map.lock().unwrap();
         map.insert(mediator.lock().unwrap().name().to_string(), Arc::clone(&mediator));

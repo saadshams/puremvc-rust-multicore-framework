@@ -10,28 +10,21 @@ pub struct Model {
 }
 
 impl Model {
-    pub fn new(key: String) -> Self {
+    pub fn new(key: &str) -> Self {
         Self {
-            key,
+            key: key.to_string(),
             proxy_map: Mutex::new(HashMap::new())
         }
     }
     
-    pub fn get_instance(key: String, factory: impl Fn(String) -> Box<dyn IModel>) -> Arc<dyn IModel> {
-        INSTANCE_MAP
-            .lock()
-            .unwrap()
-            .entry(key.clone())
-            .or_insert_with(|| Arc::from(factory(key)))
-            .clone()
+    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> Box<dyn IModel>) -> Arc<dyn IModel> {
+        let mut map = INSTANCE_MAP.lock().unwrap();
+        map.entry(key.to_string()).or_insert_with(|| Arc::from(factory(key))).clone()
     }
+
 }
 
 impl IModel for Model {
-    fn key(&self) -> &str {
-        &self.key
-    }
-
     fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy + Send>>) {
         let mut map = self.proxy_map.lock().unwrap();
         map.insert(proxy.lock().unwrap().name().to_string(), Arc::clone(&proxy));

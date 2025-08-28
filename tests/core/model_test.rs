@@ -3,14 +3,14 @@ use puremvc::{Model, Proxy};
 
 #[test]
 fn test_get_instance() {
-    let model = Model::get_instance("ModelTestKey1".to_string(), |k| Box::new(Model::new(k)));
+    let model = Model::get_instance("ModelTestKey1", |k| Box::new(Model::new(k)));
 
     assert!(Arc::strong_count(&model) > 0, "Expecting instance not null");
 }
 
 #[test]
 fn test_register_and_retrieve_proxy() {
-    let model = Model::get_instance("ModelTestKey2".to_string(), |k| Box::new(Model::new(k)));
+    let model = Model::get_instance("ModelTestKey2", |k| Box::new(Model::new(k)));
 
     let colors = vec!["red".to_string(), "green".to_string(), "blue".to_string()];
     let proxy = Proxy::new(Some("colors"), Some(Box::new(colors)));

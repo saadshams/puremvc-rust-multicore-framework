@@ -11,28 +11,20 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn new(key: String) -> Self {
+    pub fn new(key: &str) -> Self {
         Self {
-            key,
+            key: key.to_string(),
             command_map: Mutex::new(HashMap::new())
         }
     }
 
-    pub fn get_instance(key: String, factory: impl Fn(String) -> Box<dyn IController>) -> Arc<dyn IController> {
-        INSTANCE_MAP.
-            lock()
-            .unwrap()
-            .entry(key.clone())
-            .or_insert_with(|| Arc::from(factory(key)))
-            .clone()
+    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> Box<dyn IController>) -> Arc<dyn IController> {
+        let mut map = INSTANCE_MAP.lock().unwrap();
+        map.entry(key.to_string()).or_insert_with(|| Arc::from(factory(key))).clone()
     }
 }
 
 impl IController for Controller {
-    fn key(&self) -> &str {
-        &self.key
-    }
-
     fn execute_command(&self, notification: &mut dyn INotification) {
         let map = self.command_map.lock().unwrap();
         if let Some(factory) = map.get(notification.name()) {
