@@ -1,37 +1,37 @@
 use std::any::Any;
-use std::rc::Rc;
+use std::sync::Arc;
 use crate::INotification;
 use crate::interfaces::IObserver;
 
 pub struct Observer {
-    notify: Option<Rc<dyn Fn(&mut dyn INotification)>>,
-    context: Option<Rc<dyn Any>>,
+    notify: Option<Arc<dyn Fn(&mut dyn INotification) + Send + Sync>>,
+    context: Option<Arc<dyn Any + Send + Sync>>,
 }
 
 impl Observer {
-    pub fn new(notify: Option<Rc<dyn Fn(&mut dyn INotification)>>, context: Option<Rc<dyn Any>>) -> Self {
+    pub fn new(notify: Option<Arc<dyn Fn(&mut dyn INotification) + Send + Sync>>, context: Option<Arc<dyn Any + Send + Sync>>) -> Self {
         Self {
             notify,
-            context
+            context,
         }
     }
 }
 
 impl IObserver for Observer {
 
-    fn notify(&self) -> Option<Rc<dyn Fn(&mut dyn INotification)>> {
-        self.notify.as_ref().map(Rc::clone)
+    fn notify(&self) -> Option<Arc<dyn Fn(&mut dyn INotification) + Send + Sync>> {
+        self.notify.clone()
     }
 
-    fn set_notify(&mut self, notify: Option<Rc<dyn Fn(&mut dyn INotification)>>) {
+    fn set_notify(&mut self, notify: Option<Arc<dyn Fn(&mut dyn INotification) + Send + Sync>>) {
         self.notify = notify;
     }
 
-    fn context(&self) -> Option<Rc<dyn Any>> {
-        self.context.as_ref().map(Rc::clone)
+    fn context(&self) -> Option<Arc<dyn Any + Send + Sync>> {
+        self.context.clone()
     }
 
-    fn set_context(&mut self, context: Option<Rc<dyn Any>>) {
+    fn set_context(&mut self, context: Option<Arc<dyn Any + Send + Sync>>) {
         self.context = context;
     }
 
@@ -41,15 +41,11 @@ impl IObserver for Observer {
         }
     }
 
-    fn compare_notify_context(&self, object: &Rc<dyn Any>) -> bool {
-        match &self.context {
-            Some(ctx) => {
-                // Get raw data pointers
-                let ctx_ptr = (&**ctx) as *const dyn Any as *const ();
-                let obj_ptr = (&**object) as *const dyn Any as *const ();
-                ctx_ptr == obj_ptr
-            }
-            None => false,
+    fn compare_notify_context(&self, object: Arc<dyn Any + Send + Sync>) -> bool {
+        if let Some(ctx) = &self.context {
+            Arc::ptr_eq(ctx, &object)
+        } else {
+            false
         }
     }
 }

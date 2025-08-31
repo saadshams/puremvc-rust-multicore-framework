@@ -5,37 +5,43 @@ use crate::interfaces::IController;
 
 static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IController>>>> = LazyLock::new(|| Default::default());
 
+static MULTITON_MSG: &str = "Controller instance for this Multiton key already constructed!";
+
 pub struct Controller {
-    pub key: String,
-    command_map: Mutex<HashMap<String, Box<dyn Fn() -> Box<dyn ICommand> + Send + Sync>>>,
+    key: String,
+    command_map: Mutex<HashMap<String, Arc<dyn Fn() -> Arc<Mutex<dyn ICommand>> + Send + Sync>>>,
 }
 
 impl Controller {
     pub fn new(key: &str) -> Self {
+        if INSTANCE_MAP.lock().unwrap().contains_key(key) {
+            panic!("{}", MULTITON_MSG);
+        }
+
         Self {
             key: key.to_string(),
             command_map: Mutex::new(HashMap::new())
         }
     }
 
-    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> Box<dyn IController>) -> Arc<dyn IController> {
+    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> Arc<dyn IController>) -> Arc<dyn IController> {
         let mut map = INSTANCE_MAP.lock().unwrap();
-        map.entry(key.to_string()).or_insert_with(|| Arc::from(factory(key))).clone()
+        map.entry(key.to_string()).or_insert_with(|| factory(key)).clone()
     }
 }
 
 impl IController for Controller {
-    fn execute_command(&self, notification: &mut dyn INotification) {
+    fn execute_command(&self, notification: Arc<Mutex<dyn INotification>>) {
         let map = self.command_map.lock().unwrap();
-        if let Some(factory) = map.get(notification.name()) {
-            let mut instance = factory();
-            // instance.initialize_notifier(&self.multiton_key);
-            instance.execute(notification);
+        if let Some(factory) = map.get(notification.lock().unwrap().name()) {
+            // instance.initialize_notifier(&self.key);
+            let instance = factory();
+            let mut cmd = instance.lock().unwrap();
+            cmd.execute(notification.clone());
         }
     }
 
-    fn register_command(&self, notification_name: &str, factory: Box<dyn Fn() -> Box<dyn ICommand> + Send + Sync>) {
-        // todo register with view
+    fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Arc<Mutex<dyn ICommand>> + Send + Sync>) {
         let mut map = self.command_map.lock().unwrap();
         map.insert(notification_name.to_string(), factory);
     }

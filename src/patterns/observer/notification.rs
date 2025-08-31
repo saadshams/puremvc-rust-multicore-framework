@@ -8,11 +8,11 @@ pub struct Notification {
 }
 
 impl Notification {
-    pub fn new(name: &str, body: Option<Box<dyn Any>>, type_: Option<String>) -> Self {
+    pub fn new(name: &str, body: Option<Box<dyn Any>>, type_: Option<&str>) -> Self {
         Self {
             name: name.to_string(),
             body,
-            type_
+            type_: type_.map(|t| t.to_string()),
         }
     }
 }

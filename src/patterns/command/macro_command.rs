@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex};
 use crate::{ICommand, INotification};
 
 pub struct MacroCommand {
@@ -13,22 +14,18 @@ impl MacroCommand {
         instance
     }
     
-    fn initialize_macro_command(&mut self) {
+    pub fn initialize_macro_command(&mut self) {
         
     }
-
-    // pub fn add_sub_command(&mut self, factory: impl Fn() -> Box<dyn ICommand> + 'static) {
-    //     self.sub_commands.push(Box::new(factory));
-    // }
 
     pub fn add_sub_command(&mut self, factory: impl Fn() -> Box<dyn ICommand + Send + Sync> + Send + Sync + 'static, ) {
         self.sub_commands.push(Box::new(factory));
     }
 
-    pub fn execute(&mut self, notification: &mut dyn INotification) {
+    pub fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>) {
         while let Some(factory) = self.sub_commands.pop() {
             let mut command = factory();
-            command.execute(notification);
+            command.execute(notification.clone());
         }
     }
 }

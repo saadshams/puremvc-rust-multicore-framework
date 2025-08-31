@@ -18,7 +18,7 @@ fn test_body_accessor() {
 
 #[test]
 fn test_constructor() {
-    let mut note = Notification::new("TestNote", Some(Box::new(5_i32)), Some("TestNoteType".to_string()));
+    let mut note = Notification::new("TestNote", Some(Box::new(5_i32)), Some("TestNoteType"));
     
     assert_eq!(note.name(), "TestNote", "Expecting note.get_name() == 'TestNote'");
     assert_eq!(note.body().and_then(|b| b.downcast_ref::<i32>()), Some(&5));
@@ -27,7 +27,7 @@ fn test_constructor() {
 
 #[test]
 fn test_to_string() {
-    let note = Notification::new("TestNote", Some(Box::new(vec![1, 3, 5]) as Box<dyn Any>), Some("TestType".to_string()));
+    let note = Notification::new("TestNote", Some(Box::new(vec![1, 3, 5]) as Box<dyn Any>), Some("TestType"));
     
     let expected = "Notification Name: TestNote\nBody: Any { .. }\nType: TestType";
     

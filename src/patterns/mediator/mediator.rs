@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::rc::{Rc, Weak};
+use std::sync::{Arc, Weak};
 use crate::{IMediator, INotification};
 
 pub struct Mediator {
@@ -10,10 +10,10 @@ pub struct Mediator {
 impl Mediator {
     pub const NAME: &'static str = "Mediator";
 
-    pub fn new(name: Option<&str>, component: Option<Rc<dyn Any>>) -> Self {
+    pub fn new(name: Option<&str>, component: Option<Weak<dyn Any>>) -> Self {
         Self {
             name: name.unwrap_or(Self::NAME).to_string(),
-            component: component.map(|rc| Rc::downgrade(&rc)),
+            component
         }
     }
 }
@@ -23,12 +23,12 @@ impl IMediator for Mediator {
         &self.name
     }
 
-    fn component(&self) -> Option<Rc<dyn Any>> {
-        self.component.as_ref().and_then(|weak| weak.upgrade())
+    fn component(&self) -> Option<Arc<dyn Any>> {
+        self.component.as_ref().and_then(|c| c.upgrade())
     }
 
-    fn set_component(&mut self, view: Rc<dyn Any>) {
-        self.component = Some(Rc::downgrade(&view));
+    fn set_component(&mut self, view: Arc<dyn Any>) {
+        self.component = Some(Arc::downgrade(&view));
     }
 
     fn list_notification_interests(&mut self) -> Vec<String> {

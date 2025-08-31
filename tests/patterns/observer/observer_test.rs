@@ -1,6 +1,5 @@
 use std::any::Any;
-use std::rc::Rc;
-use std::cell::RefCell;
+use std::sync::{Arc, Mutex};
 use puremvc::{INotification, IObserver, Notification, Observer};
 
 struct Object {
@@ -21,56 +20,61 @@ impl Object {
 
 #[test]
 fn test_observer_accessors() {
-    let mut observer = Observer::new(None, None);
+    let object = Arc::new(Mutex::new(Object::new()));
 
-    let object = Rc::new(RefCell::new(Object::new()));
+    let mut observer = Observer::new(None, None);
     observer.set_context(Some(object.clone()));
 
-    observer.set_notify(Some(Rc::new({
+    observer.set_notify(Some(Arc::new({
         let context = object.clone();
-        move |note: &mut dyn INotification| context.borrow_mut().execute(note)
+        move |note: &mut dyn INotification| {
+            context.lock().unwrap().execute(note);
+        }
     })));
 
     let mut note = Notification::new("TestNote", Some(Box::new(10.0)), None);
     observer.notify_observer(&mut note);
 
-    assert_eq!(object.borrow().value, 10.0);
+    // Check the updated value
+    assert_eq!(object.lock().unwrap().value, 10.0);
 }
 
 #[test]
 fn test_observer_constructor() {
-    let object = Rc::new(RefCell::new(Object::new()));
+    // Wrap Object so it can be shared and mutated
+    let object = Arc::new(Mutex::new(Object::new()));
 
-    let observer = Observer::new(Some(Rc::new({
+    let observer = Observer::new(Some(Arc::new({
         let context = object.clone();
-        move |note: &mut dyn INotification| context.borrow_mut().execute(note)
+        move |note: &mut dyn INotification| {
+            context.lock().unwrap().execute(note);
+        }
     })), Some(object.clone()));
 
     let mut note = Notification::new("ObserverTestNote", Some(Box::new(5.0)), None);
     observer.notify_observer(&mut note);
 
-    assert_eq!(object.borrow().value, 5.0);
+    // Verify that Object's value was updated
+    assert_eq!(object.lock().unwrap().value, 5.0);
 }
+
 
 #[test]
 fn test_compare_notify_context() {
-    //let object = Rc::new(RefCell::new(Object::new()));
-    let object: Rc<dyn Any> = Rc::new(RefCell::new(Object::new()));
+    let object = Arc::new(Mutex::new(Object::new()));
+
     let observer = Observer::new(
-        Some(Rc::new({
+        Some(Arc::new({
             let context = object.clone();
             move |note: &mut dyn INotification| {
-                context
-                    .downcast_ref::<RefCell<Object>>()
-                    .unwrap()
-                    .borrow_mut()
-                    .execute(note)
+                context.lock().unwrap().execute(note);
             }
         })),
-        Some(object.clone()),
+        Some(object.clone() as Arc<dyn Any + Send + Sync>),
     );
-    let neg_test_object: Rc<dyn Any> = Rc::new(RefCell::new(Object::new()));
 
-    assert_eq!(observer.compare_notify_context(&object), true);
-    assert_eq!(observer.compare_notify_context(&neg_test_object), false);
+    let neg_test_object = Arc::new(Mutex::new(Object::new()));
+
+    assert_eq!(observer.compare_notify_context(object.clone() as Arc<dyn Any + Send + Sync>), true);
+    assert_eq!(observer.compare_notify_context(neg_test_object.clone() as Arc<dyn Any + Send + Sync>), false);
 }

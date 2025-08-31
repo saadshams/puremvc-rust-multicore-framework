@@ -1,15 +1,16 @@
 use std::any::Any;
+use std::sync::Arc;
 use crate::IProxy;
 
 pub struct Proxy {
     name: String,
-    data: Option<Box<dyn Any + Sync + Send>>,
+    data: Option<Arc<dyn Any + Sync + Send>>,
 }
 
 impl Proxy {
     pub const NAME: &'static str = "Proxy";
 
-    pub fn new(name: Option<&str>, data: Option<Box<dyn Any + Sync + Send>>) -> Self {
+    pub fn new(name: Option<&str>, data: Option<Arc<dyn Any + Sync + Send>>) -> Self {
         Self {
             name: name.unwrap_or(Self::NAME).to_string(),
             data
@@ -22,15 +23,11 @@ impl IProxy for Proxy {
         &self.name
     }
 
-    fn data(&self) -> Option<&(dyn Any + Sync + Send)> {
-        self.data.as_deref()
+    fn data(&mut self) -> Option<Arc<dyn Any + Sync + Send>> {
+        self.data.clone()
     }
 
-    fn data_mut(&mut self) -> Option<&mut (dyn Any + Sync + Send)> {
-        self.data.as_deref_mut()
-    }
-
-    fn set_data(&mut self, data: Option<Box<dyn Any + Sync + Send>>) {
+    fn set_data(&mut self, data: Option<Arc<dyn Any + Sync + Send>>) {
         self.data = data;
     }
 

@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex};
 use crate::INotification;
 use crate::interfaces::ICommand;
 
@@ -10,7 +11,7 @@ impl SimpleCommand {
 }
 
 impl ICommand for SimpleCommand {
-    fn execute(&mut self, _notification: &mut dyn INotification) {
+    fn execute(&mut self, _notification: Arc<Mutex<dyn INotification>>) {
 
     }
 }
