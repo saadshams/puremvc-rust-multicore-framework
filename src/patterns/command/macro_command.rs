@@ -2,9 +2,7 @@ use std::sync::{Arc, Mutex};
 use crate::{ICommand, INotification};
 
 pub struct MacroCommand {
-    // sub_commands: Vec<Box<dyn Fn() -> Box<dyn ICommand>>>
     sub_commands: Vec<Box<dyn Fn() -> Box<dyn ICommand + Send + Sync> + Send + Sync>>,
-
 }
 
 impl MacroCommand {
