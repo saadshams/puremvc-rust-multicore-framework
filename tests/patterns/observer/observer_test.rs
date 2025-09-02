@@ -59,7 +59,6 @@ fn test_observer_constructor() {
     assert_eq!(object.lock().unwrap().value, 5.0);
 }
 
-
 #[test]
 fn test_compare_notify_context() {
     let object: Arc<Box<dyn Any + Send + Sync>> = Arc::new(Box::new(Mutex::new(Object::new())));
