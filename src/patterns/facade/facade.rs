@@ -24,7 +24,6 @@ impl Facade {
 
         instance.initialize_notifier(key);
         instance.initialize_facade();
-
         instance
     }
 
