@@ -6,8 +6,6 @@ use crate::interfaces::{IFacade, INotifier, IView};
 
 static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IFacade>>>> = LazyLock::new(|| Default::default());
 
-static MULTITON_MSG: &str = "Facade instance for this Multiton key already constructed!";
-
 pub struct Facade {
     key: String,
     controller: Option<Arc<dyn IController>>,
@@ -17,10 +15,6 @@ pub struct Facade {
 
 impl Facade {
     pub fn new(key: &str) -> Self {
-        if INSTANCE_MAP.lock().unwrap().contains_key(key) {
-            panic!("{}", MULTITON_MSG);
-        }
-
         let mut instance = Self {
             key: key.to_string(),
             controller: None,
@@ -30,6 +24,7 @@ impl Facade {
 
         instance.initialize_notifier(key);
         instance.initialize_facade();
+
         instance
     }
 

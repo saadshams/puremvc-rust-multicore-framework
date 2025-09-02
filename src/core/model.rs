@@ -4,8 +4,6 @@ use crate::{IModel, IProxy};
 
 static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IModel>>>> = LazyLock::new(|| Default::default());
 
-static MULTITON_MSG: &str = "Model instance for this Multiton key already constructed!";
-
 pub struct Model {
     key: String,
     proxy_map: Mutex<HashMap<String, Arc<Mutex<dyn IProxy>>>>,

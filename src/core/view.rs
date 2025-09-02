@@ -6,8 +6,6 @@ use crate::interfaces::IView;
 
 static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IView>>>> = LazyLock::new(|| Default::default());
 
-static MULTITON_MSG: &str = "View instance for this Multiton key already constructed!";
-
 pub struct View {
     key: String,
     observer_map: Mutex<HashMap<String, Vec<Arc<Box<dyn IObserver>>>>>,

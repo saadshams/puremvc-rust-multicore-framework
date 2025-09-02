@@ -5,8 +5,6 @@ use crate::interfaces::IController;
 
 static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IController>>>> = LazyLock::new(|| Default::default());
 
-static MULTITON_MSG: &str = "Controller instance for this Multiton key already constructed!";
-
 pub struct Controller {
     key: String,
     command_map: Mutex<HashMap<String, Arc<dyn Fn() -> Arc<Mutex<dyn ICommand>> + Send + Sync>>>,
