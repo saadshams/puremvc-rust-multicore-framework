@@ -10,17 +10,19 @@ static MULTITON_MSG: &str = "View instance for this Multiton key already constru
 
 pub struct View {
     key: String,
-    mediator_map: Mutex<HashMap<String, Arc<Mutex<dyn IMediator + Send>>>>,
+    observer_map: Mutex<HashMap<String, Vec<Arc<dyn IObserver + Send + Sync>>>>,
+    mediator_map: Mutex<HashMap<String, Arc<dyn IMediator + Send + Sync>>>,
 }
 
 impl View {
     pub fn new(key: &str) -> Self {
-        if INSTANCE_MAP.lock().unwrap().contains_key(key) {
-            panic!("{}", MULTITON_MSG);
-        }
+        // if INSTANCE_MAP.lock().unwrap().contains_key(key) {
+        //     panic!("{}", MULTITON_MSG);
+        // }
 
         Self {
             key: key.to_string(),
+            observer_map: Mutex::new(HashMap::new()),
             mediator_map: Mutex::new(HashMap::new()),
         }
     }
@@ -32,25 +34,47 @@ impl View {
 }
 
 impl IView for View {
-    fn register_observer(&self, observer: Arc<Mutex<dyn IObserver + Send>>) {
-        todo!()
+    fn register_observer(&self, notification_name: &str, observer: Arc<dyn IObserver + Send + Sync>) {
+        let mut map = self.observer_map.lock().unwrap();
+        map.entry(notification_name.to_string()).or_default().push(observer);
     }
 
-    fn remove_observer(&self, context: Option<Arc<dyn Any + Send + Sync>>) {
-        todo!()
+    fn remove_observer(&self, notification_name: &str, context: &Arc<dyn Any + Send + Sync>) {
+        let mut map = self.observer_map.lock().unwrap();
+
+        if let Some(observers) = map.get_mut(notification_name) {
+            if let Some(position) = observers.iter().position(|observer| {
+                observer.compare_notify_context(context)
+            }) {
+                observers.remove(position);
+            }
+
+            if observers.is_empty() {
+                map.remove(notification_name);
+            }
+        }
     }
 
-    fn notify_observers(&self, notification: Arc<dyn INotification>) {
-        todo!()
+    fn notify_observers(&self, notification: &mut dyn INotification) {
+        let map = self.observer_map.lock().unwrap();
+
+        if let Some(observers_ref) = map.get(notification.name()) {
+            // Copy observers to a working array to avoid holding the lock while notifying
+            let observers: Vec<Arc<dyn IObserver + Send + Sync>> = observers_ref.iter().cloned().collect();
+
+            for observer in observers {
+                observer.notify_observer(notification);
+            }
+        }
     }
 
-    fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator + Send>>) {
+    fn register_mediator(&self, mediator: Arc<dyn IMediator + Send + Sync>) {
         let mut map = self.mediator_map.lock().unwrap();
-        map.insert(mediator.lock().unwrap().name().to_string(), Arc::clone(&mediator));
-        mediator.lock().unwrap().on_register();
+        map.insert(mediator.name().to_string(), mediator.clone());
+        mediator.on_register();
     }
 
-    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator + Send>>> {
+    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<dyn IMediator + Send + Sync>> {
         let map = self.mediator_map.lock().unwrap();
         map.get(mediator_name).cloned()
     }
@@ -60,17 +84,19 @@ impl IView for View {
         map.contains_key(mediator_name)
     }
 
-    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator + Send>>> {
+    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<dyn IMediator + Send + Sync>> {
         let mut map = self.mediator_map.lock().unwrap();
         let removed = map.remove(mediator_name);
 
-        if let Some(mediator) = &removed {
-            let interests = mediator.lock().unwrap().list_notification_interests();
+        if let Some(mediator) = removed {
+            let interests = mediator.list_notification_interests();
             for interest in interests {
-                // self.remove_observer(&interest, mediator_name);
+                self.remove_observer(&interest, &(mediator.clone() as Arc<dyn Any + Send + Sync>));
             }
-        }
 
-        removed
+            Some(mediator)
+        } else {
+            None
+        }
     }
 }

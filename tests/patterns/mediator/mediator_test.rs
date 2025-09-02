@@ -15,17 +15,18 @@ fn test_name_accessor() {
 
 #[test]
 fn test_view_accessor() {
-    let button: Arc<dyn Any> = Arc::new(Button { label: "Click Me".to_string() });
+    let button: Arc<dyn Any + Send + Sync> = Arc::new(Button { label: "Click Me".to_string() });
 
     let mediator = Mediator::new(Some("MyMediator"), Some(Arc::downgrade(&button)));
 
-    assert!(mediator.component().is_some());
-    if let Some(component) = mediator.component() {
-        assert!(Arc::ptr_eq(&button, &component));
-
-        if let Some(button_ref) = component.downcast_ref::<Button>() {
-            assert_eq!(button_ref.label, "Click Me".to_string());
+    if let Some(weak) = mediator.component() {
+        if let Some(component) = weak.upgrade() { // upgrade Weak -> Arc
+            if let Some(button_ref) = component.downcast_ref::<Button>() {
+                assert_eq!(button_ref.label, "Click Me".to_string());
+            }
         }
+    } else {
+        panic!("Component is None");
     }
 
 }

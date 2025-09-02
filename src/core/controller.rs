@@ -14,9 +14,9 @@ pub struct Controller {
 
 impl Controller {
     pub fn new(key: &str) -> Self {
-        if INSTANCE_MAP.lock().unwrap().contains_key(key) {
-            panic!("{}", MULTITON_MSG);
-        }
+        // if INSTANCE_MAP.lock().unwrap().contains_key(key) {
+        //     panic!("{}", MULTITON_MSG);
+        // }
 
         Self {
             key: key.to_string(),

@@ -41,11 +41,25 @@ impl IObserver for Observer {
         }
     }
 
-    fn compare_notify_context(&self, object: Arc<dyn Any + Send + Sync>) -> bool {
-        if let Some(ctx) = &self.context {
-            Arc::ptr_eq(ctx, &object)
-        } else {
-            false
+    fn compare_notify_context(&self, other: &Arc<dyn Any + Send + Sync>) -> bool {
+        match &self.context {
+            Some(ctx) => Arc::as_ptr(ctx) as *const () == Arc::as_ptr(other) as *const (),
+            None => false,
         }
     }
+    
+    // fn compare_notify_context(&self, other: &Arc<dyn Any + Send + Sync>) -> bool {
+    //     match &self.context {
+    //         Some(ctx) => Arc::as_ptr(ctx) as *const () == Arc::as_ptr(other) as *const (),
+    //         None => false,
+    //     }
+    // }
+
+    // fn compare_notify_context(&self, object: &Arc<dyn Any + Send + Sync>) -> bool {
+    //     if let Some(ctx) = &self.context {
+    //         Arc::ptr_eq(ctx, &object)
+    //     } else {
+    //         false
+    //     }
+    // }
 }

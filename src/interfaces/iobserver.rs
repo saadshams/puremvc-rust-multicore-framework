@@ -13,5 +13,5 @@ pub trait IObserver {
 
     fn notify_observer(&self, notification: &mut dyn INotification);
 
-    fn compare_notify_context(&self, object: Arc<dyn Any + Send + Sync>) -> bool;
+    fn compare_notify_context(&self, object: &Arc<dyn Any + Send + Sync>) -> bool;
 }

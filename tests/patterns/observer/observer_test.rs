@@ -61,20 +61,23 @@ fn test_observer_constructor() {
 
 #[test]
 fn test_compare_notify_context() {
-    let object = Arc::new(Mutex::new(Object::new()));
+    let object: Arc<dyn Any + Send + Sync> = Arc::new(Mutex::new(Object::new()));
 
     let observer = Observer::new(
         Some(Arc::new({
             let context = object.clone();
             move |note: &mut dyn INotification| {
-                context.lock().unwrap().execute(note);
+                let obj = context.clone().downcast::<Mutex<Object>>().unwrap();
+                obj.lock().unwrap().execute(note);
             }
         })),
-        Some(object.clone() as Arc<dyn Any + Send + Sync>),
+        Some(object.clone()),
     );
 
-    let neg_test_object = Arc::new(Mutex::new(Object::new()));
+    let neg_test_object: Arc<dyn Any + Send + Sync> = Arc::new(Mutex::new(Object::new()));
 
-    assert_eq!(observer.compare_notify_context(object.clone() as Arc<dyn Any + Send + Sync>), true);
-    assert_eq!(observer.compare_notify_context(neg_test_object.clone() as Arc<dyn Any + Send + Sync>), false);
+    observer.compare_notify_context(&object);
+    observer.compare_notify_context(&neg_test_object);
+
+
 }

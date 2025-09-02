@@ -108,13 +108,13 @@ impl IFacade for Facade {
         }
     }
 
-    fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator + Send>>) {
+    fn register_mediator(&self, mediator: Arc<dyn IMediator + Send>) {
         if let Some(view) = &self.view {
             view.register_mediator(mediator);
         }
     }
 
-    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator + Send>>> {
+    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<dyn IMediator + Send + Sync>> {
         if let Some(view) = &self.view {
             view.retrieve_mediator(mediator_name)
         } else {
@@ -130,7 +130,7 @@ impl IFacade for Facade {
         }
     }
 
-    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator + Send>>> {
+    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<dyn IMediator + Send + Sync>> {
         if let Some(view) = &self.view {
             view.remove_mediator(mediator_name)
         } else {
@@ -138,7 +138,7 @@ impl IFacade for Facade {
         }
     }
 
-    fn notify_observers(&self, notification: Arc<dyn INotification>) {
+    fn notify_observers(&self, notification: &mut dyn INotification) {
         if let Some(view) = &self.view {
             view.notify_observers(notification);
         }
@@ -151,6 +151,6 @@ impl INotifier for Facade {
     }
 
     fn send_notification(&self, notification_name: &str, body: Option<Box<dyn Any>>, type_: Option<&str>) {
-        self.notify_observers(Arc::new(Notification::new(notification_name, body, type_)))
+        self.notify_observers(&mut Notification::new(notification_name, body, type_));
     }
 }

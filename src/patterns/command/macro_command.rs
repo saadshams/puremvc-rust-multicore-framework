@@ -7,9 +7,9 @@ pub struct MacroCommand {
 
 impl MacroCommand {
     pub fn new() -> Self {
-        let mut instance = Self { sub_commands: Vec::new() };
-        instance.initialize_macro_command();
-        instance
+        Self {
+            sub_commands: Vec::new()
+        }
     }
     
     pub fn initialize_macro_command(&mut self) {
@@ -19,8 +19,10 @@ impl MacroCommand {
     pub fn add_sub_command(&mut self, factory: impl Fn() -> Box<dyn ICommand + Send + Sync> + Send + Sync + 'static, ) {
         self.sub_commands.push(Box::new(factory));
     }
+}
 
-    pub fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>) {
+impl ICommand for MacroCommand {
+    fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>) {
         while let Some(factory) = self.sub_commands.pop() {
             let mut command = factory();
             command.execute(notification.clone());

@@ -1,4 +1,6 @@
+use std::any::Any;
 use std::sync::Arc;
+use std::thread;
 use puremvc::{IProxy, Proxy};
 
 #[test]
@@ -41,4 +43,19 @@ fn test_constructor() {
             assert_eq!(data[2], "blue", "Expecting data[2] == 'blue'");
         }
     }
+}
+
+#[test]
+fn test_spawning(){
+    let shared_data: Arc<dyn Any + Send + Sync> = Arc::new(42u32);
+    let mut proxy = Proxy::new(Some("example"), Some(shared_data.clone()));
+
+    let data_for_thread = proxy.data().clone().unwrap();
+
+    let handle = thread::spawn(move || {
+        let value = data_for_thread.downcast_ref::<u32>().unwrap();
+        println!("Thread received value: {}", value);
+    });
+
+    handle.join().unwrap();
 }
