@@ -57,8 +57,8 @@ impl MacroCommandTestCommand {
     }
 
     pub fn initialize_macro_command(&mut self) {
-        self.0.add_sub_command(|| Box::new(MacroCommandTestSub1Command::new()) as Box<dyn ICommand + Send + Sync>);
-        self.0.add_sub_command(|| Box::new(MacroCommandTestSub2Command::new()) as Box<dyn ICommand + Send + Sync>);
+        self.0.add_sub_command(|| Box::new(MacroCommandTestSub1Command::new()));
+        self.0.add_sub_command(|| Box::new(MacroCommandTestSub2Command::new()));
     }
 }
 

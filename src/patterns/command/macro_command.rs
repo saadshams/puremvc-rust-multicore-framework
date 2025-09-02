@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 use crate::{ICommand, INotification};
 
 pub struct MacroCommand {
-    sub_commands: Vec<Box<dyn Fn() -> Box<dyn ICommand + Send + Sync> + Send + Sync>>,
+    sub_commands: Vec<Box<dyn Fn() -> Box<dyn ICommand> + Send + Sync>>,
 }
 
 impl MacroCommand {
@@ -16,14 +16,14 @@ impl MacroCommand {
         
     }
 
-    pub fn add_sub_command(&mut self, factory: impl Fn() -> Box<dyn ICommand + Send + Sync> + Send + Sync + 'static, ) {
+    pub fn add_sub_command(&mut self, factory: impl Fn() -> Box<dyn ICommand> + Send + Sync + 'static) {
         self.sub_commands.push(Box::new(factory));
     }
 }
 
 impl ICommand for MacroCommand {
     fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>) {
-        while let Some(factory) = self.sub_commands.pop() {
+        for factory in self.sub_commands.drain(..) {
             let mut command = factory();
             command.execute(notification.clone());
         }
