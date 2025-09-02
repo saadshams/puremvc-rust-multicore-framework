@@ -10,7 +10,7 @@ static MULTITON_MSG: &str = "View instance for this Multiton key already constru
 
 pub struct View {
     key: String,
-    observer_map: Mutex<HashMap<String, Vec<Arc<dyn IObserver + Send + Sync>>>>,
+    observer_map: Mutex<HashMap<String, Vec<Arc<Box<dyn IObserver>>>>>,
     mediator_map: Mutex<HashMap<String, Arc<Mutex<dyn IMediator>>>>,
 }
 
@@ -30,12 +30,12 @@ impl View {
 }
 
 impl IView for View {
-    fn register_observer(&self, notification_name: &str, observer: Arc<dyn IObserver + Send + Sync>) {
+    fn register_observer(&self, notification_name: &str, observer: Arc<Box<dyn IObserver>>) {
         let mut map = self.observer_map.lock().unwrap();
         map.entry(notification_name.to_string()).or_default().push(observer);
     }
 
-    fn remove_observer(&self, notification_name: &str, context: &Arc<dyn Any + Send + Sync>) {
+    fn remove_observer(&self, notification_name: &str, context: &Arc<Box<dyn Any + Send + Sync>>) {
         let mut map = self.observer_map.lock().unwrap();
 
         if let Some(observers) = map.get_mut(notification_name) {
@@ -56,7 +56,7 @@ impl IView for View {
 
         if let Some(observers_ref) = map.get(notification.name()) {
             // Copy observers to a working array to avoid holding the lock while notifying
-            let observers: Vec<Arc<dyn IObserver + Send + Sync>> = observers_ref.iter().cloned().collect();
+            let observers: Vec<Arc<Box<dyn IObserver>>> = observers_ref.iter().cloned().collect();
 
             for observer in observers {
                 observer.notify_observer(notification);
@@ -86,10 +86,10 @@ impl IView for View {
 
         if let Some(mediator) = removed.clone() {
             let interests = mediator.lock().unwrap().list_notification_interests();
+            let context = Arc::new(Box::new(mediator.clone()) as Box<dyn Any + Send + Sync>);
             for interest in interests {
-                // self.remove_observer(&interest, &(mediator.clone() as Arc<dyn Any>));
+                self.remove_observer(&interest, &context);
             }
-
             removed
         } else {
             None

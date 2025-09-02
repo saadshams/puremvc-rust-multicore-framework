@@ -5,11 +5,11 @@ use crate::interfaces::IObserver;
 
 pub struct Observer {
     notify: Option<Arc<dyn Fn(&mut dyn INotification) + Send + Sync>>,
-    context: Option<Arc<dyn Any + Send + Sync>>,
+    context: Option<Arc<Box<dyn Any + Send + Sync>>>,
 }
 
 impl Observer {
-    pub fn new(notify: Option<Arc<dyn Fn(&mut dyn INotification) + Send + Sync>>, context: Option<Arc<dyn Any + Send + Sync>>) -> Self {
+    pub fn new(notify: Option<Arc<dyn Fn(&mut dyn INotification) + Send + Sync>>, context: Option<Arc<Box<dyn Any + Send + Sync>>>) -> Self {
         Self {
             notify,
             context,
@@ -27,11 +27,11 @@ impl IObserver for Observer {
         self.notify = notify;
     }
 
-    fn context(&self) -> Option<Arc<dyn Any + Send + Sync>> {
+    fn context(&self) -> Option<Arc<Box<dyn Any + Send + Sync>>> {
         self.context.clone()
     }
 
-    fn set_context(&mut self, context: Option<Arc<dyn Any + Send + Sync>>) {
+    fn set_context(&mut self, context: Option<Arc<Box<dyn Any + Send + Sync>>>) {
         self.context = context;
     }
 
@@ -41,25 +41,10 @@ impl IObserver for Observer {
         }
     }
 
-    fn compare_notify_context(&self, other: &Arc<dyn Any + Send + Sync>) -> bool {
+    fn compare_notify_context(&self, other: &Arc<Box<dyn Any + Send + Sync>>) -> bool {
         match &self.context {
             Some(ctx) => Arc::as_ptr(ctx) as *const () == Arc::as_ptr(other) as *const (),
             None => false,
         }
     }
-    
-    // fn compare_notify_context(&self, other: &Arc<dyn Any + Send + Sync>) -> bool {
-    //     match &self.context {
-    //         Some(ctx) => Arc::as_ptr(ctx) as *const () == Arc::as_ptr(other) as *const (),
-    //         None => false,
-    //     }
-    // }
-
-    // fn compare_notify_context(&self, object: &Arc<dyn Any + Send + Sync>) -> bool {
-    //     if let Some(ctx) = &self.context {
-    //         Arc::ptr_eq(ctx, &object)
-    //     } else {
-    //         false
-    //     }
-    // }
 }
