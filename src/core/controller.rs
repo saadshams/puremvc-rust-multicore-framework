@@ -36,8 +36,8 @@ impl IController for Controller {
         if let Some(factory) = map.get(notification.lock().unwrap().name()) {
             // instance.initialize_notifier(&self.key);
             let instance = factory();
-            let mut cmd = instance.lock().unwrap();
-            cmd.execute(notification.clone());
+            let mut command = instance.lock().unwrap();
+            command.execute(notification.clone());
         }
     }
 
