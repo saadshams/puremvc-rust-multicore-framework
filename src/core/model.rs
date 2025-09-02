@@ -28,8 +28,11 @@ impl Model {
 
 impl IModel for Model {
     fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
-        let mut map = self.proxy_map.lock().unwrap();
-        map.insert(proxy.lock().unwrap().name().to_string(), Arc::clone(&proxy));
+        {
+            let mut map = self.proxy_map.lock().unwrap();
+            map.insert(proxy.lock().unwrap().name().to_string().clone(), Arc::clone(&proxy));
+        }
+
         proxy.lock().unwrap().on_register();
     }
 

@@ -34,7 +34,6 @@ impl IProxy for Proxy {
         self.data = data;
     }
 
-
     fn on_register(&mut self) {
         
     }

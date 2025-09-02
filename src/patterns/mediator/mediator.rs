@@ -23,13 +23,18 @@ impl IMediator for Mediator {
         &self.name
     }
 
-    fn component(&self) -> Option<Weak<dyn Any + Send + Sync>> {
-        self.component.clone()
+    fn component(&self) -> Option<&Weak<dyn Any + Send + Sync>> {
+        self.component.as_ref()
     }
 
-    fn set_component(&mut self, component: Weak<dyn Any + Send + Sync>) {
-        self.component = Some(component);
+    fn component_mut(&mut self) -> Option<&mut Weak<dyn Any + Send + Sync>> {
+        self.component.as_mut()
     }
+
+    fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
+        self.component = component
+    }
+
 
     fn list_notification_interests(&self) -> Vec<String> {
         vec![]
@@ -39,12 +44,11 @@ impl IMediator for Mediator {
         
     }
 
-    fn on_register(&self) {
-        // component: RefCell<u32>,
-        // *self.component.borrow_mut() += 1; // mutate safely inside RefCell
+    fn on_register(&mut self) {
+
     }
     
-    fn on_remove(&self) {
+    fn on_remove(&mut self) {
         
     }
 }

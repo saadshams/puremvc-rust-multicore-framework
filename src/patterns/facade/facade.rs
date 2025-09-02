@@ -108,13 +108,13 @@ impl IFacade for Facade {
         }
     }
 
-    fn register_mediator(&self, mediator: Arc<dyn IMediator + Send>) {
+    fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator>>) {
         if let Some(view) = &self.view {
             view.register_mediator(mediator);
         }
     }
 
-    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<dyn IMediator + Send + Sync>> {
+    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
         if let Some(view) = &self.view {
             view.retrieve_mediator(mediator_name)
         } else {
@@ -130,7 +130,7 @@ impl IFacade for Facade {
         }
     }
 
-    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<dyn IMediator + Send + Sync>> {
+    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
         if let Some(view) = &self.view {
             view.remove_mediator(mediator_name)
         } else {
