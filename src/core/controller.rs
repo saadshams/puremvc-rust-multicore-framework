@@ -14,11 +14,7 @@ pub struct Controller {
 
 impl Controller {
     pub fn new(key: &str) -> Self {
-        // if INSTANCE_MAP.lock().unwrap().contains_key(key) {
-        //     panic!("{}", MULTITON_MSG);
-        // }
-
-        Self {
+         Self {
             key: key.to_string(),
             command_map: Mutex::new(HashMap::new())
         }
@@ -33,8 +29,8 @@ impl Controller {
 impl IController for Controller {
     fn execute_command(&self, notification: Arc<Mutex<dyn INotification>>) {
         let map = self.command_map.lock().unwrap();
+
         if let Some(factory) = map.get(notification.lock().unwrap().name()) {
-            // instance.initialize_notifier(&self.key);
             let instance = factory();
             let mut command = instance.lock().unwrap();
             command.execute(notification.clone());
@@ -55,10 +51,7 @@ impl IController for Controller {
         let mut map = self.command_map.lock().unwrap();
 
         if let Some(_factory) = map.get(notification_name) {
-            // The command exists, do whatever extra logic you need here
             println!("Removing command for notification: {}", notification_name);
-
-            // For example, you could notify a view or cleanup something
         }
 
         // Now remove it

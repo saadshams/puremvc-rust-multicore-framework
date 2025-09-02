@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 use crate::{ICommand, INotification};
 
-pub trait IController: Sync + Send + 'static {
+pub trait IController: Sync + Send {
     fn execute_command(&self, notification: Arc<Mutex<dyn INotification>>);
     fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Arc<Mutex<dyn ICommand>> + Send + Sync>);
     fn has_command(&self, notification_name: &str) -> bool;

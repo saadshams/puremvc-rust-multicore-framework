@@ -1,6 +1,6 @@
 use std::any::Any;
 
-pub trait IProxy: Send {
+pub trait IProxy: Send + Sync {
     fn name(&self) -> &str;
 
     fn data(&self) -> Option<&(dyn Any + Send + Sync)>;
