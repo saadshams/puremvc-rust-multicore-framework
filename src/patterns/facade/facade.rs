@@ -78,13 +78,13 @@ impl IFacade for Facade {
         }
     }
 
-    fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy + Send>>) {
+    fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
         if let Some(model) = &self.model {
             model.register_proxy(proxy.clone());
         }
     }
 
-    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {
+    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
         if let Some(model) = &self.model {
             model.retrieve_proxy(proxy_name)
         } else {
@@ -100,7 +100,7 @@ impl IFacade for Facade {
         }
     }
 
-    fn remove_proxy(&self, name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {
+    fn remove_proxy(&self, name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
         if let Some(model) = &self.model {
             model.remove_proxy(name)
         } else {

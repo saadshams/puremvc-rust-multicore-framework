@@ -8,15 +8,11 @@ static MULTITON_MSG: &str = "Model instance for this Multiton key already constr
 
 pub struct Model {
     key: String,
-    proxy_map: Mutex<HashMap<String, Arc<Mutex<dyn IProxy + Send>>>>,
+    proxy_map: Mutex<HashMap<String, Arc<Mutex<dyn IProxy>>>>,
 }
 
 impl Model {
     pub fn new(key: &str) -> Self {
-        // if INSTANCE_MAP.lock().unwrap().contains_key(key) {
-        //     panic!("{}", MULTITON_MSG);
-        // }
-        //
         Self {
             key: key.to_string(),
             proxy_map: Mutex::new(HashMap::new())
@@ -31,13 +27,13 @@ impl Model {
 }
 
 impl IModel for Model {
-    fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy + Send>>) {
+    fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
         let mut map = self.proxy_map.lock().unwrap();
         map.insert(proxy.lock().unwrap().name().to_string(), Arc::clone(&proxy));
         proxy.lock().unwrap().on_register();
     }
 
-    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {
+    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
         let map = self.proxy_map.lock().unwrap();
         map.get(proxy_name).cloned()
     }
@@ -47,7 +43,7 @@ impl IModel for Model {
         map.contains_key(proxy_name)
     }
 
-    fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>> {
+    fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
         let mut map = self.proxy_map.lock().unwrap();
         let removed = map.remove(proxy_name);
 

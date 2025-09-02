@@ -13,7 +13,7 @@ fn test_register_and_retrieve_proxy() {
     let model = Model::get_instance("ModelTestKey2", |k| Arc::new(Model::new(k)));
 
     let colors = vec!["red".to_string(), "green".to_string(), "blue".to_string()];
-    let proxy = Proxy::new(Some("colors"), Some(Arc::new(colors)));
+    let proxy = Proxy::new(Some("colors"), Some(Box::new(colors)));
     model.register_proxy(Arc::new(Mutex::new(proxy)));
 
     let retrieved_proxy = model.retrieve_proxy("colors")

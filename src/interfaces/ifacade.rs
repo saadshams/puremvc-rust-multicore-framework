@@ -7,10 +7,10 @@ pub trait IFacade: INotifier + Sync + Send + 'static {
     fn has_command(&self, notification_name: &str) -> bool;
     fn remove_command(&self, notification_name: &str);
 
-    fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy + Send>>);
-    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>>;
+    fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>);
+    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>>;
     fn has_proxy(&self, proxy_name: &str) -> bool;
-    fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy + Send>>>;
+    fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>>;
 
     fn register_mediator(&self, mediator: Arc<dyn IMediator + Send>);
     fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<dyn IMediator + Send + Sync>>;

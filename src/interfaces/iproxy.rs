@@ -1,10 +1,12 @@
 use std::any::Any;
-use std::sync::Arc;
 
-pub trait IProxy: Sync + Send + 'static {
+pub trait IProxy: Send {
     fn name(&self) -> &str;
-    fn data(&mut self) -> Option<Arc<dyn Any + Sync + Send>>;
-    fn set_data(&mut self, data: Option<Arc<dyn Any + Sync + Send>>);
+
+    fn data(&self) -> Option<&(dyn Any + Send + Sync)>;
+    fn data_mut(&mut self) -> Option<&mut (dyn Any + Send + Sync)>;
+    fn set_data(&mut self, data: Option<Box<dyn Any + Send + Sync>>);
+
     fn on_register(&mut self);
     fn on_remove(&mut self);
 }
