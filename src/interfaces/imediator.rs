@@ -2,7 +2,7 @@ use std::any::Any;
 use std::sync::{Weak};
 use crate::interfaces::INotification;
 
-pub trait IMediator: Any + Send {
+pub trait IMediator: Send {
     fn name(&self) -> &str;
 
     fn component(&self) -> Option<&Weak<dyn Any + Send + Sync>>;
