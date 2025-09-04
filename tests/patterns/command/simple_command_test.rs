@@ -6,12 +6,6 @@ struct SimpleCommandTestVO {
     result: i8,
 }
 
-impl SimpleCommandTestVO {
-    pub fn new(input: i8) -> Self {
-        Self { input, result: 0 }
-    }
-}
-
 struct SimpleCommandTestCommand;
 
 impl ICommand for SimpleCommandTestCommand {
@@ -32,7 +26,7 @@ impl ICommand for SimpleCommandTestCommand {
 fn test_simple_command_execute() {
     let note = Arc::new(Mutex::new(Notification::new(
         "SimpleCommandTestNote",
-        Some(Box::new(SimpleCommandTestVO::new(5))),
+        Some(Box::new(SimpleCommandTestVO{input: 5, result: 0})),
         None
     )));
 

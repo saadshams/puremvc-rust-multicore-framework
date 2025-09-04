@@ -34,8 +34,7 @@ impl IMediator for Mediator {
     fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
         self.component = component
     }
-
-
+    
     fn list_notification_interests(&self) -> Vec<String> {
         vec![]
     }
