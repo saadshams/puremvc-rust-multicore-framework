@@ -48,11 +48,8 @@ impl IModel for Model {
             map.remove(proxy_name)
         };
 
-        if let Some(proxy) = removed.clone() {
-            let mut guard = proxy.lock().unwrap();
-            guard.on_remove();
-        } else {
-            panic!("Cannot remove proxy because it was not found");
+        if let Some(proxy) = &removed {
+            proxy.lock().unwrap().on_remove();
         }
 
         removed

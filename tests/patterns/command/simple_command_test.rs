@@ -12,13 +12,7 @@ impl SimpleCommandTestVO {
     }
 }
 
-struct SimpleCommandTestCommand(SimpleCommand);
-
-impl SimpleCommandTestCommand {
-    pub fn new() -> Self {
-        Self(SimpleCommand)
-    }
-}
+struct SimpleCommandTestCommand;
 
 impl ICommand for SimpleCommandTestCommand {
     fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>) {
@@ -42,7 +36,7 @@ fn test_simple_command_execute() {
         None
     )));
 
-    let mut command = SimpleCommandTestCommand::new();
+    let mut command = SimpleCommandTestCommand;
     command.execute(note.clone());
 
     let mut note_guard = note.lock().unwrap();

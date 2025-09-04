@@ -2,9 +2,7 @@ use std::any::Any;
 use std::sync::{Arc, Mutex};
 use puremvc::{IProxy, Model, Proxy};
 
-struct ModelTestProxy {
-    proxy: Proxy
-}
+pub struct ModelTestProxy(Proxy);
 
 impl ModelTestProxy {
     const NAME: &'static str = "TestProxy";
@@ -12,27 +10,25 @@ impl ModelTestProxy {
     const ON_REMOVE_CALLED: &'static str = "onRemove Called";
 
     fn new() -> Self {
-        Self {
-            proxy: Proxy::new(Some(Self::NAME), None)
-        }
+        Self(Proxy::new(Some(Self::NAME), None))
     }
 }
 
 impl IProxy for ModelTestProxy {
     fn name(&self) -> &str {
-        self.proxy.name()
+        self.0.name()
     }
 
     fn data(&self) -> Option<&(dyn Any + Send + Sync)> {
-        self.proxy.data()
+        self.0.data()
     }
 
     fn data_mut(&mut self) -> Option<&mut (dyn Any + Send + Sync)> {
-        self.proxy.data_mut()
+        self.0.data_mut()
     }
 
     fn set_data(&mut self, data: Option<Box<dyn Any + Send + Sync>>) {
-        self.proxy.set_data(data);
+        self.0.set_data(data);
     }
 
     fn on_register(&mut self) {
@@ -83,37 +79,23 @@ fn test_on_register_and_on_remove() {
     let proxy = Arc::new(Mutex::new(ModelTestProxy::new()));
     model.register_proxy(proxy.clone());
 
-    let proxy_guard = proxy.lock().unwrap();
-    let value = proxy_guard.data()
-        .and_then(|d| d.downcast_ref::<&'static str>())
-        .expect("Proxy data is missing or wrong type");
+    let value = {
+        proxy.lock().unwrap().data()
+            .and_then(|d| d.downcast_ref::<&'static str>())
+            .copied()
+            .expect("Proxy data is missing or wrong type")
+    };
 
-    assert_eq!(*value, ModelTestProxy::ON_REGISTER_CALLED);
-
-    // let proxy_guard = proxy.lock().unwrap();
-    // if let Some(data) = proxy_guard.data() {
-    //     if let Some(data2) = data.downcast_ref::<&'static str>() {
-    //         assert_eq!(*data2, ModelTestProxy::ON_REGISTER_CALLED); // is this correct?
-    //     } else {
-    //         panic!("Only tests that registering data");
-    //     }
-    // } else {
-    //     panic!("Proxy has no data");
-    // }
-
-    // if let Some(data) = proxy_guard.data() {
-    //     if let Some(value) = data.downcast_ref::<Box<String>>() {
-    //         if let
-    //         assert_eq!(value, ModelTestProxy::ON_REGISTER_CALLED);
-    //     } else {
-    //         panic!("OnRegister called without data");
-    //     }
-    // } else {
-    //     panic!("Proxy has no data");
-    // }
+    assert_eq!(value, ModelTestProxy::ON_REGISTER_CALLED);
 
     model.remove_proxy("TestProxy");
 
-    assert_eq!(proxy.lock().unwrap().data().unwrap().downcast_ref::<String>().unwrap(), ModelTestProxy::ON_REMOVE_CALLED,
-               "Expecting proxy.data() == ModelTestProxy::ON_REMOVE_CALLED");
+    let value2 = {
+        proxy.lock().unwrap().data()
+            .and_then(|d| d.downcast_ref::<&'static str>())
+            .copied()
+            .expect("Proxy data is missing or wrong type")
+    };
+
+    assert_eq!(value2, ModelTestProxy::ON_REMOVE_CALLED, "Expecting proxy.data() == ModelTestProxy::ON_REMOVE_CALLED");
 }
