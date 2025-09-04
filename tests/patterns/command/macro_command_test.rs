@@ -7,12 +7,6 @@ struct MacroCommandTestVO {
     result2: i8
 }
 
-impl MacroCommandTestVO {
-    pub fn new(input: i8) -> Self {
-        Self { input, result1: 0, result2: 0 }
-    }
-}
-
 struct MacroCommandTestSub1Command;
 
 impl ICommand for MacroCommandTestSub1Command {
@@ -59,7 +53,7 @@ impl ICommand for MacroCommandTestCommand {
 
 #[test]
 fn test_macro_command_execute() {
-    let vo = MacroCommandTestVO::new(5);
+    let vo = MacroCommandTestVO{input: 5, result1: 0, result2: 0 };
 
     let note = Arc::new(Mutex::new(
         Notification::new("MacroCommandTest", Some(Box::new(vo)), None)
