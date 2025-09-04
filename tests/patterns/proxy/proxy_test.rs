@@ -6,7 +6,7 @@ fn test_name_accessor() {
     assert_eq!(proxy.name(), Proxy::NAME);
     assert!(proxy.data().is_none());
     
-    let mut proxy = Proxy::new(Some("TestProxy"), None);
+    let proxy = Proxy::new(Some("TestProxy"), None);
     assert_eq!(proxy.name(), "TestProxy");
     assert!(proxy.data().is_none());
 }
@@ -18,12 +18,16 @@ fn test_data_accessors() {
     proxy.set_data(Some(Box::new(colors)));
 
     if let Some(data) = proxy.data() {
-        if let Some(data) = data.downcast_ref::<Vec<&str>>() {
+        if let Some(data) = data.downcast_ref::<Vec<String>>() {
             assert_eq!(data.len(), 3, "Expecting data.len() == 3");
             assert_eq!(data[0], "red", "Expecting data[0] == 'red'");
             assert_eq!(data[1], "green", "Expecting data[1] == 'green'");
             assert_eq!(data[2], "blue", "Expecting data[2] == 'blue'");
+        } else {
+            panic!("data is None");
         }
+    } else {
+        panic!("proxy.data() is None");
     }
 }
 
@@ -33,11 +37,15 @@ fn test_constructor() {
 
     assert_eq!(proxy.name(), "colors", "Expecting proxy.get_name() == 'colors'");
     if let Some(data) = proxy.data() {
-        if let Some(data) = data.downcast_ref::<Vec<&str>>() {
+        if let Some(data) = data.downcast_ref::<Vec<String>>() {
             assert_eq!(data.len(), 3, "Expecting data.len() == 3");
             assert_eq!(data[0], "red", "Expecting data[0] == 'red'");
             assert_eq!(data[1], "green", "Expecting data[1] == 'green'");
             assert_eq!(data[2], "blue", "Expecting data[2] == 'blue'");
+        } else {
+            panic!("data is None");
         }
+    } else {
+        panic!("proxy.data() is None");
     }
 }

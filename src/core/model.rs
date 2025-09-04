@@ -21,16 +21,14 @@ impl Model {
         let mut map = INSTANCE_MAP.lock().unwrap();
         map.entry(key.to_string()).or_insert_with(|| factory(key)).clone()
     }
-
 }
 
 impl IModel for Model {
     fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
         {
             let mut map = self.proxy_map.lock().unwrap();
-            map.insert(proxy.lock().unwrap().name().to_string().clone(), Arc::clone(&proxy));
+            map.insert(proxy.lock().unwrap().name().to_string().clone(), proxy.clone());
         }
-
         proxy.lock().unwrap().on_register();
     }
 
@@ -45,11 +43,16 @@ impl IModel for Model {
     }
 
     fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
-        let mut map = self.proxy_map.lock().unwrap();
-        let removed = map.remove(proxy_name);
+        let removed = {
+            let mut map = self.proxy_map.lock().unwrap();
+            map.remove(proxy_name)
+        };
 
-        if let Some(proxy) = &removed {
-            proxy.lock().unwrap().on_remove();
+        if let Some(proxy) = removed.clone() {
+            let mut guard = proxy.lock().unwrap();
+            guard.on_remove();
+        } else {
+            panic!("Cannot remove proxy because it was not found");
         }
 
         removed

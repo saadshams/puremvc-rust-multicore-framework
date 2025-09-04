@@ -14,6 +14,8 @@ impl Object {
     fn execute(&mut self, note: &mut dyn INotification) {
         if let Some(value) = note.body().and_then(|v| v.downcast_ref::<f64>()) {
             self.value = *value;
+        } else {
+            panic!("not a number");
         }
     }
 }
@@ -35,7 +37,6 @@ fn test_observer_accessors() {
     let mut note = Notification::new("TestNote", Some(Box::new(10.0)), None);
     observer.notify_observer(&mut note);
 
-    // Check the updated value
     assert_eq!(object.lock().unwrap().value, 10.0);
 }
 
@@ -76,6 +77,6 @@ fn test_compare_notify_context() {
 
     let neg_test_object: Arc<Box<dyn Any + Send + Sync>> = Arc::new(Box::new(Mutex::new(Object::new())));
 
-    assert!(observer.compare_notify_context(&object));
-    assert!(!observer.compare_notify_context(&neg_test_object));
+    assert_eq!(observer.compare_notify_context(&object), true);
+    assert_eq!(observer.compare_notify_context(&neg_test_object), false);
 }

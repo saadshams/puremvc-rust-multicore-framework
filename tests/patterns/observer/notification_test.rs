@@ -10,7 +10,7 @@ fn test_name_accessor() {
 #[test]
 fn test_body_accessor() {
     let mut note = Notification::new("TestNote", None, None);
-    note.set_body(Option::from(Box::new(5i32) as Box<dyn Any>));
+    note.set_body(Option::from(Box::new(5) as Box<dyn Any>));
     
     let body = note.body().and_then(|b| b.downcast_ref::<i32>());
     assert_eq!(body, Some(&5));

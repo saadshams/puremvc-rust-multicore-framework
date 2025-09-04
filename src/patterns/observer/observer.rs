@@ -36,8 +36,8 @@ impl IObserver for Observer {
     }
 
     fn notify_observer(&self, notification: &mut dyn INotification) {
-        if let Some(callback) = self.notify() {
-            callback(notification);
+        if let Some(notify) = self.notify() {
+            notify(notification);
         }
     }
 

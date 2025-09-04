@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 use puremvc::{ICommand, INotification, MacroCommand, SimpleCommand, Notification};
 
-pub struct MacroCommandTestVO {
+struct MacroCommandTestVO {
     input: i8,
     result1: i8,
     result2: i8
@@ -13,7 +13,7 @@ impl MacroCommandTestVO {
     }
 }
 
-pub struct MacroCommandTestSub1Command(SimpleCommand);
+struct MacroCommandTestSub1Command(SimpleCommand);
 
 impl MacroCommandTestSub1Command {
     pub fn new() -> Self {
@@ -31,7 +31,7 @@ impl ICommand for MacroCommandTestSub1Command {
     }
 }
 
-pub struct MacroCommandTestSub2Command(SimpleCommand);
+struct MacroCommandTestSub2Command(SimpleCommand);
 
 impl MacroCommandTestSub2Command {
     pub fn new() -> Self {
@@ -49,7 +49,7 @@ impl ICommand for MacroCommandTestSub2Command {
     }
 }
 
-pub struct MacroCommandTestCommand(MacroCommand);
+struct MacroCommandTestCommand(MacroCommand);
 
 impl MacroCommandTestCommand {
     pub fn new() -> Self {
@@ -74,7 +74,7 @@ fn test_macro_command_execute() {
     let vo = MacroCommandTestVO::new(5);
 
     let note = Arc::new(Mutex::new(
-        Notification::new("MacroCommandTest", Some(Box::new(vo)), None),
+        Notification::new("MacroCommandTest", Some(Box::new(vo)), None)
     ));
 
     let mut command = MacroCommandTestCommand::new();

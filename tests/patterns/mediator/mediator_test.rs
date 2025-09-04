@@ -24,6 +24,8 @@ fn test_view_accessor() {
             if let Some(button_ref) = component.downcast_ref::<Button>() {
                 assert_eq!(button_ref.label, "Click Me".to_string());
             }
+        } else {
+            panic!("Unexpected component type");
         }
     } else {
         panic!("Component is None");
