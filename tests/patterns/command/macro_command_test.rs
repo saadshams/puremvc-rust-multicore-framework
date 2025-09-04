@@ -13,13 +13,7 @@ impl MacroCommandTestVO {
     }
 }
 
-struct MacroCommandTestSub1Command(SimpleCommand);
-
-impl MacroCommandTestSub1Command {
-    pub fn new() -> Self {
-        Self(SimpleCommand)
-    }
-}
+struct MacroCommandTestSub1Command;
 
 impl ICommand for MacroCommandTestSub1Command {
     fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>)  {
@@ -31,13 +25,7 @@ impl ICommand for MacroCommandTestSub1Command {
     }
 }
 
-struct MacroCommandTestSub2Command(SimpleCommand);
-
-impl MacroCommandTestSub2Command {
-    pub fn new() -> Self {
-        Self(SimpleCommand{})
-    }
-}
+struct MacroCommandTestSub2Command;
 
 impl ICommand for MacroCommandTestSub2Command {
     fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>)  {
@@ -57,8 +45,8 @@ impl MacroCommandTestCommand {
     }
 
     pub fn initialize_macro_command(&mut self) {
-        self.0.add_sub_command(|| Box::new(MacroCommandTestSub1Command::new()));
-        self.0.add_sub_command(|| Box::new(MacroCommandTestSub2Command::new()));
+        self.0.add_sub_command(|| Box::new(MacroCommandTestSub1Command));
+        self.0.add_sub_command(|| Box::new(MacroCommandTestSub2Command));
     }
 }
 

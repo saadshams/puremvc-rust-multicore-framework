@@ -23,20 +23,12 @@ impl IProxy for ModelTestProxy {
         self.0.data()
     }
 
-    fn data_mut(&mut self) -> Option<&mut (dyn Any + Send + Sync)> {
-        self.0.data_mut()
-    }
-
-    fn set_data(&mut self, data: Option<Box<dyn Any + Send + Sync>>) {
-        self.0.set_data(data);
-    }
-
     fn on_register(&mut self) {
-        self.set_data(Some(Box::new(Self::ON_REGISTER_CALLED)));
+        self.0.set_data(Some(Box::new(Self::ON_REGISTER_CALLED)));
     }
 
     fn on_remove(&mut self) {
-        self.set_data(Some(Box::new(Self::ON_REMOVE_CALLED)));
+        self.0.set_data(Some(Box::new(Self::ON_REMOVE_CALLED)));
     }
 }
 

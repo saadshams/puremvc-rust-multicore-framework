@@ -35,10 +35,10 @@ impl IProxy for Proxy {
     }
 
     fn on_register(&mut self) {
-        
+
     }
 
     fn on_remove(&mut self) {
-        
+
     }
 }
