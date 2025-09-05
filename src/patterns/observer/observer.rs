@@ -1,15 +1,15 @@
 use std::any::Any;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use crate::INotification;
 use crate::interfaces::IObserver;
 
 pub struct Observer {
-    notify: Option<Arc<dyn Fn(&mut dyn INotification) + Send + Sync>>,
+    notify: Option<Arc<dyn Fn(&Arc<Mutex<dyn INotification>>) + Send + Sync>>,
     context: Option<Arc<Box<dyn Any + Send + Sync>>>,
 }
 
 impl Observer {
-    pub fn new(notify: Option<Arc<dyn Fn(&mut dyn INotification) + Send + Sync>>, context: Option<Arc<Box<dyn Any + Send + Sync>>>) -> Self {
+    pub fn new(notify: Option<Arc<dyn Fn(&Arc<Mutex<dyn INotification>>) + Send + Sync>>, context: Option<Arc<Box<dyn Any + Send + Sync>>>) -> Self {
         Self {
             notify,
             context,
@@ -19,11 +19,11 @@ impl Observer {
 
 impl IObserver for Observer {
 
-    fn notify(&self) -> Option<Arc<dyn Fn(&mut dyn INotification) + Send + Sync>> {
+    fn notify(&self) -> Option<Arc<dyn Fn(&Arc<Mutex<dyn INotification>>) + Send + Sync>> {
         self.notify.clone()
     }
 
-    fn set_notify(&mut self, notify: Option<Arc<dyn Fn(&mut dyn INotification) + Send + Sync>>) {
+    fn set_notify(&mut self, notify: Option<Arc<dyn Fn(&Arc<Mutex<dyn INotification>>) + Send + Sync>>) {
         self.notify = notify;
     }
 
@@ -35,7 +35,7 @@ impl IObserver for Observer {
         self.context = context;
     }
 
-    fn notify_observer(&self, notification: &mut dyn INotification) {
+    fn notify_observer(&self, notification: &Arc<Mutex<dyn INotification>>) {
         if let Some(notify) = self.notify() {
             notify(notification);
         }

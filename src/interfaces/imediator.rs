@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Weak};
+use std::sync::{Arc, Mutex, Weak};
 use crate::interfaces::INotification;
 
 pub trait IMediator: Send + Sync {
@@ -21,7 +21,7 @@ pub trait IMediator: Send + Sync {
         vec![]
     }
 
-    fn handle_notification(&mut self, notification: &dyn INotification) {
+    fn handle_notification(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
 
     }
 

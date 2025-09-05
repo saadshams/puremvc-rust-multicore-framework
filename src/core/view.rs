@@ -49,10 +49,15 @@ impl IView for View {
         }
     }
 
-    fn notify_observers(&self, notification: &mut dyn INotification) {
+    fn notify_observers(&self, notification: &Arc<Mutex<dyn INotification>>) {
         let map = self.observer_map.lock().unwrap();
 
-        if let Some(observers_ref) = map.get(notification.name()) {
+        let notification_name = {
+            let note = notification.lock().unwrap();
+            note.name().to_string()
+        };
+
+        if let Some(observers_ref) = map.get(&notification_name) {
             // Copy observers to a working array to avoid holding the lock while notifying
             let observers: Vec<Arc<Box<dyn IObserver>>> = observers_ref.iter().cloned().collect();
 

@@ -12,8 +12,9 @@ impl Object {
         Self { value: 0.0 }
     }
 
-    fn execute(&mut self, notification: &mut dyn INotification) {
-        notification.body()
+    fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
+        let note = notification.lock().unwrap();
+        note.body()
             .and_then(|body_arc| {
                 let inner = body_arc;
                 inner.downcast_ref::<f64>().copied()
@@ -32,13 +33,13 @@ fn test_observer_accessors() {
 
     observer.set_notify(Some(Arc::new({
         let context = object.clone();
-        move |note: &mut dyn INotification| {
+        move |note: &Arc<Mutex<dyn INotification>>| {
             context.lock().unwrap().execute(note);
         }
     })));
 
-    let mut note = Notification::new("TestNote", Some(Box::new(10.0)), None);
-    observer.notify_observer(&mut note);
+    let note: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new("TestNote", Some(Box::new(10.0)), None)));
+    observer.notify_observer(&note);
 
     assert_eq!(object.lock().unwrap().value, 10.0);
 }
@@ -50,15 +51,15 @@ fn test_observer_constructor() {
     let observer = Observer::new(
         Some(Arc::new({
             let context = object.clone();
-            move |note: &mut dyn INotification| {
+            move |note: &Arc<Mutex<dyn INotification>>| {
                 context.lock().unwrap().execute(note);
             }
         })),
         Some(Arc::new(Box::new(object.clone()) as Box<dyn Any + Send + Sync>)),
     );
 
-    let mut note = Notification::new("ObserverTestNote", Some(Box::new(5.0)), None);
-    observer.notify_observer(&mut note);
+    let note: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new("ObserverTestNote", Some(Box::new(5.0)), None)));
+    observer.notify_observer(&note);
 
     assert_eq!(object.lock().unwrap().value, 5.0);
 }
@@ -70,7 +71,7 @@ fn test_compare_notify_context() {
     let observer = Observer::new(
         Some(Arc::new({
             let context = object.clone();
-            move |note: &mut dyn INotification| {
+            move |note: &Arc<Mutex<dyn INotification>>| {
                 let obj_ref = context.as_ref().as_ref().downcast_ref::<Mutex<Object>>().unwrap();
                 obj_ref.lock().unwrap().execute(note);
             }

@@ -132,7 +132,7 @@ impl IFacade for Facade {
         }
     }
 
-    fn notify_observers(&self, notification: &mut dyn INotification) {
+    fn notify_observers(&self, notification: &Arc<Mutex<dyn INotification>>) {
         if let Some(view) = &self.view {
             view.notify_observers(notification);
         }
@@ -145,6 +145,7 @@ impl INotifier for Facade {
     }
 
     fn send_notification(&self, notification_name: &str, body: Option<Box<dyn Any+ Send + Sync>>, type_: Option<&str>) {
-        self.notify_observers(&mut Notification::new(notification_name, body, type_));
+        let notification: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new(notification_name, body, type_)));
+        self.notify_observers(&notification);
     }
 }
