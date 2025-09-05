@@ -9,13 +9,12 @@ struct SimpleCommandTestVO {
 struct SimpleCommandTestCommand;
 
 impl ICommand for SimpleCommandTestCommand {
-    fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>) {
-        let note = notification.lock().unwrap();
-        let body = note.body().expect("No body in notification");
-        let mut vo = body.lock().unwrap();
-
-        let vo = vo.downcast_mut::<SimpleCommandTestVO>()
-            .expect("Body is not a ControllerTestVO");
+    fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
+        let mut note = notification.lock().unwrap();
+        let body = note.body_mut().expect("No body in notification");
+        
+        let vo = body.downcast_mut::<SimpleCommandTestVO>()
+            .expect("Body is not a SimpleCommandTestVO");
 
         vo.result = 2 * vo.input;
     }
@@ -23,21 +22,20 @@ impl ICommand for SimpleCommandTestCommand {
 
 #[test]
 fn test_simple_command_execute() {
-    let note = Arc::new(Mutex::new(Notification::new(
+    let note: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new(
         "SimpleCommandTestNote",
-        Some(Arc::new(Mutex::new(SimpleCommandTestVO{input: 5, result: 0}))),
+        Some(Box::new(SimpleCommandTestVO{input: 5, result: 0})),
         None
     )));
 
     let mut command = SimpleCommandTestCommand;
-    command.execute(note.clone());
+    command.execute(&note);
 
     let note = note.lock().unwrap();
     let body = note.body().expect("No body in notification");
-    let mut vo = body.lock().unwrap();
 
-    let vo = vo.downcast_mut::<SimpleCommandTestVO>()
-        .expect("Body is not a ControllerTestVO");
+    let vo = body.downcast_ref::<SimpleCommandTestVO>()
+        .expect("Body is not a SimpleCommandTestVO");
 
     assert_eq!(vo.result, 10, "Expecting vo.result == 10");
 }

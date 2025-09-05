@@ -144,7 +144,7 @@ impl INotifier for Facade {
         self.key = key.to_string();
     }
 
-    fn send_notification(&self, notification_name: &str, body: Option<Arc<Mutex<dyn Any>>>, type_: Option<&str>) {
+    fn send_notification(&self, notification_name: &str, body: Option<Box<dyn Any+ Send + Sync>>, type_: Option<&str>) {
         self.notify_observers(&mut Notification::new(notification_name, body, type_));
     }
 }

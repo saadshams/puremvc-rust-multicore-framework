@@ -1,73 +1,109 @@
 use std::sync::{Arc, Mutex};
+use std::any::Any;
 use puremvc::{ICommand, INotification, MacroCommand, Notification};
 
+#[derive(Debug, Clone)]
 struct MacroCommandTestVO {
     input: i8,
     result1: i8,
-    result2: i8
+    result2: i8,
 }
 
+// Implement Clone for your commands
+#[derive(Default)]
 struct MacroCommandTestSub1Command;
 
 impl ICommand for MacroCommandTestSub1Command {
-    fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>)  {
+    fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
         let mut note = notification.lock().unwrap();
-        let vo = note.body()
-            .and_then(|b| b.downcast_mut::<MacroCommandTestVO>())
-            .expect("Body is missing or not a MacroCommandTestVO");
+        let body = note.body_mut().expect("Notification body missing");
+        let vo = body.downcast_mut::<MacroCommandTestVO>()
+            .expect("Body is not a MacroCommandTestVO");
 
         vo.result1 = 2 * vo.input;
     }
 }
 
+#[derive(Default)]
 struct MacroCommandTestSub2Command;
 
 impl ICommand for MacroCommandTestSub2Command {
-    fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>)  {
+    fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
         let mut note = notification.lock().unwrap();
-        let vo = note.body()
-            .and_then(|b| b.downcast_mut::<MacroCommandTestVO>())
-            .expect("Body is missing or not a MacroCommandTestVO");
+        let body = note.body_mut().expect("Notification body missing");
+        let vo = body.downcast_mut::<MacroCommandTestVO>()
+            .expect("Body is not a MacroCommandTestVO");
 
         vo.result2 = vo.input * vo.input;
     }
 }
 
-struct MacroCommandTestCommand(MacroCommand);
+struct MacroCommandTestCommand {
+    macro_command: MacroCommand,
+}
 
 impl MacroCommandTestCommand {
     pub fn new() -> Self {
-        Self(MacroCommand::new())
+        Self {
+            macro_command: MacroCommand::new(),
+        }
     }
 
-    pub fn initialize_macro_command(&mut self) {
-        self.0.add_sub_command(|| Box::new(MacroCommandTestSub1Command));
-        self.0.add_sub_command(|| Box::new(MacroCommandTestSub2Command));
+    fn initialize_macro_command(&mut self) {
+        // Add sub-commands - note the syntax for creating boxed commands
+        self.macro_command.add_sub_command(|| Box::new(MacroCommandTestSub1Command));
+        self.macro_command.add_sub_command(|| Box::new(MacroCommandTestSub2Command));
     }
 }
 
 impl ICommand for MacroCommandTestCommand {
-    fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>)  {
+    fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
         self.initialize_macro_command();
-        self.0.execute(notification);
+        self.macro_command.execute(&notification);
     }
 }
 
 #[test]
 fn test_macro_command_execute() {
-    let note = Arc::new(Mutex::new(Notification::new(
+    // Store the actual VO, not Arc<Mutex<VO>>
+    let vo = MacroCommandTestVO {
+        input: 5, 
+        result1: 0, 
+        result2: 0
+    };
+    
+    let boxed_vo: Box<dyn Any + Send + Sync> = Box::new(vo);
+    
+    let note: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new(
         "MacroCommandTest",
-        Some(Arc::new(Mutex::new(MacroCommandTestVO{input: 5, result1: 0, result2: 0}))),
+        Some(boxed_vo),
         None,
     )));
 
-    MacroCommandTestCommand::new().execute(note.clone());
+    // Execute the command
+    let mut command = MacroCommandTestCommand::new();
+    command.execute(&note);
 
-    let mut guard = note.lock().unwrap();
-    let vo = guard.body() // `guard` does not live long enough [E0597]
-            .and_then(|b| b.downcast_ref::<MacroCommandTestVO>())
-            .expect("Notification body is missing or of wrong type");
-
-    assert_eq!(vo.result1, 10, "Expecting vo.result1 == 10");
-    assert_eq!(vo.result2, 25, "Expecting vo.result2 == 25");
+    // Check results - proper way to access the data
+    {
+        let mut guard = note.lock().unwrap();
+        let body = guard.body_mut().expect("Notification body missing");
+        let vo = body.downcast_mut::<MacroCommandTestVO>()
+            .expect("Body is not a MacroCommandTestVO");
+        
+        assert_eq!(vo.result1, 10, "Expecting vo.result1 == 10");
+        assert_eq!(vo.result2, 25, "Expecting vo.result2 == 25");
+    } // guard is dropped here
+    
+    // If you need to access the data again later:
+    {
+        let guard = note.lock().unwrap();
+        let body = guard.body().expect("Notification body missing");
+        let vo = body.downcast_ref::<MacroCommandTestVO>()
+            .expect("Body is not a MacroCommandTestVO");
+        
+        // vo.result1 should still be 10
+        // vo.result2 should still be 25
+        println!("Results: result1={}, result2={}", vo.result1, vo.result2);
+    }
 }

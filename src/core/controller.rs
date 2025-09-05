@@ -40,7 +40,7 @@ impl IController for Controller {
         if let Some(factory) = map.get(notification.lock().unwrap().name()) {
             let instance = factory();
             let mut command = instance.lock().unwrap();
-            command.execute(notification.clone());
+            command.execute(&notification.clone());
         }
     }
 

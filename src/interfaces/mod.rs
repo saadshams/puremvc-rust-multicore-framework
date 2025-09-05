@@ -4,8 +4,8 @@ pub use icontroller::IController;
 mod imodel;
 pub use imodel::IModel;
 
-mod iview;
-pub use iview::IView;
+mod Iview;
+pub use Iview::IView;
 
 mod icommand;
 pub use icommand::ICommand;

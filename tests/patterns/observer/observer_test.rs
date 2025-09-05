@@ -6,17 +6,16 @@ struct Object {
     value: f64,
 }
 
+
 impl Object {
     fn new() -> Self {
         Self { value: 0.0 }
     }
 
-    fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>) {
-        let note = notification.lock().unwrap();
-
-        note.body()
+    fn execute(&mut self, notification: &mut dyn INotification) {
+        notification.body()
             .and_then(|body_arc| {
-                let inner = body_arc.lock().unwrap();
+                let inner = body_arc;
                 inner.downcast_ref::<f64>().copied()
             })
             .map(|num| self.value = num )
@@ -38,7 +37,7 @@ fn test_observer_accessors() {
         }
     })));
 
-    let mut note = Notification::new("TestNote", Some(Arc::new(Mutex::new(10.0))), None);
+    let mut note = Notification::new("TestNote", Some(Box::new(10.0)), None);
     observer.notify_observer(&mut note);
 
     assert_eq!(object.lock().unwrap().value, 10.0);
@@ -58,7 +57,7 @@ fn test_observer_constructor() {
         Some(Arc::new(Box::new(object.clone()) as Box<dyn Any + Send + Sync>)),
     );
 
-    let mut note = Notification::new("ObserverTestNote", Some(Arc::new(Mutex::new(5.0))), None);
+    let mut note = Notification::new("ObserverTestNote", Some(Box::new(5.0)), None);
     observer.notify_observer(&mut note);
 
     assert_eq!(object.lock().unwrap().value, 5.0);

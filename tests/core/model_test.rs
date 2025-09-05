@@ -44,11 +44,11 @@ fn test_register_and_retrieve_proxy() {
     let model = Model::get_instance("ModelTestKey2", |k| Arc::new(Model::new(k)));
 
     let colors = vec!["red".to_string(), "green".to_string(), "blue".to_string()];
-    let proxy = Proxy::new(Some("colors"), Some(Box::new(colors)));
-    model.register_proxy(Arc::new(Mutex::new(proxy)));
+    let Proxy = Proxy::new(Some("colors"), Some(Box::new(colors)));
+    model.register_proxy(Arc::new(Mutex::new(Proxy)));
 
     let retrieved_proxy = model.retrieve_proxy("colors")
-        .expect("Expecting proxy not null");
+        .expect("Expecting Proxy not null");
 
     let data = {
         retrieved_proxy.lock().unwrap().data()
@@ -66,11 +66,11 @@ fn test_register_and_remove_proxy() {
     let model = Model::get_instance("ModelTestKey3", |k| Arc::new(Model::new(k)));
 
     let sizes = vec![7, 13, 21];
-    let proxy = Proxy::new(Some("sizes"), Some(Box::new(sizes)));
-    model.register_proxy(Arc::new(Mutex::new(proxy)));
+    let Proxy = Proxy::new(Some("sizes"), Some(Box::new(sizes)));
+    model.register_proxy(Arc::new(Mutex::new(Proxy)));
 
     let removed_proxy = model.remove_proxy("sizes")
-        .expect("Expecting proxy not null");
+        .expect("Expecting Proxy not null");
 
     assert_eq!(removed_proxy.lock().unwrap().name(), "sizes", "Expecting named sizes");
 
@@ -82,12 +82,12 @@ fn test_has_proxy() {
     let model = Model::get_instance("ModelTestKey4", |k| Arc::new(Model::new(k)));
 
     let aces = vec!["clubs".to_string(), "spades".to_string(), "blue".to_string()];
-    let proxy = Proxy::new(Some("aces"), Some(Box::new(aces)));
-    model.register_proxy(Arc::new(Mutex::new(proxy)));
+    let Proxy = Proxy::new(Some("aces"), Some(Box::new(aces)));
+    model.register_proxy(Arc::new(Mutex::new(Proxy)));
 
     assert!(model.has_proxy("aces"), "Expecting model.has_proxy('aces') == true");
 
-    model.remove_proxy("aces").expect("Expecting remove proxy aces");
+    model.remove_proxy("aces").expect("Expecting remove Proxy aces");
 
     assert!(!model.has_proxy("aces"), "Expecting model.has_proxy('aces') == false");
 }
@@ -96,11 +96,11 @@ fn test_has_proxy() {
 fn test_on_register_and_on_remove() {
     let model = Model::get_instance("ModelTestKey5", |k| Arc::new(Model::new(k)));
 
-    let proxy = Arc::new(Mutex::new(ModelTestProxy::new()));
-    model.register_proxy(proxy.clone());
+    let Proxy = Arc::new(Mutex::new(ModelTestProxy::new()));
+    model.register_proxy(Proxy.clone());
 
     let value = {
-        proxy.lock().unwrap().data()
+        Proxy.lock().unwrap().data()
             .and_then(|d| d.downcast_ref::<&'static str>())
             .copied()
             .expect("Proxy data is missing or wrong type")
@@ -111,11 +111,11 @@ fn test_on_register_and_on_remove() {
     model.remove_proxy(ModelTestProxy::NAME);
 
     let value2 = {
-        proxy.lock().unwrap().data()
+        Proxy.lock().unwrap().data()
             .and_then(|d| d.downcast_ref::<&'static str>())
             .copied()
             .expect("Proxy data is missing or wrong type")
     };
 
-    assert_eq!(value2, ModelTestProxy::ON_REMOVE_CALLED, "Expecting proxy.data() == ModelTestProxy::ON_REMOVE_CALLED");
+    assert_eq!(value2, ModelTestProxy::ON_REMOVE_CALLED, "Expecting Proxy.data() == ModelTestProxy::ON_REMOVE_CALLED");
 }

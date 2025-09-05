@@ -1,6 +1,7 @@
 use std::any::Any;
 use puremvc::{INotification, Notification};
 
+
 #[test]
 fn test_name_accessor() {
     let note = Notification::new("TestNote", None, None);
@@ -10,7 +11,7 @@ fn test_name_accessor() {
 #[test]
 fn test_body_accessor() {
     let mut note = Notification::new("TestNote", None, None);
-    note.set_body(Option::from(Box::new(5) as Box<dyn Any>));
+    note.set_body(Option::from(Box::new(5) as Box<dyn Any+ Send + Sync>));
     
     let body = note.body().and_then(|b| b.downcast_ref::<i32>());
     assert_eq!(body, Some(&5));
@@ -27,7 +28,7 @@ fn test_constructor() {
 
 #[test]
 fn test_to_string() {
-    let note = Notification::new("TestNote", Some(Box::new(vec![1, 3, 5]) as Box<dyn Any>), Some("TestType"));
+    let note = Notification::new("TestNote", Some(Box::new(vec![1, 3, 5]) as Box<dyn Any+ Send + Sync>), Some("TestType"));
     
     let expected = "Notification Name: TestNote\nBody: Any { .. }\nType: TestType";
     

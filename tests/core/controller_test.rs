@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 use puremvc::{Controller, ICommand, INotification, Notification};
-
+#[derive(Clone)]
 struct ControllerTestVO {
     input: i8,
     result: i8
@@ -9,12 +9,11 @@ struct ControllerTestVO {
 struct ControllerTestCommand;
 
 impl ICommand for ControllerTestCommand {
-    fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>) {
-        let note = notification.lock().unwrap();
-        let body = note.body().expect("No body in notification");
-        let mut vo = body.lock().unwrap();
+    fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
+        let mut note = notification.lock().unwrap();
+        let body = note.body_mut().expect("No body in notification");
 
-        let vo = vo.downcast_mut::<ControllerTestVO>()
+        let vo = body.downcast_mut::<ControllerTestVO>()
             .expect("Body is not a ControllerTestVO");
 
         vo.result = 2 * vo.input;
@@ -24,12 +23,11 @@ impl ICommand for ControllerTestCommand {
 struct ControllerTestCommand2;
 
 impl ICommand for ControllerTestCommand2 {
-    fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>) {
-        let note = notification.lock().unwrap();
-        let body = note.body().expect("No body in notification");
-        let mut vo = body.lock().unwrap();
+    fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
+        let mut note = notification.lock().unwrap();
+        let body = note.body_mut().expect("No body in notification");
 
-        let vo = vo.downcast_mut::<ControllerTestVO>()
+        let vo = body.downcast_mut::<ControllerTestVO>()
             .expect("Body is not a ControllerTestVO");
 
         vo.result = vo.result + (2 * vo.input);
@@ -47,12 +45,19 @@ fn test_get_instance() {
 fn test_register_and_execute_command() {
     let controller = Controller::get_instance("ControllerTestKey2", |k| { Arc::new(Controller::new(k))});
 
-    controller.register_command("MyNotification", Arc::new(|| Arc::new(Mutex::new(ControllerTestCommand))));
+    controller.register_command("ControllerTest", Arc::new(|| Arc::new(Mutex::new(ControllerTestCommand))));
 
-    let vo = Arc::new(Mutex::new(ControllerTestVO { input: 0, result: 0 }));
+    let vo = Box::new(ControllerTestVO{input: 12, result: 0});
+    let notification = Notification::new("ControllerTest", Some(vo), None);
+    let note_arc = Arc::new(Mutex::new(notification));
+    
+    controller.execute_command(note_arc.clone());
 
-    let notification = Notification::new("ControllerTest", Some(vo.clone()), None);
-    controller.execute_command(Arc::new(Mutex::new(notification)));
-
-    assert_eq!(vo.lock().unwrap().result, 24, "");
+    // Check the result in the notification body
+    let note_lock = note_arc.lock().unwrap();
+    let body = note_lock.body().expect("No body in notification");
+    let vo_result = body.downcast_ref::<ControllerTestVO>()
+        .expect("Body is not a ControllerTestVO");
+    
+    assert_eq!(vo_result.result, 24, "Expecting result to be 2 * 12 = 24");
 }

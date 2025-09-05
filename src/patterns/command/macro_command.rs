@@ -22,10 +22,10 @@ impl MacroCommand {
 }
 
 impl ICommand for MacroCommand {
-    fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>) {
+    fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
         for factory in self.sub_commands.drain(..) {
             let mut command = factory();
-            command.execute(notification.clone());
+            command.execute(&notification.clone());
         }
     }
 }
