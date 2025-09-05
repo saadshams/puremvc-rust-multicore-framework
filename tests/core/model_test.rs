@@ -50,18 +50,51 @@ fn test_register_and_retrieve_proxy() {
     let retrieved_proxy = model.retrieve_proxy("colors")
         .expect("Expecting proxy not null");
 
-    let guard = retrieved_proxy.lock().unwrap();
-    let data = guard.data()
-        .expect("Proxy has no data")
-        .downcast_ref::<Vec<String>>()
-        .expect("Data exists but is not a Vec<String>");
+    let data = {
+        retrieved_proxy.lock().unwrap().data()
+            .expect("Proxy has no data")
+            .downcast_ref::<Vec<String>>()
+            .expect("Data exists but is not a Vec<String>")
+            .clone()
+    };
 
     assert_eq!(data, &["red", "green", "blue"]);
 }
 
 #[test]
-fn test_on_register_and_on_remove() {
+fn test_register_and_remove_proxy() {
+    let model = Model::get_instance("ModelTestKey3", |k| Arc::new(Model::new(k)));
+
+    let sizes = vec![7, 13, 21];
+    let proxy = Proxy::new(Some("sizes"), Some(Box::new(sizes)));
+    model.register_proxy(Arc::new(Mutex::new(proxy)));
+
+    let removed_proxy = model.remove_proxy("sizes")
+        .expect("Expecting proxy not null");
+
+    assert_eq!(removed_proxy.lock().unwrap().name(), "sizes", "Expecting named sizes");
+
+    assert!(model.retrieve_proxy("sizes").is_none(), "Expecting sizes is none");
+}
+
+#[test]
+fn test_has_proxy() {
     let model = Model::get_instance("ModelTestKey4", |k| Arc::new(Model::new(k)));
+
+    let aces = vec!["clubs".to_string(), "spades".to_string(), "blue".to_string()];
+    let proxy = Proxy::new(Some("aces"), Some(Box::new(aces)));
+    model.register_proxy(Arc::new(Mutex::new(proxy)));
+
+    assert!(model.has_proxy("aces"), "Expecting model.has_proxy('aces') == true");
+
+    model.remove_proxy("aces").expect("Expecting remove proxy aces");
+
+    assert!(!model.has_proxy("aces"), "Expecting model.has_proxy('aces') == false");
+}
+
+#[test]
+fn test_on_register_and_on_remove() {
+    let model = Model::get_instance("ModelTestKey5", |k| Arc::new(Model::new(k)));
 
     let proxy = Arc::new(Mutex::new(ModelTestProxy::new()));
     model.register_proxy(proxy.clone());
@@ -75,7 +108,7 @@ fn test_on_register_and_on_remove() {
 
     assert_eq!(value, ModelTestProxy::ON_REGISTER_CALLED);
 
-    model.remove_proxy("TestProxy");
+    model.remove_proxy(ModelTestProxy::NAME);
 
     let value2 = {
         proxy.lock().unwrap().data()

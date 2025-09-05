@@ -1,14 +1,15 @@
 use std::any::Any;
+use std::sync::{Arc, Mutex};
 use crate::INotification;
 
 pub struct Notification {
     name: String,
-    body: Option<Box<dyn Any>>,
+    body: Option<Arc<Mutex<dyn Any>>>,
     type_: Option<String>,
 }
 
 impl Notification {
-    pub fn new(name: &str, body: Option<Box<dyn Any>>, type_: Option<&str>) -> Self {
+    pub fn new(name: &str, body: Option<Arc<Mutex<dyn Any>>>, type_: Option<&str>) -> Self {
         Self {
             name: name.to_string(),
             body,
@@ -22,11 +23,15 @@ impl INotification for Notification {
         &self.name
     }
 
-    fn body(&mut self) -> Option<&mut Box<dyn Any>> {
+    fn body(&self) -> Option<&Arc<Mutex<dyn Any>>> {
+        self.body.as_ref()
+    }
+
+    fn body_mut(&mut self) -> Option<&mut Arc<Mutex<dyn Any>>> {
         self.body.as_mut()
     }
 
-    fn set_body(&mut self, body: Option<Box<dyn Any>>) {
+    fn set_body(&mut self, body: Option<Arc<Mutex<dyn Any>>>) {
         self.body = body;
     }
 

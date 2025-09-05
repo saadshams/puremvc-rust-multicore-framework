@@ -11,12 +11,16 @@ impl Object {
         Self { value: 0.0 }
     }
 
-    fn execute(&mut self, note: &mut dyn INotification) {
-        if let Some(value) = note.body().and_then(|v| v.downcast_ref::<f64>()) {
-            self.value = *value;
-        } else {
-            panic!("not a number");
-        }
+    fn execute(&mut self, notification: Arc<Mutex<dyn INotification>>) {
+        let note = notification.lock().unwrap();
+
+        note.body()
+            .and_then(|body_arc| {
+                let inner = body_arc.lock().unwrap();
+                inner.downcast_ref::<f64>().copied()
+            })
+            .map(|num| self.value = num )
+            .expect("Notification body is missing or not a number");
     }
 }
 
@@ -34,7 +38,7 @@ fn test_observer_accessors() {
         }
     })));
 
-    let mut note = Notification::new("TestNote", Some(Box::new(10.0)), None);
+    let mut note = Notification::new("TestNote", Some(Arc::new(Mutex::new(10.0))), None);
     observer.notify_observer(&mut note);
 
     assert_eq!(object.lock().unwrap().value, 10.0);
@@ -54,7 +58,7 @@ fn test_observer_constructor() {
         Some(Arc::new(Box::new(object.clone()) as Box<dyn Any + Send + Sync>)),
     );
 
-    let mut note = Notification::new("ObserverTestNote", Some(Box::new(5.0)), None);
+    let mut note = Notification::new("ObserverTestNote", Some(Arc::new(Mutex::new(5.0))), None);
     observer.notify_observer(&mut note);
 
     assert_eq!(object.lock().unwrap().value, 5.0);
