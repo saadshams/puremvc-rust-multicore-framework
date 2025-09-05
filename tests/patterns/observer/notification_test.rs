@@ -19,7 +19,7 @@ fn test_body_accessor() {
 
 #[test]
 fn test_constructor() {
-    let mut note = Notification::new("TestNote", Some(Box::new(5_i32)), Some("TestNoteType"));
+    let note = Notification::new("TestNote", Some(Box::new(5_i32)), Some("TestNoteType"));
     
     assert_eq!(note.name(), "TestNote", "Expecting note.get_name() == 'TestNote'");
     assert_eq!(note.body().and_then(|b| b.downcast_ref::<i32>()), Some(&5));

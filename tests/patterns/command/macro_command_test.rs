@@ -1,16 +1,12 @@
 use std::sync::{Arc, Mutex};
-use std::any::Any;
 use puremvc::{ICommand, INotification, MacroCommand, Notification};
 
-#[derive(Debug, Clone)]
 struct MacroCommandTestVO {
     input: i8,
     result1: i8,
     result2: i8,
 }
 
-// Implement Clone for your commands
-#[derive(Default)]
 struct MacroCommandTestSub1Command;
 
 impl ICommand for MacroCommandTestSub1Command {
@@ -24,7 +20,6 @@ impl ICommand for MacroCommandTestSub1Command {
     }
 }
 
-#[derive(Default)]
 struct MacroCommandTestSub2Command;
 
 impl ICommand for MacroCommandTestSub2Command {
@@ -65,18 +60,9 @@ impl ICommand for MacroCommandTestCommand {
 
 #[test]
 fn test_macro_command_execute() {
-    // Store the actual VO, not Arc<Mutex<VO>>
-    let vo = MacroCommandTestVO {
-        input: 5, 
-        result1: 0, 
-        result2: 0
-    };
-    
-    let boxed_vo: Box<dyn Any + Send + Sync> = Box::new(vo);
-    
     let note: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new(
         "MacroCommandTest",
-        Some(boxed_vo),
+        Some(Box::new(MacroCommandTestVO { input: 5, result1: 0, result2: 0 })),
         None,
     )));
 
@@ -86,9 +72,9 @@ fn test_macro_command_execute() {
 
     // Check results - proper way to access the data
     {
-        let mut guard = note.lock().unwrap();
-        let body = guard.body_mut().expect("Notification body missing");
-        let vo = body.downcast_mut::<MacroCommandTestVO>()
+        let guard = note.lock().unwrap();
+        let body = guard.body().expect("Notification body missing");
+        let vo = body.downcast_ref::<MacroCommandTestVO>()
             .expect("Body is not a MacroCommandTestVO");
         
         assert_eq!(vo.result1, 10, "Expecting vo.result1 == 10");

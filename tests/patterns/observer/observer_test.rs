@@ -6,7 +6,6 @@ struct Object {
     value: f64,
 }
 
-
 impl Object {
     fn new() -> Self {
         Self { value: 0.0 }
