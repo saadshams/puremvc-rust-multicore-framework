@@ -42,22 +42,37 @@ fn test_get_instance() {
 }
 
 #[test]
+
 fn test_register_and_execute_command() {
-    let controller = Controller::get_instance("ControllerTestKey2", |k| { Arc::new(Controller::new(k))});
+    let controller = Controller::get_instance("ControllerTestKey2", |k| { 
+        Arc::new(Controller::new(k))
+    });
 
-    controller.register_command("ControllerTest", Arc::new(|| Arc::new(Mutex::new(ControllerTestCommand))));
+    controller.register_command(
+        "ControllerTest", 
+        Arc::new(|| Arc::new(Mutex::new(ControllerTestCommand)))
+    );
 
-    let vo = Box::new(ControllerTestVO{input: 12, result: 0});
+    // Create the VO and notification
+    let vo = Box::new(ControllerTestVO {
+        input: 12, 
+        result: 0
+    });
+    
     let notification = Notification::new("ControllerTest", Some(vo), None);
     let note_arc = Arc::new(Mutex::new(notification));
     
+    // Execute the command
     controller.execute_command(note_arc.clone());
 
-    // Check the result in the notification body
-    let note_lock = note_arc.lock().unwrap();
-    let body = note_lock.body().expect("No body in notification");
-    let vo_result = body.downcast_ref::<ControllerTestVO>()
-        .expect("Body is not a ControllerTestVO");
+    // Alternative: if you need to access the result multiple times
+    fn check_result(note: &Arc<Mutex<Notification>>) {
+        let guard = note.lock().unwrap();
+        let body = guard.body().expect("No body in notification");
+        let vo_result = body.downcast_ref::<ControllerTestVO>()
+            .expect("Body is not a ControllerTestVO");
+        assert_eq!(vo_result.result, 24);
+    }
     
-    assert_eq!(vo_result.result, 24, "Expecting result to be 2 * 12 = 24");
+    check_result(&note_arc);
 }

@@ -35,12 +35,23 @@ impl Controller {
 
 impl IController for Controller {
     fn execute_command(&self, notification: Arc<Mutex<dyn INotification>>) {
-        let map = self.command_map.lock().unwrap();
+        // Get the notification name first to avoid holding multiple locks
+        let notification_name = {
+            let note = notification.lock().unwrap();
+            note.name().to_string()
+        };
 
-        if let Some(factory) = map.get(notification.lock().unwrap().name()) {
+        // Look up the factory function
+        let factory = {
+            let map = self.command_map.lock().unwrap();
+            map.get(&notification_name).cloned()
+        };
+
+        // Execute the command if found
+        if let Some(factory) = factory {
             let instance = factory();
             let mut command = instance.lock().unwrap();
-            command.execute(&notification.clone());
+            command.execute(&notification);
         }
     }
 
