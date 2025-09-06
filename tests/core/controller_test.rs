@@ -1,12 +1,22 @@
 use std::sync::{Arc, Mutex};
-use puremvc::{Controller, ICommand, INotification, Notification};
+use puremvc::{Controller, ICommand, INotification, INotifier, Notification, SimpleCommand};
 
 struct ControllerTestVO {
     input: i8,
     result: i8
 }
 
-struct ControllerTestCommand;
+struct ControllerTestCommand {
+    command: SimpleCommand,
+}
+
+impl ControllerTestCommand {
+    fn new() -> Self {
+        Self { command: SimpleCommand::new() }
+    }
+}
+
+impl INotifier for ControllerTestCommand {}
 
 impl ICommand for ControllerTestCommand {
     fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
@@ -18,9 +28,23 @@ impl ICommand for ControllerTestCommand {
 
         vo.result = 2 * vo.input;
     }
+
+    fn notifier_mut(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
+        self.command.notifier_mut()
+    }
 }
 
-struct ControllerTestCommand2;
+struct ControllerTestCommand2 {
+    command: SimpleCommand
+}
+
+impl ControllerTestCommand2 {
+    fn new() -> Self {
+        Self{command: SimpleCommand::new()}
+    }
+}
+
+impl INotifier for ControllerTestCommand2 {}
 
 impl ICommand for ControllerTestCommand2 {
     fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
@@ -31,6 +55,10 @@ impl ICommand for ControllerTestCommand2 {
             .expect("Body is not a ControllerTestVO");
 
         vo.result = vo.result + (2 * vo.input);
+    }
+
+    fn notifier_mut(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
+        self.command.notifier_mut()
     }
 }
 
@@ -46,7 +74,7 @@ fn test_get_instance() {
 fn test_register_and_execute_command() {
     let controller = Controller::get_instance("ControllerTestKey2", |k| Arc::new(Controller::new(k)));
 
-    controller.register_command("ControllerTest", Arc::new(|| Arc::new(Mutex::new(ControllerTestCommand))));
+    controller.register_command("ControllerTest", Arc::new(|| Arc::new(Mutex::new(ControllerTestCommand::new()))));
 
     let vo = ControllerTestVO { input: 12, result: 0 };
     let notification = Notification::new("ControllerTest", Some(Box::new(vo)), None);

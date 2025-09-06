@@ -25,11 +25,14 @@ impl Model {
 
 impl IModel for Model {
     fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
+        let mut guard = proxy.lock().unwrap();
         {
             let mut map = self.proxy_map.lock().unwrap();
-            map.insert(proxy.lock().unwrap().name().to_string().clone(), proxy.clone());
+            map.insert(guard.name().to_string(), proxy.clone());
         }
-        proxy.lock().unwrap().on_register();
+
+        guard.notifier_mut().initialize_notifier(&self.key);
+        guard.on_register();
     }
 
     fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {

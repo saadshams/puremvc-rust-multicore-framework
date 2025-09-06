@@ -60,11 +60,13 @@ impl IView for View {
     }
 
     fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator>>) {
+        let mut guard = mediator.lock().unwrap();
         {
             let mut map = self.mediator_map.lock().unwrap();
-            map.insert(mediator.lock().unwrap().name().to_string(), mediator.clone());
+            map.insert(guard.name().to_string(), mediator.clone());
         }
-        mediator.lock().unwrap().on_register();
+        guard.notifier_mut().initialize_notifier(&self.key);
+        guard.on_register();
     }
 
     fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {

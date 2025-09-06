@@ -1,5 +1,5 @@
 use std::sync::{Arc, Mutex};
-use crate::IProxy;
+use crate::{IProxy};
 
 pub trait IModel: Sync + Send {
     fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>);

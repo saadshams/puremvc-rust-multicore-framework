@@ -1,8 +1,10 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
-use puremvc::{IProxy, Model, Proxy};
+use puremvc::{INotifier, IProxy, Model, Proxy};
 
-pub struct ModelTestProxy(Proxy);
+pub struct ModelTestProxy {
+    proxy: Proxy,
+}
 
 impl ModelTestProxy {
     const NAME: &'static str = "TestProxy";
@@ -10,25 +12,31 @@ impl ModelTestProxy {
     const ON_REMOVE_CALLED: &'static str = "onRemove Called";
 
     fn new() -> Self {
-        Self(Proxy::new(Some(Self::NAME), None))
+        Self{proxy: Proxy::new(Some(Self::NAME), None)}
     }
 }
 
+impl INotifier for ModelTestProxy {}
+
 impl IProxy for ModelTestProxy {
     fn name(&self) -> &str {
-        self.0.name()
+        self.proxy.name()
     }
 
     fn data(&self) -> Option<&(dyn Any + Send + Sync)> {
-        self.0.data()
+        self.proxy.data()
+    }
+
+    fn notifier_mut(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
+        self.proxy.notifier_mut()
     }
 
     fn on_register(&mut self) {
-        self.0.set_data(Some(Box::new(Self::ON_REGISTER_CALLED)));
+        self.proxy.set_data(Some(Box::new(Self::ON_REGISTER_CALLED)));
     }
 
     fn on_remove(&mut self) {
-        self.0.set_data(Some(Box::new(Self::ON_REMOVE_CALLED)));
+        self.proxy.set_data(Some(Box::new(Self::ON_REMOVE_CALLED)));
     }
 }
 

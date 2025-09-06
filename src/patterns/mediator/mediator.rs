@@ -1,8 +1,9 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex, Weak};
-use crate::{IMediator, INotification};
+use crate::{IMediator, INotification, INotifier, Notifier};
 
 pub struct Mediator {
+    notifier: Box<dyn INotifier + Send + Sync>,
     name: String,
     component: Option<Weak<dyn Any + Send + Sync>>,
 }
@@ -12,11 +13,14 @@ impl Mediator {
 
     pub fn new(name: Option<&str>, component: Option<Weak<dyn Any + Send + Sync>>) -> Self {
         Self {
+            notifier: Box::new(Notifier::new()),
             name: name.unwrap_or(Self::NAME).to_string(),
             component
         }
     }
 }
+
+impl INotifier for Mediator {}
 
 impl IMediator for Mediator {
     fn name(&self) -> &str {
@@ -34,7 +38,11 @@ impl IMediator for Mediator {
     fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
         self.component = component
     }
-    
+
+    fn notifier_mut(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
+        &mut self.notifier
+    }
+
     fn list_notification_interests(&self) -> Vec<String> {
         vec![]
     }

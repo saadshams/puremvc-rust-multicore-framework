@@ -43,6 +43,7 @@ impl IController for Controller {
         if let Some(factory) = factory {
             let instance = factory();
             let mut command = instance.lock().unwrap();
+            command.notifier_mut().initialize_notifier(&self.key);
             command.execute(notification);
         }
     }

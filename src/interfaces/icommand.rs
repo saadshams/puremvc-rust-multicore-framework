@@ -1,6 +1,8 @@
 use std::sync::{Arc, Mutex};
-use crate::INotification;
+use crate::{INotification, INotifier};
 
-pub trait ICommand: Send + Sync {
+pub trait ICommand: INotifier + Send + Sync {
     fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>);
+
+    fn notifier_mut(&mut self) -> &mut Box<dyn INotifier + Send + Sync>;
 }

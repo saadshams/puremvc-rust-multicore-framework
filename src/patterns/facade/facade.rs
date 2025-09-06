@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::collections::HashMap;
-use std::sync::{Arc, LazyLock, Mutex};
+use std::sync::{Arc, LazyLock, Mutex, Weak};
 use crate::{Controller, ICommand, IController, IMediator, IModel, INotification, IProxy, Model, Notification, View};
 use crate::interfaces::{IFacade, INotifier, IView};
 
@@ -140,6 +140,10 @@ impl IFacade for Facade {
 }
 
 impl INotifier for Facade {
+    fn facade(&self) -> Option<Weak<dyn IFacade>> {
+        Some(Arc::downgrade(&Facade::get_instance(&self.key, |k| Arc::new(Facade::new(k)))))
+    }
+
     fn initialize_notifier(&mut self, key: &str) {
         self.key = key.to_string();
     }

@@ -1,8 +1,9 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex, Weak};
+use crate::INotifier;
 use crate::interfaces::INotification;
 
-pub trait IMediator: Send + Sync {
+pub trait IMediator: INotifier + Send + Sync {
     fn name(&self) -> &str;
 
     fn component(&self) -> Option<&Weak<dyn Any + Send + Sync>> {
@@ -13,15 +14,16 @@ pub trait IMediator: Send + Sync {
         None
     }
 
-    fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
+    fn set_component(&mut self, _component: Option<Weak<dyn Any + Send + Sync>>) {
 
     }
+    fn notifier_mut(&mut self) -> &mut Box<dyn INotifier + Send + Sync>;
 
     fn list_notification_interests(&self) -> Vec<String> {
         vec![]
     }
 
-    fn handle_notification(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
+    fn handle_notification(&mut self, _notification: &Arc<Mutex<dyn INotification>>) {
 
     }
 

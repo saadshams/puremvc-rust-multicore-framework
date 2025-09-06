@@ -1,6 +1,21 @@
 use std::any::Any;
+use std::sync::{Weak};
+use crate::interfaces::IFacade;
 
 pub trait INotifier {
-    fn initialize_notifier(&mut self, key: &str);
-    fn send_notification(&self, notification_name: &str, body: Option<Box<dyn Any+ Send + Sync>>, type_: Option<&str>);
+    // Weak to avoid Cyclic ref
+    // 1) Facade -> Model -> Proxy -> Notifier -> Facade
+    // 2) Facade -> Controller -> Commands -> Notifier -> Facade
+    // 3) Facade -> View -> Mediator -> Notifier -> Facade
+    fn facade(&self) -> Option<Weak<dyn IFacade>> {
+        None
+    }
+
+    fn initialize_notifier(&mut self, _key: &str) {
+
+    }
+
+    fn send_notification(&self, _notification_name: &str, _body: Option<Box<dyn Any+ Send + Sync>>, _type_: Option<&str>) {
+
+    }
 }

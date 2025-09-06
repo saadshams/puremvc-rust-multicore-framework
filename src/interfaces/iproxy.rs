@@ -1,6 +1,7 @@
 use std::any::Any;
+use crate::INotifier;
 
-pub trait IProxy: Send + Sync {
+pub trait IProxy: INotifier + Send + Sync {
     fn name(&self) -> &str;
 
     fn data(&self) -> Option<&(dyn Any + Send + Sync)> {
@@ -11,9 +12,11 @@ pub trait IProxy: Send + Sync {
         None
     }
 
-    fn set_data(&mut self, data: Option<Box<dyn Any + Send + Sync>>) {
+    fn set_data(&mut self, _data: Option<Box<dyn Any + Send + Sync>>) {
 
     }
+    
+    fn notifier_mut(&mut self) -> &mut Box<dyn INotifier + Send + Sync>;
 
     fn on_register(&mut self) {
 

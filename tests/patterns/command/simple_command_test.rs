@@ -1,12 +1,22 @@
 use std::sync::{Arc, Mutex};
-use puremvc::{ICommand, INotification, Notification};
+use puremvc::{ICommand, INotification, INotifier, Notification, SimpleCommand};
 
 struct SimpleCommandTestVO {
     input: i8,
     result: i8,
 }
 
-struct SimpleCommandTestCommand;
+struct SimpleCommandTestCommand {
+    command: SimpleCommand
+}
+
+impl SimpleCommandTestCommand {
+    fn new() -> Self {
+        Self { command: SimpleCommand::new() }
+    }
+}
+
+impl INotifier for SimpleCommandTestCommand {}
 
 impl ICommand for SimpleCommandTestCommand {
     fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
@@ -18,6 +28,10 @@ impl ICommand for SimpleCommandTestCommand {
 
         vo.result = 2 * vo.input;
     }
+
+    fn notifier_mut(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
+        self.command.notifier_mut()
+    }
 }
 
 #[test]
@@ -28,7 +42,7 @@ fn test_simple_command_execute() {
         None
     )));
 
-    let mut command = SimpleCommandTestCommand;
+    let mut command = SimpleCommandTestCommand::new();
     command.execute(&note);
 
     let note = note.lock().unwrap();
