@@ -87,7 +87,7 @@ impl IView for View {
 
         if let Some(mediator) = &removed {
             let interests = mediator.lock().unwrap().list_notification_interests();
-            let context = Arc::new(Box::new(mediator.clone()) as Box<dyn Any + Send + Sync>);
+            let context: Arc<Box<dyn Any + Send + Sync>> = Arc::new(Box::new(mediator.clone()));
             for interest in interests {
                 self.remove_observer(&interest, &context);
             }
