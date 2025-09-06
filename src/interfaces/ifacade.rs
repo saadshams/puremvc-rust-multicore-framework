@@ -3,7 +3,7 @@ use crate::{ICommand, IMediator, INotification, IProxy};
 use crate::interfaces::INotifier;
 
 pub trait IFacade: INotifier + Sync + Send {
-    fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Arc<Mutex<dyn ICommand>> + Send + Sync>);
+    fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>);
     fn has_command(&self, notification_name: &str) -> bool;
     fn remove_command(&self, notification_name: &str);
 

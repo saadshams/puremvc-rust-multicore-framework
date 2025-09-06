@@ -8,7 +8,7 @@ static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IController>>>> = La
 pub struct Controller {
     key: String,
     view: Option<Arc<dyn IView>>,
-    command_map: Mutex<HashMap<String, Arc<dyn Fn() -> Arc<Mutex<dyn ICommand>> + Send + Sync>>>,
+    command_map: Mutex<HashMap<String, Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>>>,
 }
 
 impl Controller {
@@ -41,14 +41,13 @@ impl IController for Controller {
         };
 
         if let Some(factory) = factory {
-            let instance = factory();
-            let mut command = instance.lock().unwrap();
+            let mut command = factory();
             command.notifier_mut().initialize_notifier(&self.key);
             command.execute(notification);
         }
     }
 
-    fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Arc<Mutex<dyn ICommand>> + Send + Sync>) {
+    fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>) {
         let mut map = self.command_map.lock().unwrap();
         map.insert(notification_name.to_string(), factory);
     }

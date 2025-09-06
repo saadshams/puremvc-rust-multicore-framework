@@ -74,7 +74,7 @@ fn test_get_instance() {
 fn test_register_and_execute_command() {
     let controller = Controller::get_instance("ControllerTestKey2", |k| Arc::new(Controller::new(k)));
 
-    controller.register_command("ControllerTest", Arc::new(|| Arc::new(Mutex::new(ControllerTestCommand::new()))));
+    controller.register_command("ControllerTest", Arc::new(|| Box::new(ControllerTestCommand::new())));
 
     let vo = ControllerTestVO { input: 12, result: 0 };
     let notification = Notification::new("ControllerTest", Some(Box::new(vo)), None);
