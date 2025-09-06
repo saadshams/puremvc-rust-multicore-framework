@@ -120,17 +120,9 @@ impl IView for View {
 
         if let Some(mediator) = &removed {
             let interests = mediator.lock().unwrap().list_notification_interests();
-            
-            // Use the stored context reference for removal
-            let context_ref = {
-                let mut contexts = self.mediator_contexts.lock().unwrap();
-                contexts.remove(mediator_name)
-            };
-            
-            if let Some(context) = context_ref {
-                for interest in interests {
-                    self.remove_observer(&interest, &context);
-                }
+            let context = Arc::new(Box::new(mediator.clone()) as Box<dyn Any + Send + Sync>);
+            for interest in interests {
+                self.remove_observer(&interest, &context);
             }
             
             mediator.lock().unwrap().on_remove();

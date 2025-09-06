@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, Mutex};
-use crate::{ICommand, INotification, IObserver, Observer, View};
+use crate::{ICommand, INotification, Observer, View};
 use crate::interfaces::{IController, IView};
 
 static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IController>>>> = LazyLock::new(|| Default::default());
@@ -53,15 +53,11 @@ impl IController for Controller {
         if !map.contains_key(notification_name) {
             let context = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
             let ctx_clone = context.clone();
-            let notify = Arc::new(move |note: &Arc<Mutex<dyn INotification>>| {
-                ctx_clone.execute_command(note);
-            });
+
+            let notify = Arc::new(move |note: &Arc<Mutex<dyn INotification>>| { ctx_clone.execute_command(note) });
 
             let observer = Observer::new(Some(notify), Some(Arc::new(Box::new(context.clone()))));
-
-            let observer2: Arc<Box<dyn IObserver>> = Arc::new(Box::new(observer));
-
-            self.view.as_ref().unwrap().register_observer(notification_name, observer2);
+            self.view.as_ref().unwrap().register_observer(notification_name, Arc::new(Box::new(observer)));
         }
 
         map.insert(notification_name.to_string(), factory);
