@@ -17,10 +17,6 @@ impl Notifier {
 }
 
 impl INotifier for Notifier {
-    //    Weak to avoid Cyclic ref
-    // 1) Facade -> Model -> Proxy -> Notifier -> Facade
-    // 2) Facade -> Controller -> Commands -> Notifier -> Facade
-    // 3) Facade -> View -> Mediator -> Notifier -> Facade
     fn facade(&self) -> Option<Weak<dyn IFacade>> {
         let key = self.key.as_ref().expect(MULTITON_MSG);
         Some(Arc::downgrade(&Facade::get_instance(key, |k| Arc::new(Facade::new(k)))))
