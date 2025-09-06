@@ -3,12 +3,12 @@ use crate::INotification;
 
 pub struct Notification {
     name: String,
-    body: Option<Box<dyn Any+ Send + Sync>>,
+    body: Option<Box<dyn Any + Send + Sync>>,
     type_: Option<String>,
 }
 
 impl Notification {
-    pub fn new(name: &str, body: Option<Box<dyn Any+ Send + Sync>>, type_: Option<&str>) -> Self {
+    pub fn new(name: &str, body: Option<Box<dyn Any + Send + Sync>>, type_: Option<&str>) -> Self {
         Self {
             name: name.to_string(),
             body,
@@ -26,11 +26,11 @@ impl INotification for Notification {
         self.body.as_ref()
     }
 
-    fn body_mut(&mut self) -> Option<&mut Box< dyn Any + Send + Sync>> {
+    fn body_mut(&mut self) -> Option<&mut Box<dyn Any + Send + Sync>> {
         self.body.as_mut()
     }
 
-    fn set_body(&mut self, body: Option<Box<dyn Any+ Send + Sync>>) {
+    fn set_body(&mut self, body: Option<Box<dyn Any + Send + Sync>>) {
         self.body = body;
     }
 
@@ -45,10 +45,10 @@ impl INotification for Notification {
     fn to_string(&self) -> String {
         let name = &self.name;
         let body = match &self.body {
-            Some(b) => format!("{:?}", b),
+            Some(b) => format!("{b:?}"),
             None => "null".to_string()
         };
-        let type_ = self.r#type_.as_deref().unwrap_or("null");
-        format!("Notification Name: {}\nBody: {}\nType: {}", name, body, type_)
+        let type_ = self.type_.as_deref().unwrap_or("null");
+        format!("Notification Name: {name}\nBody: {body}\nType: {type_}")
     }
 }

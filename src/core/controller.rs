@@ -3,12 +3,13 @@ use std::sync::{Arc, LazyLock, Mutex};
 use crate::{ICommand, INotification, IObserver, Observer, View};
 use crate::interfaces::{IController, IView};
 
-static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IController>>>> = LazyLock::new(|| Default::default());
+static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IController>>>> = LazyLock::new(Default::default);
 
 pub struct Controller {
     key: String,
     view: Option<Arc<dyn IView>>,
     command_map: Mutex<HashMap<String, Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>>>,
+    observer_contexts: Mutex<HashMap<String, Arc<Box<dyn std::any::Any + Send + Sync>>>>,
 }
 
 impl Controller {
@@ -17,6 +18,7 @@ impl Controller {
             key: key.to_string(),
             view: None,
             command_map: Mutex::new(HashMap::new()),
+            observer_contexts: Mutex::new(HashMap::new()),
         };
 
         instance.initialize_controller();
@@ -57,9 +59,15 @@ impl IController for Controller {
                 ctx_clone.execute_command(note);
             });
 
-            let observer = Observer::new(Some(notify), Some(Arc::new(Box::new(context.clone()))));
-
+            let context_ref = Arc::new(Box::new(context.clone()) as Box<dyn std::any::Any + Send + Sync>);
+            let observer = Observer::new(Some(notify), Some(context_ref.clone()));
             let observer2: Arc<Box<dyn IObserver>> = Arc::new(Box::new(observer));
+
+            
+            {
+                let mut contexts = self.observer_contexts.lock().unwrap();
+                contexts.insert(notification_name.to_string(), context_ref);
+            }
 
             self.view.as_ref().unwrap().register_observer(notification_name, observer2);
         }
@@ -78,8 +86,15 @@ impl IController for Controller {
 
         if removed.is_some() {
             if let Some(view) = &self.view {
-                let context = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
-                view.remove_observer(notification_name, &Arc::new(Box::new(context)));
+                // Use the stored context reference for removal
+                let context_ref = {
+                    let mut contexts = self.observer_contexts.lock().unwrap();
+                    contexts.remove(notification_name)
+                };
+                
+                if let Some(context) = context_ref {
+                    view.remove_observer(notification_name, &context);
+                }
             }
         }
     }

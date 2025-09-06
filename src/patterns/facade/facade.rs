@@ -4,7 +4,7 @@ use std::sync::{Arc, LazyLock, Mutex};
 use crate::{Controller, ICommand, IController, IMediator, IModel, INotification, IProxy, Model, Notification, View};
 use crate::interfaces::{IFacade, INotifier, IView};
 
-static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IFacade>>>> = LazyLock::new(|| Default::default());
+static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IFacade>>>> = LazyLock::new(Default::default);
 
 pub struct Facade {
     key: String,
@@ -144,7 +144,7 @@ impl INotifier for Facade {
         self.key = key.to_string();
     }
 
-    fn send_notification(&self, notification_name: &str, body: Option<Box<dyn Any+ Send + Sync>>, type_: Option<&str>) {
+    fn send_notification(&self, notification_name: &str, body: Option<Box<dyn Any + Send + Sync>>, type_: Option<&str>) {
         let notification: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new(notification_name, body, type_)));
         self.notify_observers(&notification);
     }

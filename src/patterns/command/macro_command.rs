@@ -13,7 +13,15 @@ impl MacroCommand {
             sub_commands: Vec::new()
         }
     }
-    
+}
+
+impl Default for MacroCommand {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl MacroCommand {
     pub fn initialize_macro_command(&mut self) {
         
     }
@@ -27,9 +35,9 @@ impl INotifier for MacroCommand {}
 
 impl ICommand for MacroCommand {
     fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
-        for factory in self.sub_commands.drain(..) {
+        for factory in &self.sub_commands {
             let mut command = factory();
-            command.execute(&notification.clone());
+            command.execute(notification);
         }
     }
 

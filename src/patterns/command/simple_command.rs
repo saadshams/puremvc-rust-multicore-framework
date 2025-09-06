@@ -12,6 +12,12 @@ impl SimpleCommand {
     }
 }
 
+impl Default for SimpleCommand {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl INotifier for SimpleCommand {}
 
 impl ICommand for SimpleCommand {

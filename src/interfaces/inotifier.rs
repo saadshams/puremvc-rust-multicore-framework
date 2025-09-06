@@ -15,7 +15,7 @@ pub trait INotifier {
 
     }
 
-    fn send_notification(&self, _notification_name: &str, _body: Option<Box<dyn Any+ Send + Sync>>, _type_: Option<&str>) {
+    fn send_notification(&self, _notification_name: &str, _body: Option<Box<dyn Any + Send + Sync>>, _type_: Option<&str>) {
 
     }
 }
