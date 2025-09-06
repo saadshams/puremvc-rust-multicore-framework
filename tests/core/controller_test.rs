@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 use puremvc::{Controller, ICommand, INotification, Notification};
-#[derive(Clone)]
+
 struct ControllerTestVO {
     input: i8,
     result: i8
@@ -44,35 +44,19 @@ fn test_get_instance() {
 #[test]
 
 fn test_register_and_execute_command() {
-    let controller = Controller::get_instance("ControllerTestKey2", |k| { 
-        Arc::new(Controller::new(k))
-    });
+    let controller = Controller::get_instance("ControllerTestKey2", |k| Arc::new(Controller::new(k)));
 
-    controller.register_command(
-        "ControllerTest", 
-        Arc::new(|| Arc::new(Mutex::new(ControllerTestCommand)))
-    );
+    controller.register_command("ControllerTest", Arc::new(|| Arc::new(Mutex::new(ControllerTestCommand))));
 
-    // Create the VO and notification
-    let vo = Box::new(ControllerTestVO {
-        input: 12, 
-        result: 0
-    });
+    let vo = ControllerTestVO { input: 12, result: 0 };
+    let notification = Notification::new("ControllerTest", Some(Box::new(vo)), None);
+    let note_arc: Arc<Mutex<dyn INotification>>  = Arc::new(Mutex::new(notification));
     
-    let notification = Notification::new("ControllerTest", Some(vo), None);
-    let note_arc = Arc::new(Mutex::new(notification));
-    
-    // Execute the command
-    controller.execute_command(note_arc.clone());
+    controller.execute_command(&note_arc);
 
-    // Alternative: if you need to access the result multiple times
-    fn check_result(note: &Arc<Mutex<Notification>>) {
-        let guard = note.lock().unwrap();
-        let body = guard.body().expect("No body in notification");
-        let vo_result = body.downcast_ref::<ControllerTestVO>()
-            .expect("Body is not a ControllerTestVO");
-        assert_eq!(vo_result.result, 24);
-    }
-    
-    check_result(&note_arc);
+    let guard = note_arc.lock().unwrap();
+    let body = guard.body().expect("No body in notification");
+    let vo_result = body.downcast_ref::<ControllerTestVO>()
+        .expect("Body is not a ControllerTestVO");
+    assert_eq!(vo_result.result, 24);
 }

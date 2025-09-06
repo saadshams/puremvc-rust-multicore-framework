@@ -1,5 +1,4 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex};
 use crate::INotification;
 
 pub struct Notification {

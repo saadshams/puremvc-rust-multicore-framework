@@ -1,5 +1,4 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex};
 
 pub trait INotification {
     fn name(&self) -> &str;

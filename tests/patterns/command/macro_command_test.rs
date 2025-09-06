@@ -70,7 +70,6 @@ fn test_macro_command_execute() {
     let mut command = MacroCommandTestCommand::new();
     command.execute(&note);
 
-    // Check results - proper way to access the data
     {
         let guard = note.lock().unwrap();
         let body = guard.body().expect("Notification body missing");
@@ -79,17 +78,5 @@ fn test_macro_command_execute() {
         
         assert_eq!(vo.result1, 10, "Expecting vo.result1 == 10");
         assert_eq!(vo.result2, 25, "Expecting vo.result2 == 25");
-    } // guard is dropped here
-    
-    // If you need to access the data again later:
-    {
-        let guard = note.lock().unwrap();
-        let body = guard.body().expect("Notification body missing");
-        let vo = body.downcast_ref::<MacroCommandTestVO>()
-            .expect("Body is not a MacroCommandTestVO");
-        
-        // vo.result1 should still be 10
-        // vo.result2 should still be 25
-        println!("Results: result1={}, result2={}", vo.result1, vo.result2);
     }
 }

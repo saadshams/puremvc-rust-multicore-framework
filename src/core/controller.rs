@@ -34,24 +34,16 @@ impl Controller {
 }
 
 impl IController for Controller {
-    fn execute_command(&self, notification: Arc<Mutex<dyn INotification>>) {
-        // Get the notification name first to avoid holding multiple locks
-        let notification_name = {
-            let note = notification.lock().unwrap();
-            note.name().to_string()
-        };
-
-        // Look up the factory function
+    fn execute_command(&self, notification: &Arc<Mutex<dyn INotification>>) {
         let factory = {
             let map = self.command_map.lock().unwrap();
-            map.get(&notification_name).cloned()
+            map.get(notification.lock().unwrap().name()).cloned()
         };
 
-        // Execute the command if found
         if let Some(factory) = factory {
             let instance = factory();
             let mut command = instance.lock().unwrap();
-            command.execute(&notification);
+            command.execute(notification);
         }
     }
 
@@ -67,16 +59,13 @@ impl IController for Controller {
 
     fn remove_command(&self, notification_name: &str) {
         let mut map = self.command_map.lock().unwrap();
+        let removed = map.remove(notification_name);
 
-        if let Some(factory) = map.get(notification_name) {
-            if let Some(view) = self.view.clone() {
-                let this = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
-                view.remove_observer(notification_name, &Arc::new(Box::new(this)));
+        if removed.is_some() {
+            if let Some(view) = &self.view {
+                let context = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
+                view.remove_observer(notification_name, &Arc::new(Box::new(context)));
             }
-
-            println!("Removing command for notification: {}", notification_name);
         }
-
-        map.remove(notification_name);
     }
 }
