@@ -1,5 +1,5 @@
 use std::sync::{Arc, Mutex};
-use puremvc::{Controller, ICommand, INotification, INotifier, Notification, SimpleCommand};
+use puremvc::{Controller, ICommand, INotification, INotifier, Notification, SimpleCommand, View};
 
 struct ControllerTestVO {
     input: i8,
@@ -70,7 +70,6 @@ fn test_get_instance() {
 }
 
 #[test]
-
 fn test_register_and_execute_command() {
     let controller = Controller::get_instance("ControllerTestKey2", |k| Arc::new(Controller::new(k)));
 
@@ -87,4 +86,81 @@ fn test_register_and_execute_command() {
     let vo_result = body.downcast_ref::<ControllerTestVO>()
         .expect("Body is not a ControllerTestVO");
     assert_eq!(vo_result.result, 24);
+}
+
+#[test]
+fn test_register_and_remove_command() {
+    let controller = Controller::get_instance("ControllerTestKey3", |k| Arc::new(Controller::new(k)));
+
+    controller.register_command("ControllerRemoveTest", Arc::new(|| Box::new(ControllerTestCommand::new())));
+
+    let notification: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(
+        Notification::new("ControllerRemoveTest", Some(Box::new(ControllerTestVO { input: 12, result: 0 })), None)
+    ));
+
+    controller.execute_command(&notification);
+
+    assert_eq!(notification.lock().unwrap().body()
+                   .and_then(|b| b.downcast_ref::<ControllerTestVO>())
+                   .map(|vo| vo.result), Some(24));
+
+    if let Some(body) = notification.lock().unwrap().body_mut() {
+        if let Some(vo) = body.downcast_mut::<ControllerTestVO>() {
+            vo.result = 0;
+        }
+    }
+
+    controller.remove_command("ControllerRemoveTest");
+
+    controller.execute_command(&notification);
+
+    assert_eq!(notification.lock().unwrap().body()
+                   .and_then(|b| b.downcast_ref::<ControllerTestVO>())
+                   .map(|vo| vo.result), Some(0));
+}
+
+#[test]
+fn test_has_command() {
+    let controller = Controller::get_instance("ControllerTestKey4", |k| Arc::new(Controller::new(k)));
+
+    controller.register_command("hasCommandTest", Arc::new(|| Box::new(ControllerTestCommand::new())));
+
+    assert_eq!(controller.has_command("hasCommandTest"), true, "Expecting controller.has_command('hasCommandTest')");
+
+    controller.remove_command("hasCommandTest");
+
+    assert_eq!(controller.has_command("hasCommandTest"), false, "Expecting controller.has_command('hasCommandTest')");
+}
+
+#[test]
+fn test_reregister_and_execute_command() {
+    let controller = Controller::get_instance("ControllerTestKey5", |k| Arc::new(Controller::new(k)));
+
+    controller.register_command("ControllerTest2", Arc::new(|| Box::new(ControllerTestCommand2::new())));
+    controller.remove_command("ControllerTest2");
+    controller.register_command("ControllerTest2", Arc::new(|| Box::new(ControllerTestCommand2::new())));
+
+    let vo = ControllerTestVO { input: 12, result: 0 };
+    let notification = Notification::new("ControllerTest2", Some(Box::new(vo)), None);
+    let note_arc: Arc<Mutex<dyn INotification>>  = Arc::new(Mutex::new(notification));
+
+    let view = View::get_instance("ControllerTestKey5", |k| Arc::new(View::new(k)));
+
+    view.notify_observers(&note_arc);
+
+    if let Some(body) = note_arc.lock().unwrap().body_mut() {
+        if let Some(vo) = body.downcast_mut::<ControllerTestVO>() {
+            vo.result = vo.result;
+        }
+    }
+
+    assert_eq!(note_arc.lock().unwrap().body()
+                   .and_then(|b| b.downcast_ref::<ControllerTestVO>())
+                   .map(|vo| vo.result), Some(24));
+
+    view.notify_observers(&note_arc);
+
+    assert_eq!(note_arc.lock().unwrap().body()
+                   .and_then(|b| b.downcast_ref::<ControllerTestVO>())
+                   .map(|vo| vo.result), Some(48));
 }
