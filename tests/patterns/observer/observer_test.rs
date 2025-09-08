@@ -7,36 +7,6 @@ struct Object {
 }
 
 #[test]
-fn test_compare_notify_context() {
-    let controller: Arc<dyn IController> = Controller::get_instance("ObserverTestKey1", |k| Arc::new(Controller::new(k)));
-    let controller_any: Arc<dyn Any + Send + Sync> = Arc::new(controller.clone());
-
-    let observer = Observer::new(None, Some(controller_any.clone()));
-
-    assert_eq!(observer.compare_notify_context(&controller_any), true);
-
-    let neg_controller = Controller::get_instance("ObserverTestKey2", |k| Arc::new(Controller::new(k)));
-    let neg_controller_any: Arc<dyn Any + Send + Sync> = Arc::new(neg_controller.clone());
-
-    assert_eq!(observer.compare_notify_context(&neg_controller_any), false);
-}
-
-#[test]
-fn test_compare_notify_context2() {
-    let mediator: Arc<Mutex<dyn IMediator>> = Arc::new(Mutex::new(Mediator::new(None, None)));
-    let mediator_any: Arc<dyn Any + Send + Sync> = Arc::new(mediator.clone());
-
-    let observer = Observer::new(None, Some(mediator_any.clone()));
-
-    assert_eq!(observer.compare_notify_context(&mediator_any), true);
-
-    let neg_mediator: Arc<Mutex<dyn IMediator>> = Arc::new(Mutex::new(Mediator::new(None, None)));
-    let neg_mediator_any: Arc<dyn Any + Send + Sync> = Arc::new(neg_mediator.clone());
-
-    assert_eq!(observer.compare_notify_context(&neg_mediator_any), false);
-}
-
-#[test]
 fn test_observer_accessors() {
     let object = Arc::new(Mutex::new(Object{value: 0.0}));
 
@@ -78,4 +48,34 @@ fn test_observer_constructor() {
     observer.notify_observer(&note);
 
     assert_eq!(object.lock().unwrap().value, 5.0);
+}
+
+#[test]
+fn test_compare_notify_context() {
+    let controller: Arc<dyn IController> = Controller::get_instance("ObserverTestKey1", |k| Arc::new(Controller::new(k)));
+    let controller_any: Arc<dyn Any + Send + Sync> = Arc::new(controller.clone());
+
+    let observer = Observer::new(None, Some(controller_any.clone()));
+
+    assert_eq!(observer.compare_notify_context(&controller_any), true);
+
+    let neg_controller = Controller::get_instance("ObserverTestKey2", |k| Arc::new(Controller::new(k)));
+    let neg_controller_any: Arc<dyn Any + Send + Sync> = Arc::new(neg_controller.clone());
+
+    assert_eq!(observer.compare_notify_context(&neg_controller_any), false);
+}
+
+#[test]
+fn test_compare_notify_context2() {
+    let mediator: Arc<Mutex<dyn IMediator>> = Arc::new(Mutex::new(Mediator::new(None, None)));
+    let mediator_any: Arc<dyn Any + Send + Sync> = Arc::new(mediator.clone());
+
+    let observer = Observer::new(None, Some(mediator_any.clone()));
+
+    assert_eq!(observer.compare_notify_context(&mediator_any), true);
+
+    let neg_mediator: Arc<Mutex<dyn IMediator>> = Arc::new(Mutex::new(Mediator::new(None, None)));
+    let neg_mediator_any: Arc<dyn Any + Send + Sync> = Arc::new(neg_mediator.clone());
+
+    assert_eq!(observer.compare_notify_context(&neg_mediator_any), false);
 }
