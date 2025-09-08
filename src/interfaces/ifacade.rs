@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 use crate::{ICommand, IMediator, INotification, IProxy};
 use crate::interfaces::INotifier;
 
-pub trait IFacade: INotifier + Sync + Send {
+pub trait IFacade: INotifier {
     fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>);
     fn has_command(&self, notification_name: &str) -> bool;
     fn remove_command(&self, notification_name: &str);

@@ -12,12 +12,6 @@ pub struct Controller {
     command_map: Mutex<HashMap<String, Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>>>,
 }
 
-impl dyn IController {
-    pub(crate) fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
-
 impl Controller {
     pub fn new(key: &str) -> Self {
         let mut instance = Self {
@@ -37,6 +31,12 @@ impl Controller {
 
     pub fn initialize_controller(&mut self) {
         self.view = Some(View::get_instance(&self.key, |k| Arc::new(View::new(k))));
+    }
+}
+
+impl dyn IController {
+    pub fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 

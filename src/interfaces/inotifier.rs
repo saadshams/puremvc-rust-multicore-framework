@@ -2,11 +2,7 @@ use std::any::Any;
 use std::sync::{Arc, Mutex, Weak};
 use crate::interfaces::IFacade;
 
-pub trait INotifier {
-    // Weak to avoid Cyclic ref
-    // 1) Facade -> Model -> Proxy -> Notifier -> Facade
-    // 2) Facade -> Controller -> Commands -> Notifier -> Facade
-    // 3) Facade -> View -> Mediator -> Notifier -> Facade
+pub trait INotifier: Any + Send + Sync {
     fn facade(&self) -> Option<Weak<dyn IFacade>> {
         None
     }

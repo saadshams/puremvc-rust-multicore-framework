@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
 
-pub trait INotification {
+pub trait INotification: Any + Send + Sync {
     fn name(&self) -> &str;
 
     fn body(&self) -> Option<&Arc<Mutex<dyn Any + Send + Sync>>>;

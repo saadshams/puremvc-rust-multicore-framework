@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, Mutex};
 use crate::{IModel, IProxy};
@@ -20,6 +21,12 @@ impl Model {
     pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> Arc<dyn IModel>) -> Arc<dyn IModel> {
         let mut map = INSTANCE_MAP.lock().unwrap();
         map.entry(key.to_string()).or_insert_with(|| factory(key)).clone()
+    }
+}
+
+impl dyn IModel {
+    pub fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 

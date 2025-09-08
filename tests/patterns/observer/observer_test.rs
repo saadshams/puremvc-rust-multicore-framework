@@ -8,46 +8,44 @@ struct Object {
 
 #[test]
 fn test_observer_accessors() {
-    let object = Arc::new(Mutex::new(Object{value: 0.0}));
-
-    let notify = {
-        let context = object.clone();
+    let context = Arc::new(Mutex::new(Object{value: 0.0}));
+    let notify = Arc::new({
+        let ctx = context.clone();
         move |notification: &Arc<Mutex<dyn INotification>>| {
             let note = notification.lock().unwrap();
-            context.lock().unwrap().value = *note.body().unwrap().lock().unwrap().downcast_ref::<f64>().unwrap();
+            ctx.lock().unwrap().value = *note.body().unwrap().lock().unwrap().downcast_ref::<f64>().unwrap();
         }
-    };
+    });
 
     let mut observer = Observer::new(None, None);
-    observer.set_notify(Some(Arc::new(notify)));
-    observer.set_context(Some(object.clone()));
+    observer.set_notify(Some(notify));
+    observer.set_context(Some(context.clone()));
 
     let vo = Arc::new(Mutex::new(10.0));
     let note: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new("ObserverTestNote", Some(vo), None)));
     observer.notify_observer(&note);
 
-    assert_eq!(object.lock().unwrap().value, 10.0);
+    assert_eq!(context.lock().unwrap().value, 10.0);
 }
 
 #[test]
 fn test_observer_constructor() {
-    let object = Arc::new(Mutex::new(Object{value: 0.0}));
-
-    let notify = {
-        let context = object.clone();
+    let context = Arc::new(Mutex::new(Object{value: 0.0}));
+    let notify = Arc::new({
+        let ctx = context.clone();
         move |notification: &Arc<Mutex<dyn INotification>>| {
             let note = notification.lock().unwrap();
-            context.lock().unwrap().value = *note.body().unwrap().lock().unwrap().downcast_ref::<f64>().unwrap();
+            ctx.lock().unwrap().value = *note.body().unwrap().lock().unwrap().downcast_ref::<f64>().unwrap();
         }
-    };
-    let context = Arc::new(Box::new(object.clone()) as Box<dyn Any + Send + Sync>);
-    let observer = Observer::new(Some(Arc::new(notify)), Some(context));
+    });
+
+    let observer = Observer::new(Some(notify), Some(context.clone()));
 
     let vo = Arc::new(Mutex::new(5.0));
     let note: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new("ObserverTestNote", Some(vo), None)));
     observer.notify_observer(&note);
 
-    assert_eq!(object.lock().unwrap().value, 5.0);
+    assert_eq!(context.lock().unwrap().value, 5.0);
 }
 
 #[test]

@@ -21,7 +21,15 @@ impl Proxy {
     }
 }
 
-impl INotifier for Proxy {}
+impl dyn IProxy {
+    pub fn as_any(&self) -> &dyn Any {
+        self
+    }
+}
+
+impl INotifier for Proxy {
+    
+}
 
 impl IProxy for Proxy {
     fn name(&self) -> &str {

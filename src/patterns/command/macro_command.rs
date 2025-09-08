@@ -24,7 +24,9 @@ impl MacroCommand {
     }
 }
 
-impl INotifier for MacroCommand {}
+impl INotifier for MacroCommand {
+
+}
 
 impl ICommand for MacroCommand {
     fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {

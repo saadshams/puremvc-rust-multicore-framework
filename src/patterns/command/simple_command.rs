@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::sync::{Arc, Mutex};
 use crate::{INotification, INotifier, Notifier};
 use crate::interfaces::ICommand;
@@ -14,7 +15,15 @@ impl SimpleCommand {
     }
 }
 
-impl INotifier for SimpleCommand {}
+impl dyn ICommand {
+    pub fn as_any(&self) -> &dyn Any {
+        self
+    }
+}
+
+impl INotifier for SimpleCommand {
+
+}
 
 impl ICommand for SimpleCommand {
     fn execute(&mut self, _notification: &Arc<Mutex<dyn INotification>>) {

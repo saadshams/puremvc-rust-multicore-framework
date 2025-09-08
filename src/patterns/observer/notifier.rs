@@ -18,6 +18,12 @@ impl Notifier {
     }
 }
 
+impl dyn INotifier {
+    pub fn as_any(&self) -> &dyn Any {
+        self
+    }
+}
+
 impl INotifier for Notifier {
     fn facade(&self) -> Option<Weak<dyn IFacade>> {
         let key = self.key.as_ref().expect(MULTITON_MSG);

@@ -1,7 +1,7 @@
 use std::any::Any;
 use crate::INotifier;
 
-pub trait IProxy: INotifier + Send + Sync {
+pub trait IProxy: INotifier {
     fn name(&self) -> &str;
 
     fn data(&self) -> Option<&(dyn Any + Send + Sync)> {

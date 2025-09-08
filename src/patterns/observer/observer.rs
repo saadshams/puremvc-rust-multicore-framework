@@ -17,6 +17,12 @@ impl Observer {
     }
 }
 
+impl dyn IObserver {
+    pub fn as_any(&self) -> &dyn Any {
+        self
+    }
+}
+
 impl IObserver for Observer {
     fn notify(&self) -> Option<Arc<dyn Fn(&Arc<Mutex<dyn INotification>>) + Send + Sync>> {
         self.notify.clone()

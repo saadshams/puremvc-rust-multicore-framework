@@ -2,7 +2,7 @@ use std::any::Any;
 use std::sync::{Arc, Mutex};
 use crate::INotification;
 
-pub trait IObserver: Send + Sync {
+pub trait IObserver: Any + Send + Sync {
     fn notify(&self) -> Option<Arc<dyn Fn(&Arc<Mutex<dyn INotification>>) + Send + Sync>>;
 
     fn set_notify(&mut self, notify: Option<Arc<dyn Fn(&Arc<Mutex<dyn INotification>>) + Send + Sync>>);

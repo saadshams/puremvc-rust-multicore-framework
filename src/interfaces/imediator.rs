@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex, Weak};
 use crate::INotifier;
 use crate::interfaces::INotification;
 
-pub trait IMediator: Any + INotifier + Send + Sync {
+pub trait IMediator: INotifier {
     fn name(&self) -> &str;
 
     fn component(&self) -> Option<&Weak<dyn Any + Send + Sync>> {

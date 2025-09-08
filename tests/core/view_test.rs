@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex, Weak};
 use puremvc::{IMediator, INotification, INotifier, Mediator, Notification, Observer, View};
 
 struct Object {
+    test_var: i32,
     on_register_called: bool,
     on_remove_called: bool
 }
@@ -10,6 +11,7 @@ struct Object {
 impl Default for Object {
     fn default() -> Self {
         Self {
+            test_var: 0,
             on_register_called: false,
             on_remove_called: false
         }
@@ -103,34 +105,33 @@ fn test_get_instance() {
 fn test_register_and_notify_observer() {
     let view = View::get_instance("ViewTestKey2", |k| Arc::new(View::new(k)));
 
-    let view_test_var = Arc::new(Mutex::new(2));
+    let context = Arc::new(Mutex::new(Object::default()));
 
-    let notify = {
-        let view_test_var = view_test_var.clone();
+    let notify = Arc::new({
+        let ctx = context.clone();
         move |notification: &Arc<Mutex<dyn INotification>>| {
             let note = notification.lock().unwrap();
-            *view_test_var.lock().unwrap() = *note.body().unwrap().lock().unwrap().downcast_ref::<i32>().unwrap();
+            ctx.lock().unwrap().test_var = *note.body().unwrap().lock().unwrap().downcast_ref::<i32>().unwrap();
         }
-    };
+    });
 
-    let context = Arc::new(Mutex::new(Object::default()));
-    let observer = Observer::new(Some(Arc::new(notify)), Some(context));
+    let observer = Observer::new(Some(notify), Some(context.clone()));
     view.register_observer("ObserverTestNote", Arc::new(observer));
 
-    let note: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new("ObserverTestNote", Some(Arc::new(Mutex::new(10i32))), None)));
-    view.notify_observers(&note);
+    let notification = Notification::new("ObserverTestNote", Some(Arc::new(Mutex::new(10))), None);
+    view.notify_observers(&(Arc::new(Mutex::new(notification)) as Arc<Mutex<dyn INotification>>));
 
-    assert_eq!(*view_test_var.lock().unwrap(), 10);
+    assert_eq!(context.lock().unwrap().test_var, 10);
 }
 
 #[test]
 fn test_register_and_retrieve_mediator() {
     let view = View::get_instance("ViewTestKey3", |k| Arc::new(View::new(k)));
 
-    let component = Arc::downgrade(&Arc::new(Object::default()));
+    let component = Arc::new(Mutex::new(Object::default()));
+    let mediator = ViewTestMediator::new(Some(Arc::downgrade(&component).clone()));
 
-    let view_test_mediator = ViewTestMediator::new(Some(component));
-    view.register_mediator(Arc::new(Mutex::new(view_test_mediator)));
+    view.register_mediator(Arc::new(Mutex::new(mediator)));
 }
 
 #[test]
@@ -151,9 +152,9 @@ fn test_has_mediator() {
 fn test_register_and_remove_mediator() {
     let view = View::get_instance("ViewTestKey5", |k| Arc::new(View::new(k)));
 
-    let component = Arc::downgrade(&Arc::new(Object::default()));
+    let component = Arc::new(Mutex::new(Object::default()));
+    let mediator = Mediator::new(Some("testing"), Some(Arc::downgrade(&component).clone()));
 
-    let mediator = Mediator::new(Some("testing"), Some(component));
     view.register_mediator(Arc::new(Mutex::new(mediator)));
 
     let removed_mediator = view.remove_mediator("testing");
@@ -168,9 +169,7 @@ fn test_on_register_and_on_remove() {
     let view = View::get_instance("ViewTestKey6", |k| Arc::new(View::new(k)));
 
     let component = Arc::new(Mutex::new(Object::default()));
-
     let mediator = ViewTestMediator4::new(Some(Arc::downgrade(&component).clone()));
-
     view.register_mediator(Arc::new(Mutex::new(mediator)));
 
     assert!(component.lock().unwrap().on_register_called, "Expecting component.on_register_called == true");
@@ -178,4 +177,41 @@ fn test_on_register_and_on_remove() {
     view.remove_mediator(ViewTestMediator4::NAME);
 
     assert!(component.lock().unwrap().on_remove_called, "Expecting component.on_remove_called == true");
+}
+
+#[test]
+fn test_successive_register_and_remove_mediator() {
+    let view = View::get_instance("ViewTestKey7", |k| Arc::new(View::new(k)));
+
+    let component = Arc::new(Mutex::new(Object::default()));
+    let mediator = ViewTestMediator::new(Some(Arc::downgrade(&component).clone()));
+    view.register_mediator(Arc::new(Mutex::new(mediator)));
+
+    let retrieved = view
+        .retrieve_mediator(ViewTestMediator::NAME)
+        .expect("Expecting view.retrieve_mediator(ViewTestMediator::NAME).is_some()");
+
+    assert!(retrieved.lock().unwrap().as_any().is::<ViewTestMediator>(),
+        "Expecting mediator is ViewTestMediator");
+    
+    view.remove_mediator(ViewTestMediator::NAME);
+
+    assert!(view.retrieve_mediator(ViewTestMediator::NAME).is_none(),
+            "Expecting view.retrieve_mediator(ViewTestMediator::NAME).is_none() == true");
+
+    assert!(view.remove_mediator(ViewTestMediator::NAME).is_none(),
+            "Expecting view.remove_mediator(ViewTestMediator::NAME).is_none() == true");
+
+    let mediator = ViewTestMediator::new(Some(Arc::downgrade(&component).clone()));
+    view.register_mediator(Arc::new(Mutex::new(mediator)));
+
+    let retrieved = view.retrieve_mediator(ViewTestMediator::NAME)
+        .expect("Expecting view.retrieve_mediator(ViewTestMediator::NAME).is_some()");
+
+    assert!(retrieved.lock().unwrap().as_any().is::<ViewTestMediator>(), "Expecting mediator is ViewTestMediator");
+
+    view.remove_mediator(ViewTestMediator::NAME);
+
+    assert!(view.retrieve_mediator(ViewTestMediator::NAME).is_none(),
+            "Expecting view.retrieve_mediator(ViewTestMediator::NAME).is_none() == true");
 }
