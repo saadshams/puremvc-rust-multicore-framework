@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, Mutex};
-use crate::{IMediator, INotification, IObserver};
+use crate::{IMediator, INotification, IObserver, Observer};
 use crate::interfaces::IView;
 
 static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IView>>>> = LazyLock::new(|| Default::default());
@@ -66,12 +66,27 @@ impl IView for View {
     }
 
     fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator>>) {
-        let mut guard = mediator.lock().unwrap();
         {
             let mut map = self.mediator_map.lock().unwrap();
+            let mut guard = mediator.lock().unwrap();
             map.insert(guard.name().to_string(), mediator.clone());
+            guard.notifier().initialize_notifier(&self.key);
         }
-        guard.notifier().initialize_notifier(&self.key);
+
+        let context: Arc<dyn Any + Send + Sync> = Arc::new(mediator.clone());
+        let notify = Arc::new({
+            let ctx = mediator.clone();
+            move |notification: &Arc<Mutex<dyn INotification>>| {
+                ctx.lock().unwrap().handle_notification(&notification);
+            }
+        });
+
+        let mut guard = mediator.lock().unwrap();
+        for interest in guard.list_notification_interests() {
+            let observer = Arc::new(Observer::new(Some(notify.clone()), Some(context.clone())));
+            self.register_observer(&interest, observer.clone());
+        }
+
         guard.on_register();
     }
 
