@@ -65,7 +65,7 @@ impl IView for View {
             let mut map = self.mediator_map.lock().unwrap();
             map.insert(guard.name().to_string(), mediator.clone());
         }
-        guard.notifier_mut().initialize_notifier(&self.key);
+        guard.notifier().initialize_notifier(&self.key);
         guard.on_register();
     }
 
@@ -91,6 +91,7 @@ impl IView for View {
             for interest in interests {
                 self.remove_observer(&interest, context.clone());
             }
+            mediator.lock().unwrap().on_remove();
             removed
         } else {
             None

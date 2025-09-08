@@ -39,7 +39,7 @@ impl IMediator for Mediator {
         self.component = component
     }
 
-    fn notifier_mut(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
+    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
         &mut self.notifier
     }
 
