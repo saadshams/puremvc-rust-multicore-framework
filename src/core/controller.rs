@@ -32,6 +32,10 @@ impl Controller {
     pub fn initialize_controller(&mut self) {
         self.view = Some(View::get_instance(&self.key, |k| Arc::new(View::new(k))));
     }
+    
+    pub fn remove_controller(key: &str) {
+        INSTANCE_MAP.lock().unwrap().remove(key);
+    }
 }
 
 impl dyn IController {

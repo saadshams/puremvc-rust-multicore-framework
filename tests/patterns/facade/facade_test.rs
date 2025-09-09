@@ -1,5 +1,10 @@
 use std::sync::{Arc, Mutex};
-use puremvc::{Facade, ICommand, INotification, INotifier, Proxy, SimpleCommand};
+use puremvc::{Facade, ICommand, INotification, INotifier, Mediator, Proxy, SimpleCommand};
+
+struct Sprite{}
+impl Default for Sprite {
+    fn default() -> Self { Self {} }
+}
 
 struct FacadeTestVO {
     input: i8,
@@ -70,4 +75,100 @@ fn test_register_and_retrieve_proxy() {
     facade.register_proxy(Arc::new(Mutex::new(proxy)));
 
     let proxy = facade.retrieve_proxy("colors").unwrap();
+
+    let mut guard = proxy.lock().unwrap();
+    let data = guard.data_mut()  // <-- a method returning &mut Box<dyn Any>
+        .unwrap()
+        .downcast_mut::<Vec<String>>()
+        .unwrap();
+
+    assert_eq!(data, &["red", "green", "blue"]);
+
+    data.push("yellow".to_string());
+
+    let data2 = guard.data_mut()  // <-- a method returning &mut Box<dyn Any>
+        .unwrap()
+        .downcast_mut::<Vec<String>>()
+        .unwrap();
+
+    assert_eq!(data2, &["red", "green", "blue", "yellow"]);
+}
+
+#[test]
+fn test_register_and_remove_proxy() {
+    let facade = Facade::get_instance("FacadeTestKey5", |k| Arc::new(Facade::new(k)));
+    let sizes = vec![7, 13, 21];
+    let proxy = Proxy::new(Some("sizes"), Some(Box::new(sizes)));
+    facade.register_proxy(Arc::new(Mutex::new(proxy)));
+
+    let removed_proxy = facade.remove_proxy("sizes").unwrap();
+
+    assert_eq!(removed_proxy.lock().unwrap().name(), "sizes");
+
+    assert!(facade.retrieve_proxy("sizes").is_none());
+}
+
+#[test]
+fn test_register_retrieve_and_remove_mediator() {
+    let facade = Facade::get_instance("FacadeTestKey6", |k| Arc::new(Facade::new(k)));
+    let component = Arc::new(Mutex::new(Sprite::default()));
+    let mediator = Mediator::new(Some(Mediator::NAME), Some(Arc::downgrade(&component).clone()));
+
+    facade.register_mediator(Arc::new(Mutex::new(mediator)));
+
+    assert!(facade.retrieve_mediator(Mediator::NAME).is_some());
+
+    let removed_mediator = facade.remove_mediator(Mediator::NAME).unwrap();
+
+    assert_eq!(removed_mediator.lock().unwrap().name(), Mediator::NAME);
+
+    assert!(facade.retrieve_mediator(Mediator::NAME).is_none());
+}
+
+#[test]
+fn test_has_proxy() {
+    let facade = Facade::get_instance("FacadeTestKey7", |k| Arc::new(Facade::new(k)));
+    let proxy = Proxy::new(Some("hasProxyTest"), Some(Box::new(vec![1, 2, 3])));
+    facade.register_proxy(Arc::new(Mutex::new(proxy)));
+
+    assert!(facade.has_proxy("hasProxyTest"));
+}
+
+#[test]
+fn test_has_mediator() {
+    let facade = Facade::get_instance("FacadeTestKey8", |k| Arc::new(Facade::new(k)));
+    let component = Arc::new(Mutex::new(Sprite::default()));
+    let mediator = Mediator::new(Some("facadeHasMediatorTest"), Some(Arc::downgrade(&component).clone()));
+    facade.register_mediator(Arc::new(Mutex::new(mediator)));
+
+    assert!(facade.has_mediator("facadeHasMediatorTest"));
+
+    facade.remove_mediator("facadeHasMediatorTest");
+
+    assert!(!facade.has_mediator("facadeHasMediatorTest"));
+}
+
+#[test]
+fn test_has_command() {
+    let facade = Facade::get_instance("FacadeTestKey9", |k| Arc::new(Facade::new(k)));
+    facade.register_command("FacadeTestCommand", Arc::new(|| {Box::new(FacadeTestCommand::new())}));
+
+    assert!(facade.has_command("FacadeTestCommand"));
+
+    facade.remove_command("FacadeTestCommand");
+
+    assert!(!facade.has_command("FacadeTestCommand"));
+}
+
+#[test]
+fn test_has_core_and_remove_core() {
+    assert!(!Facade::has_core("FacadeTestKey10"));
+
+    Facade::get_instance("FacadeTestKey10", |k| Arc::new(Facade::new(k)));
+
+    assert!(Facade::has_core("FacadeTestKey10"));
+
+    Facade::remove_core("FacadeTestKey10");
+
+    assert!(!Facade::has_core("FacadeTestKey10"));
 }

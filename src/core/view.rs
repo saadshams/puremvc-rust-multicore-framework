@@ -25,6 +25,10 @@ impl View {
         let mut map = INSTANCE_MAP.lock().unwrap();
         map.entry(key.to_string()).or_insert_with(|| factory(key)).clone()
     }
+
+    pub fn remove_view(key: &str) {
+        INSTANCE_MAP.lock().unwrap().remove(key);
+    }
 }
 
 impl dyn IView {

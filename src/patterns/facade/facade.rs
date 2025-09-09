@@ -49,6 +49,17 @@ impl Facade {
     fn initialize_view(&mut self) {
         self.view = Some(View::get_instance(&self.key, |k| Arc::new(View::new(k))))
     }
+
+    pub fn has_core(key: &str) -> bool {
+        INSTANCE_MAP.lock().unwrap().contains_key(key)
+    }
+
+    pub fn remove_core(key: &str) {
+        Model::remove_model(key);
+        View::remove_view(key);
+        Controller::remove_controller(key);
+        INSTANCE_MAP.lock().unwrap().remove(key);
+    }
 }
 
 impl dyn IFacade {

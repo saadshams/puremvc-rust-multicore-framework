@@ -57,12 +57,10 @@ fn test_register_and_retrieve_proxy() {
 
     let retrieved_proxy = model.retrieve_proxy("colors").unwrap();
 
-    let data = {
-        retrieved_proxy.lock().unwrap().data().unwrap()
-            .downcast_ref::<Vec<String>>()
-            .unwrap()
-            .clone()
-    };
+    let data = retrieved_proxy.lock().unwrap()
+        .data().unwrap()
+        .downcast_ref::<Vec<String>>()
+        .unwrap().clone();
 
     assert_eq!(data, &["red", "green", "blue"]);
 }
