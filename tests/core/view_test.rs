@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex, Weak};
+use std::sync::{mpsc, Arc, Mutex, Weak};
 use puremvc::{IMediator, INotification, INotifier, Mediator, Notification, Observer, View};
 
 pub mod view_test {
@@ -178,13 +178,14 @@ impl IMediator for ViewTestMediator5 {
 }
 
 struct ViewTestMediator6 {
-    mediator: Mediator
+    mediator: Mediator,
+    sender: mpsc::Sender<String>,
 }
 
 impl ViewTestMediator6 {
     pub const NAME: &'static str = "ViewTestMediator6";
-    pub fn new(name: Option<&str>, component: Option<Weak<dyn Any + Send + Sync>>) -> Self {
-        Self {mediator: Mediator::new(name, component)}
+    pub fn new(name: Option<&str>, component: Option<Weak<dyn Any + Send + Sync>>, sender: mpsc::Sender<String>) -> Self {
+        Self { mediator: Mediator::new(name, component), sender }
     }
 }
 
@@ -199,9 +200,7 @@ impl IMediator for ViewTestMediator6 {
     }
 
     fn handle_notification(&mut self, _notification: &Arc<Mutex<dyn INotification>>) {
-        let n = self.mediator.notifier();
-        let f = n.facade().unwrap().upgrade().unwrap();
-        let f2 = f.remove_mediator(self.name());
+        let _ = self.sender.send(self.name().to_string()); // deferred removal
     }
 
     fn on_remove(&mut self) {
@@ -429,6 +428,17 @@ fn test_mediator_reregistration() {
     assert_eq!(component.lock().unwrap().counter, 0);
 }
 
+// When `view.notify_observers` is called, it iterates over observers and invokes their `notify` callbacks.
+// If an `Observer`'s `notify` triggers `mediator.handle_notification`, and that in turn calls `remove_observer`,
+// we encounter re-entrant locking on the same mediator:
+// 1. The mediator is already locked inside the Observer's `notify` callback.
+// 2. `remove_observer` attempts to lock the mediator again to access `list_notification_interests`.
+// This double lock causes a deadlock.
+//
+// Recommended approach:
+// To prevent this, we should break the cycle by deferring potentially re-entrant operations.
+// One common strategy is to handle removal or other mutations asynchronously via channels,
+// ensuring that locks are never acquired recursively.
 #[test]
 fn test_modify_observer_list_during_notification() {
     let view = View::get_instance("ViewTestKey11", |k| Arc::new(View::new(k)));
@@ -436,25 +446,52 @@ fn test_modify_observer_list_during_notification() {
     let component = Arc::new(Mutex::new(Object::default()));
     let weak = Arc::downgrade(&component);
 
-    let mediator = Arc::new(Mutex::new(ViewTestMediator6::new(Some(&format!("{}/1", ViewTestMediator6::NAME)), Some(weak.clone()))));
-    view.register_mediator(Arc::clone(&(mediator as Arc<Mutex<dyn IMediator>>)));
+    let (sender, receiver) = mpsc::channel::<String>();
 
-    // let mediator = Arc::new(Mutex::new(ViewTestMediator6::new(Some(&format!("{}/2", ViewTestMediator6::NAME)), Some(weak.clone()))));
-    // view.register_mediator(Arc::clone(&(mediator as Arc<Mutex<dyn IMediator>>)));
-    //
-    // let mediator = Arc::new(Mutex::new(ViewTestMediator6::new(Some(&format!("{}/3", ViewTestMediator6::NAME)), Some(weak.clone()))));
-    // view.register_mediator(Arc::clone(&(mediator as Arc<Mutex<dyn IMediator>>)));
-    //
-    // let mediator = Arc::new(Mutex::new(ViewTestMediator6::new(Some(&format!("{}/4", ViewTestMediator6::NAME)), Some(weak.clone()))));
-    // view.register_mediator(Arc::clone(&(mediator as Arc<Mutex<dyn IMediator>>)));
-    //
-    // let mediator = Arc::new(Mutex::new(ViewTestMediator6::new(Some(&format!("{}/5", ViewTestMediator6::NAME)), Some(weak.clone()))));
-    // view.register_mediator(Arc::clone(&(mediator as Arc<Mutex<dyn IMediator>>)));
-    //
-    // let mediator = Arc::new(Mutex::new(ViewTestMediator6::new(Some(&format!("{}/6", ViewTestMediator6::NAME)), Some(weak.clone()))));
-    // view.register_mediator(Arc::clone(&(mediator as Arc<Mutex<dyn IMediator>>)));
+    let name = format!("{}/1", ViewTestMediator6::NAME);
+    let mediator = ViewTestMediator6::new(Some(&name), Some(weak.clone()), sender.clone());
+    view.register_mediator(Arc::clone(&(Arc::new(Mutex::new(mediator)) as Arc<Mutex<dyn IMediator>>)));
+
+    let name = format!("{}/2", ViewTestMediator6::NAME);
+    let mediator = ViewTestMediator6::new(Some(&name), Some(weak.clone()), sender.clone());
+    view.register_mediator(Arc::clone(&(Arc::new(Mutex::new(mediator)) as Arc<Mutex<dyn IMediator>>)));
+
+    let name = format!("{}/3", ViewTestMediator6::NAME);
+    let mediator = ViewTestMediator6::new(Some(&name), Some(weak.clone()), sender.clone());
+    view.register_mediator(Arc::clone(&(Arc::new(Mutex::new(mediator)) as Arc<Mutex<dyn IMediator>>)));
+
+    let name = format!("{}/4", ViewTestMediator6::NAME);
+    let mediator = ViewTestMediator6::new(Some(&name), Some(weak.clone()), sender.clone());
+    view.register_mediator(Arc::clone(&(Arc::new(Mutex::new(mediator)) as Arc<Mutex<dyn IMediator>>)));
+
+    let name = format!("{}/5", ViewTestMediator6::NAME);
+    let mediator = ViewTestMediator6::new(Some(&name), Some(weak.clone()), sender.clone());
+    view.register_mediator(Arc::clone(&(Arc::new(Mutex::new(mediator)) as Arc<Mutex<dyn IMediator>>)));
+
+    let name = format!("{}/6", ViewTestMediator6::NAME);
+    let mediator = ViewTestMediator6::new(Some(&name), Some(weak.clone()), sender.clone());
+    view.register_mediator(Arc::clone(&(Arc::new(Mutex::new(mediator)) as Arc<Mutex<dyn IMediator>>)));
+
+    let name = format!("{}/7", ViewTestMediator6::NAME);
+    let mediator = ViewTestMediator6::new(Some(&name), Some(weak.clone()), sender.clone());
+    view.register_mediator(Arc::clone(&(Arc::new(Mutex::new(mediator)) as Arc<Mutex<dyn IMediator>>)));
+
+    let name = format!("{}/8", ViewTestMediator6::NAME);
+    let mediator = ViewTestMediator6::new(Some(&name), Some(weak.clone()), sender.clone());
+    view.register_mediator(Arc::clone(&(Arc::new(Mutex::new(mediator)) as Arc<Mutex<dyn IMediator>>)));
 
     let notification = Notification::new(view_test::NOTE6, None, None);
     view.notify_observers(&(Arc::new(Mutex::new(notification)) as Arc<Mutex<dyn INotification>>));
+
+    while let Ok(name) = receiver.try_recv() {
+        view.remove_mediator(&name);
+    }
+
     assert_eq!(component.lock().unwrap().counter, 8);
+
+    component.lock().unwrap().counter = 0;
+    let notification = Notification::new(view_test::NOTE6, None, None);
+    view.notify_observers(&(Arc::new(Mutex::new(notification)) as Arc<Mutex<dyn INotification>>));
+
+    assert_eq!(component.lock().unwrap().counter, 0);
 }
