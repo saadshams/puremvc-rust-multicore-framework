@@ -43,13 +43,11 @@ impl IModel for Model {
     }
 
     fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
-        let map = self.proxy_map.lock().unwrap();
-        map.get(proxy_name).cloned()
+        self.proxy_map.lock().unwrap().get(proxy_name).cloned()
     }
 
     fn has_proxy(&self, proxy_name: &str) -> bool {
-        let map = self.proxy_map.lock().unwrap();
-        map.contains_key(proxy_name)
+        self.proxy_map.lock().unwrap().contains_key(proxy_name)
     }
 
     fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {

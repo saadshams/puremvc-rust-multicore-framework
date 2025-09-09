@@ -68,10 +68,11 @@ impl IView for View {
     fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator>>) {
         {
             let mut map = self.mediator_map.lock().unwrap();
-            let mut guard = mediator.lock().unwrap();
-            map.insert(guard.name().to_string(), Arc::clone(&mediator));
-            guard.notifier().initialize_notifier(&self.key);
+            map.insert(mediator.lock().unwrap().name().to_string(), Arc::clone(&mediator));
         }
+
+        let mut guard = mediator.lock().unwrap();
+        guard.notifier().initialize_notifier(&self.key);
 
         let context: Arc<dyn Any + Send + Sync> = Arc::new(Arc::clone(&mediator));
         let notify = {
@@ -81,35 +82,27 @@ impl IView for View {
             })
         };
 
-        let interests = {
-            mediator.lock().unwrap().list_notification_interests()
-        };
-
+        let interests = guard.list_notification_interests();
         for interest in interests {
             let observer = Arc::new(Observer::new(Some(notify.clone()), Some(context.clone())));
             self.register_observer(&interest, observer.clone());
         }
 
-        mediator.lock().unwrap().on_register();
+        guard.on_register();
     }
 
     fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
-        let map = self.mediator_map.lock().unwrap();
-        map.get(mediator_name).cloned()
+        self.mediator_map.lock().unwrap().get(mediator_name).cloned()
     }
 
     fn has_mediator(&self, mediator_name: &str) -> bool {
-        let map = self.mediator_map.lock().unwrap();
-        map.contains_key(mediator_name)
+        self.mediator_map.lock().unwrap().contains_key(mediator_name)
     }
 
     fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
-        let removed = {
-            let mut map = self.mediator_map.lock().unwrap();
-            map.remove(mediator_name)
-        };
+        let mut map = self.mediator_map.lock().unwrap();
 
-        if let Some(mediator) = &removed {
+        if let Some(mediator) = map.remove(mediator_name) {
             let interests = {
                 mediator.lock().unwrap().list_notification_interests()
             };
@@ -118,10 +111,11 @@ impl IView for View {
             for interest in interests {
                 self.remove_observer(&interest, Arc::clone(&context));
             }
-            
+
             mediator.lock().unwrap().on_remove();
+            Some(mediator)
+        } else {
+            None
         }
-        
-        removed
     }
 }

@@ -42,12 +42,8 @@ impl dyn IController {
 
 impl IController for Controller {
     fn execute_command(&self, notification: &Arc<Mutex<dyn INotification>>) {
-        let factory = {
-            let map = self.command_map.lock().unwrap();
-            map.get(notification.lock().unwrap().name()).cloned()
-        };
-
-        if let Some(factory) = factory {
+        let name = notification.lock().unwrap().name().to_string();
+        if let Some(factory) = self.command_map.lock().unwrap().get(&name) {
             let mut command = factory();
             command.notifier().initialize_notifier(&self.key);
             command.execute(notification);
@@ -56,27 +52,22 @@ impl IController for Controller {
 
     fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>) {
         let mut map = self.command_map.lock().unwrap();
-
-        if map.contains_key(notification_name) == false {
+        if !map.contains_key(notification_name) && let Some(view) = &self.view {
             let controller = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
-            
+
             let context: Arc<dyn Any + Send + Sync> = Arc::new(Arc::clone(&controller));
-            let notify = {
-                Arc::new(move |notification: &Arc<Mutex<dyn INotification>>| {
-                    controller.execute_command(&notification);
-                })
-            };
-
+            let notify = Arc::new(move |notification: &Arc<Mutex<dyn INotification>>| {
+                controller.execute_command(&notification);
+            });
             let observer = Observer::new(Some(notify), Some(context));
-            self.view.as_ref().unwrap().register_observer(notification_name, Arc::new(observer));
-        }
 
+            view.register_observer(notification_name, Arc::new(observer));
+        }
         map.insert(notification_name.to_string(), factory);
     }
 
     fn has_command(&self, notification_name: &str) -> bool {
-        let map = self.command_map.lock().unwrap();
-        map.contains_key(notification_name)
+        self.command_map.lock().unwrap().contains_key(notification_name)
     }
 
     fn remove_command(&self, notification_name: &str) {
