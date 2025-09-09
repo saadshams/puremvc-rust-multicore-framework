@@ -59,8 +59,8 @@ impl IController for Controller {
             let notify = Arc::new(move |notification: &Arc<Mutex<dyn INotification>>| {
                 controller.execute_command(&notification);
             });
-            let observer = Observer::new(Some(notify), Some(context));
 
+            let observer = Observer::new(Some(notify), Some(context));
             view.register_observer(notification_name, Arc::new(observer));
         }
         map.insert(notification_name.to_string(), factory);
@@ -72,13 +72,10 @@ impl IController for Controller {
 
     fn remove_command(&self, notification_name: &str) {
         let mut map = self.command_map.lock().unwrap();
-
-        if map.remove(notification_name).is_some() {
-            if let Some(view) = &self.view {
-                let controller = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
-                let context: Arc<dyn Any + Send + Sync> = Arc::new(controller);
-                view.remove_observer(notification_name, context);
-            }
+        if map.remove(notification_name).is_some() && let Some(view) = &self.view {
+            let controller = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
+            let context: Arc<dyn Any + Send + Sync> = Arc::new(controller);
+            view.remove_observer(notification_name, context);
         }
     }
 }
