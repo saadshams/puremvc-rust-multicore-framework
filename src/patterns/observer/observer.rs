@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
-use crate::{Controller, IController, IMediator, INotification};
+use crate::{IController, IMediator, INotification};
 use crate::interfaces::IObserver;
 
 pub struct Observer {
@@ -49,28 +49,21 @@ impl IObserver for Observer {
     fn compare_notify_context(&self, object: &Arc<dyn Any + Send + Sync>) -> bool {
         match self.context() {
             Some(context) => {
-                if let (Ok(a_arc), Ok(b_arc)) = (
-                    context.clone().downcast::<Arc<dyn IController>>(),
-                    object.clone().downcast::<Arc<dyn IController>>(),
+                 if let (Some(a), Some(b)) = (
+                    context.downcast_ref::<Arc<dyn IController>>(),
+                    object.downcast_ref::<Arc<dyn IController>>(),
                 ) {
-                    // Downcast trait object to concrete Controller
-                    let a_concrete = a_arc.as_ref().as_any().downcast_ref::<Controller>();
-                    let b_concrete = b_arc.as_ref().as_any().downcast_ref::<Controller>();
-                    if let (Some(a_ctrl), Some(b_ctrl)) = (a_concrete, b_concrete) {
-                        // Compare actual memory addresses of the underlying Controllers
-                        return (a_ctrl as *const Controller) == (b_ctrl as *const Controller);
-                    }
+                    return Arc::ptr_eq(a, b);
                 }
 
-                // Downcast trait object to concrete Mediator
-                if let (Ok(a), Ok(b)) = (
-                    context.clone().downcast::<Arc<Mutex<dyn IMediator>>>(),
-                    object.clone().downcast::<Arc<Mutex<dyn IMediator>>>(),
+                if let (Some(a), Some(b)) = (
+                    context.downcast_ref::<Arc<Mutex<dyn IMediator>>>(),
+                    object.downcast_ref::<Arc<Mutex<dyn IMediator>>>(),
                 ) {
-                    return Arc::ptr_eq(&a, &b);
+                    return Arc::ptr_eq(a, b);
                 }
 
-                panic!("Unsupported type in compare_notify_context");
+                panic!("Unsupported type");
             }
             None => false,
         }

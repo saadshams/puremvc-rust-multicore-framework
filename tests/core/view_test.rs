@@ -5,10 +5,10 @@ use puremvc::{IMediator, INotification, INotifier, Mediator, Notification, Obser
 pub mod view_test {
     pub const NOTE1: &'static str = "note1";
     pub const NOTE2: &'static str = "note2";
-    pub const NOTE3: &'static str = "note3";
-    pub const NOTE4: &'static str = "note4";
-    pub const NOTE5: &'static str = "note5";
-    pub const NOTE6: &'static str = "note6";
+    // pub const NOTE3: &'static str = "note3";
+    // pub const NOTE4: &'static str = "note4";
+    // pub const NOTE5: &'static str = "note5";
+    // pub const NOTE6: &'static str = "note6";
 }
 
 struct Object {
@@ -255,6 +255,22 @@ fn test_remove_mediator_and_subsequent_notify() {
 
     let notification = Notification::new(view_test::NOTE1, None, None);
     view.notify_observers(&(Arc::new(Mutex::new(notification)) as Arc<Mutex<dyn INotification>>));
+    assert_eq!(component.lock().unwrap().last_notification, view_test::NOTE1);
 
-    assert_eq!(component.lock().unwrap().last_notification, view_test::NOTE1)
+    let notification = Notification::new(view_test::NOTE2, None, None);
+    view.notify_observers(&(Arc::new(Mutex::new(notification)) as Arc<Mutex<dyn INotification>>));
+
+    view.remove_mediator(ViewTestMediator2::NAME);
+    assert!(view.retrieve_mediator(ViewTestMediator2::NAME).is_none(),
+            "Expecting view.retrieve_mediator(ViewTestMediator2::NAME).is_none() == true");
+
+    component.lock().unwrap().last_notification = String::new();
+
+    let notification = Notification::new(view_test::NOTE1, None, None);
+    view.notify_observers(&(Arc::new(Mutex::new(notification)) as Arc<Mutex<dyn INotification>>));
+    assert_ne!(component.lock().unwrap().last_notification, view_test::NOTE1);
+
+    let notification = Notification::new(view_test::NOTE2, None, None);
+    view.notify_observers(&(Arc::new(Mutex::new(notification)) as Arc<Mutex<dyn INotification>>));
+    assert_ne!(component.lock().unwrap().last_notification, view_test::NOTE2);
 }

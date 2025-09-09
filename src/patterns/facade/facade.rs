@@ -59,89 +59,51 @@ impl dyn IFacade {
 
 impl IFacade for Facade {
     fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>) {
-        if let Some(controller) = &self.controller {
-            controller.register_command(notification_name, factory);
-        }
+        self.controller.as_ref().unwrap().register_command(notification_name, factory);
     }
 
     fn has_command(&self, notification_name: &str) -> bool {
-        if let Some(controller) = &self.controller {
-            controller.has_command(notification_name)
-        } else {
-            false
-        }
+        self.controller.as_ref().unwrap().has_command(notification_name)
     }
 
     fn remove_command(&self, notification_name: &str) {
-        if let Some(controller) = &self.controller {
-            controller.remove_command(notification_name);
-        }
+        self.controller.as_ref().unwrap().remove_command(notification_name);
     }
 
     fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
-        if let Some(model) = &self.model {
-            model.register_proxy(proxy.clone());
-        }
+        self.model.as_ref().unwrap().register_proxy(proxy);
     }
 
     fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
-        if let Some(model) = &self.model {
-            model.retrieve_proxy(proxy_name)
-        } else {
-            None
-        }
+        self.model.as_ref().unwrap().retrieve_proxy(proxy_name)
     }
 
     fn has_proxy(&self, proxy_name: &str) -> bool {
-        if let Some(model) = &self.model {
-            model.has_proxy(proxy_name)
-        } else {
-            false
-        }
+        self.model.as_ref().unwrap().has_proxy(proxy_name)
     }
 
     fn remove_proxy(&self, name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
-        if let Some(model) = &self.model {
-            model.remove_proxy(name)
-        } else {
-            None
-        }
+        self.model.as_ref().unwrap().remove_proxy(name)
     }
 
     fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator>>) {
-        if let Some(view) = &self.view {
-            view.register_mediator(mediator);
-        }
+        self.view.as_ref().unwrap().register_mediator(mediator);
     }
 
     fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
-        if let Some(view) = &self.view {
-            view.retrieve_mediator(mediator_name)
-        } else {
-            None
-        }
+        self.view.as_ref().unwrap().retrieve_mediator(mediator_name)
     }
 
     fn has_mediator(&self, mediator_name: &str) -> bool {
-        if let Some(view) = &self.view {
-            view.has_mediator(mediator_name)
-        } else {
-            false
-        }
+        self.view.as_ref().unwrap().has_mediator(mediator_name)
     }
 
     fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
-        if let Some(view) = &self.view {
-            view.remove_mediator(mediator_name)
-        } else {
-            None
-        }
+        self.view.as_ref().unwrap().remove_mediator(mediator_name)
     }
 
     fn notify_observers(&self, notification: &Arc<Mutex<dyn INotification>>) {
-        if let Some(view) = &self.view {
-            view.notify_observers(notification);
-        }
+        self.view.as_ref().unwrap().notify_observers(notification);
     }
 }
 
@@ -151,7 +113,7 @@ impl INotifier for Facade {
     }
 
     fn send_notification(&self, notification_name: &str, body: Option<Arc<Mutex<dyn Any+ Send + Sync>>>, type_: Option<&str>) {
-        let notification: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new(notification_name, body, type_)));
-        self.notify_observers(&notification);
+        let notification = Notification::new(notification_name, body, type_);
+        self.notify_observers(&(Arc::new(Mutex::new(notification)) as Arc<Mutex<dyn INotification>>));
     }
 }
