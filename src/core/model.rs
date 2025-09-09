@@ -35,7 +35,7 @@ impl IModel for Model {
         let mut guard = proxy.lock().unwrap();
         {
             let mut map = self.proxy_map.lock().unwrap();
-            map.insert(guard.name().to_string(), proxy.clone());
+            map.insert(guard.name().to_string(), Arc::clone(&proxy));
         }
 
         guard.notifier_mut().initialize_notifier(&self.key);

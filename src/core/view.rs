@@ -69,11 +69,11 @@ impl IView for View {
         {
             let mut map = self.mediator_map.lock().unwrap();
             let mut guard = mediator.lock().unwrap();
-            map.insert(guard.name().to_string(), mediator.clone());
+            map.insert(guard.name().to_string(), Arc::clone(&mediator));
             guard.notifier().initialize_notifier(&self.key);
         }
 
-        let context: Arc<dyn Any + Send + Sync> = Arc::new(mediator.clone());
+        let context: Arc<dyn Any + Send + Sync> = Arc::new(Arc::clone(&mediator));
         let notify = {
             let mediator = Arc::clone(&mediator);
             Arc::new(move |notification: &Arc<Mutex<dyn INotification>>| {
@@ -114,7 +114,7 @@ impl IView for View {
                 mediator.lock().unwrap().list_notification_interests()
             };
 
-            let context: Arc<dyn Any + Send + Sync> = Arc::new(mediator.clone());
+            let context: Arc<dyn Any + Send + Sync> = Arc::new(Arc::clone(&mediator));
             for interest in interests {
                 self.remove_observer(&interest, Arc::clone(&context));
             }
