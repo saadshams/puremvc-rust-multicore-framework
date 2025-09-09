@@ -47,25 +47,21 @@ impl IObserver for Observer {
     }
 
     fn compare_notify_context(&self, object: &Arc<dyn Any + Send + Sync>) -> bool {
-        match self.context() {
-            Some(context) => {
-                if let (Some(a), Some(b)) = (
-                    context.downcast_ref::<Arc<dyn IController>>(),
-                    object.downcast_ref::<Arc<dyn IController>>(),
-                ) {
-                    return Arc::ptr_eq(a, b);
-                }
-
-                if let (Some(a), Some(b)) = (
-                    context.downcast_ref::<Arc<Mutex<dyn IMediator>>>(),
-                    object.downcast_ref::<Arc<Mutex<dyn IMediator>>>(),
-                ) {
-                    return Arc::ptr_eq(a, b);
-                }
-
-                false // Unsupported type
+        if let Some(context) = self.context() {
+            if let (Some(a), Some(b)) = (
+                context.downcast_ref::<Arc<dyn IController>>(),
+                object.downcast_ref::<Arc<dyn IController>>(),
+            ) {
+                return Arc::ptr_eq(a, b);
             }
-            None => false,
+
+            if let (Some(a), Some(b)) = (
+                context.downcast_ref::<Arc<Mutex<dyn IMediator>>>(),
+                object.downcast_ref::<Arc<Mutex<dyn IMediator>>>(),
+            ) {
+                return Arc::ptr_eq(a, b);
+            }
         }
+        false
     }
 }
