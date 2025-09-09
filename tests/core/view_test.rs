@@ -135,14 +135,13 @@ fn test_register_and_notify_observer() {
     let view = View::get_instance("ViewTestKey2", |k| Arc::new(View::new(k)));
 
     let context = Arc::new(Mutex::new(Object::default()));
-
-    let notify = Arc::new({
-        let ctx = context.clone();
-        move |notification: &Arc<Mutex<dyn INotification>>| {
+    let notify = {
+        let object = Arc::clone(&context);
+        Arc::new(move |notification: &Arc<Mutex<dyn INotification>>| {
             let note = notification.lock().unwrap();
-            ctx.lock().unwrap().test_var = *note.body().unwrap().lock().unwrap().downcast_ref::<i32>().unwrap();
-        }
-    });
+            object.lock().unwrap().test_var = *note.body().unwrap().lock().unwrap().downcast_ref::<i32>().unwrap();
+        })
+    };
 
     let observer = Observer::new(Some(notify), Some(context.clone()));
     view.register_observer("ObserverTestNote", Arc::new(observer));

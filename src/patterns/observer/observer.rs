@@ -49,7 +49,7 @@ impl IObserver for Observer {
     fn compare_notify_context(&self, object: &Arc<dyn Any + Send + Sync>) -> bool {
         match self.context() {
             Some(context) => {
-                 if let (Some(a), Some(b)) = (
+                if let (Some(a), Some(b)) = (
                     context.downcast_ref::<Arc<dyn IController>>(),
                     object.downcast_ref::<Arc<dyn IController>>(),
                 ) {
@@ -63,7 +63,7 @@ impl IObserver for Observer {
                     return Arc::ptr_eq(a, b);
                 }
 
-                panic!("Unsupported type");
+                false // Unsupported type
             }
             None => false,
         }

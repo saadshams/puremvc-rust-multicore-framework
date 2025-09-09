@@ -74,20 +74,23 @@ impl IView for View {
         }
 
         let context: Arc<dyn Any + Send + Sync> = Arc::new(mediator.clone());
-        let notify = Arc::new({
-            let ctx = mediator.clone();
-            move |notification: &Arc<Mutex<dyn INotification>>| {
-                ctx.lock().unwrap().handle_notification(&notification);
-            }
-        });
+        let notify = {
+            let mediator = Arc::clone(&mediator);
+            Arc::new(move |notification: &Arc<Mutex<dyn INotification>>| {
+                mediator.lock().unwrap().handle_notification(notification);
+            })
+        };
 
-        let mut guard = mediator.lock().unwrap();
-        for interest in guard.list_notification_interests() {
+        let interests = {
+            mediator.lock().unwrap().list_notification_interests()
+        };
+
+        for interest in interests {
             let observer = Arc::new(Observer::new(Some(notify.clone()), Some(context.clone())));
             self.register_observer(&interest, observer.clone());
         }
 
-        guard.on_register();
+        mediator.lock().unwrap().on_register();
     }
 
     fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
@@ -113,7 +116,7 @@ impl IView for View {
 
             let context: Arc<dyn Any + Send + Sync> = Arc::new(mediator.clone());
             for interest in interests {
-                self.remove_observer(&interest, context.clone());
+                self.remove_observer(&interest, Arc::clone(&context));
             }
             mediator.lock().unwrap().on_remove();
             removed

@@ -60,13 +60,13 @@ impl IController for Controller {
         if !map.contains_key(notification_name) {
             let context = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
             let notify = {
-                let controller = context.clone();
-                move |notification: &Arc<Mutex<dyn INotification>>| {
+                let controller = Arc::clone(&context);
+                Arc::new(move |notification: &Arc<Mutex<dyn INotification>>| {
                     controller.execute_command(&notification);
-                }
+                })
             };
 
-            let observer = Observer::new(Some(Arc::new(notify)), Some(Arc::new(context)));
+            let observer = Observer::new(Some(notify), Some(Arc::new(context)));
             self.view.as_ref().unwrap().register_observer(notification_name, Arc::new(observer));
         }
 
@@ -80,14 +80,12 @@ impl IController for Controller {
 
     fn remove_command(&self, notification_name: &str) {
         let mut map = self.command_map.lock().unwrap();
-        let removed = map.remove(notification_name);
 
-        if removed.is_some() {
+        if map.remove(notification_name).is_some() {
             if let Some(view) = &self.view {
-                let controller: Arc<dyn IController> = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
-                let controller_any: Arc<dyn Any + Send + Sync> = Arc::new(controller.clone());
-
-                view.remove_observer(notification_name, controller_any.clone());
+                let controller = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
+                let context: Arc<dyn Any + Send + Sync> = Arc::new(Arc::clone(&controller));
+                view.remove_observer(notification_name, context);
             }
         }
     }
