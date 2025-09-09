@@ -55,14 +55,12 @@ fn test_register_and_retrieve_proxy() {
     let proxy = Proxy::new(Some("colors"), Some(Box::new(colors)));
     model.register_proxy(Arc::new(Mutex::new(proxy)));
 
-    let retrieved_proxy = model.retrieve_proxy("colors")
-        .expect("Expecting proxy not null");
+    let retrieved_proxy = model.retrieve_proxy("colors").unwrap();
 
     let data = {
-        retrieved_proxy.lock().unwrap().data()
-            .expect("proxy has no data")
+        retrieved_proxy.lock().unwrap().data().unwrap()
             .downcast_ref::<Vec<String>>()
-            .expect("Data exists but is not a Vec<String>")
+            .unwrap()
             .clone()
     };
 
@@ -77,8 +75,7 @@ fn test_register_and_remove_proxy() {
     let proxy = Proxy::new(Some("sizes"), Some(Box::new(sizes)));
     model.register_proxy(Arc::new(Mutex::new(proxy)));
 
-    let removed_proxy = model.remove_proxy("sizes")
-        .expect("Expecting proxy not null");
+    let removed_proxy = model.remove_proxy("sizes").unwrap();
 
     assert_eq!(removed_proxy.lock().unwrap().name(), "sizes", "Expecting named sizes");
 
@@ -95,7 +92,7 @@ fn test_has_proxy() {
 
     assert!(model.has_proxy("aces"), "Expecting model.has_proxy('aces') == true");
 
-    model.remove_proxy("aces").expect("Expecting remove proxy aces");
+    model.remove_proxy("aces");
 
     assert!(!model.has_proxy("aces"), "Expecting model.has_proxy('aces') == false");
 }
@@ -111,7 +108,7 @@ fn test_on_register_and_on_remove() {
         proxy.lock().unwrap().data()
             .and_then(|d| d.downcast_ref::<&'static str>())
             .copied()
-            .expect("proxy data is missing or wrong type")
+            .unwrap()
     };
 
     assert_eq!(value, ModelTestProxy::ON_REGISTER_CALLED);
@@ -122,7 +119,7 @@ fn test_on_register_and_on_remove() {
         proxy.lock().unwrap().data()
             .and_then(|d| d.downcast_ref::<&'static str>())
             .copied()
-            .expect("proxy data is missing or wrong type")
+            .unwrap()
     };
 
     assert_eq!(value2, ModelTestProxy::ON_REMOVE_CALLED, "Expecting Proxy.data() == ModelTestProxy::ON_REMOVE_CALLED");

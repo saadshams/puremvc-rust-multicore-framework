@@ -52,7 +52,6 @@ impl INotifier for MacroCommandTestSub2Command {}
 impl ICommand for MacroCommandTestSub2Command {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
         let body = notification.body().cloned().unwrap();
-
         let mut guard = body.lock().unwrap();
         let vo = guard.downcast_mut::<MacroCommandTestVO>().unwrap();
 
