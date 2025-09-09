@@ -118,10 +118,10 @@ impl IView for View {
             for interest in interests {
                 self.remove_observer(&interest, Arc::clone(&context));
             }
+            
             mediator.lock().unwrap().on_remove();
-            removed
-        } else {
-            None
         }
+        
+        removed
     }
 }

@@ -32,12 +32,12 @@ impl dyn IModel {
 
 impl IModel for Model {
     fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
-        let mut guard = proxy.lock().unwrap();
         {
             let mut map = self.proxy_map.lock().unwrap();
-            map.insert(guard.name().to_string(), Arc::clone(&proxy));
+            map.insert(proxy.lock().unwrap().name().to_string(), Arc::clone(&proxy));
         }
 
+        let mut guard = proxy.lock().unwrap();
         guard.notifier_mut().initialize_notifier(&self.key);
         guard.on_register();
     }

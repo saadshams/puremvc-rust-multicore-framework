@@ -57,16 +57,17 @@ impl IController for Controller {
     fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>) {
         let mut map = self.command_map.lock().unwrap();
 
-        if !map.contains_key(notification_name) {
-            let context = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
+        if map.contains_key(notification_name) == false {
+            let controller = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
+            
+            let context: Arc<dyn Any + Send + Sync> = Arc::new(Arc::clone(&controller));
             let notify = {
-                let controller = Arc::clone(&context);
                 Arc::new(move |notification: &Arc<Mutex<dyn INotification>>| {
                     controller.execute_command(&notification);
                 })
             };
 
-            let observer = Observer::new(Some(notify), Some(Arc::new(context)));
+            let observer = Observer::new(Some(notify), Some(context));
             self.view.as_ref().unwrap().register_observer(notification_name, Arc::new(observer));
         }
 
