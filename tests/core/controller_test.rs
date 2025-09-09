@@ -7,7 +7,7 @@ struct ControllerTestVO {
 }
 
 struct ControllerTestCommand {
-    command: SimpleCommand,
+    command: SimpleCommand
 }
 
 impl ControllerTestCommand {
@@ -72,10 +72,11 @@ fn test_register_and_execute_command() {
     controller.register_command("ControllerTest", Arc::new(|| Box::new(ControllerTestCommand::new())));
 
     let vo = Arc::new(Mutex::new(ControllerTestVO { input: 12, result: 0 }));
-    let notification = Notification::new("ControllerTest", Some(vo.clone()), None);
-    let note_arc: Arc<Mutex<dyn INotification>>  = Arc::new(Mutex::new(notification));
+    let notification = Arc::new(Mutex::new(
+        Notification::new("ControllerTest", Some(vo.clone()), None))
+    );
 
-    controller.execute_command(&note_arc);
+    controller.execute_command(&(notification as Arc<Mutex<dyn INotification>>));
 
     assert_eq!(vo.lock().unwrap().result, 24);
 }
@@ -126,16 +127,17 @@ fn test_reregister_and_execute_command() {
     controller.register_command("ControllerTest2", Arc::new(|| Box::new(ControllerTestCommand2::new())));
 
     let vo = Arc::new(Mutex::new(ControllerTestVO { input: 12, result: 0 }));
-    let notification = Notification::new("ControllerTest2", Some(vo.clone()), None);
-    let note_arc: Arc<Mutex<dyn INotification>>  = Arc::new(Mutex::new(notification));
+    let notification: Arc<Mutex<dyn INotification>>  = Arc::new(Mutex::new(
+        Notification::new("ControllerTest2", Some(vo.clone()), None))
+    );
 
     let view = View::get_instance("ControllerTestKey5", |k| Arc::new(View::new(k)));
 
-    view.notify_observers(&note_arc);
+    view.notify_observers(&notification);
 
     vo.lock().unwrap().result = 24;
 
-    view.notify_observers(&note_arc);
+    view.notify_observers(&notification);
 
     assert_eq!(vo.lock().unwrap().result, 48);
 }

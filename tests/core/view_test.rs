@@ -200,7 +200,7 @@ impl IMediator for ViewTestMediator6 {
     }
 
     fn handle_notification(&mut self, _notification: &Arc<Mutex<dyn INotification>>) {
-        let _ = self.sender.send(self.name().to_string()); // deferred removal
+        let _ = self.sender.send(self.name().to_string()); // deferred removal (enqueue)
     }
 
     fn on_remove(&mut self) {
@@ -429,16 +429,16 @@ fn test_mediator_reregistration() {
 }
 
 // When `view.notify_observers` is called, it iterates over observers and invokes their `notify` callbacks.
-// If an `Observer`'s `notify` triggers `mediator.handle_notification`, and that in turn calls `remove_observer`,
-// we encounter re-entrant locking on the same mediator:
+// If an `Observer`'s `notify` triggers `mediator.handle_notification`, which in turn calls `remove_observer`
+// (via the facade) to mutate the observer list for iteration safety, we can encounter re-entrant locking on the same mediator:
 // 1. The mediator is already locked inside the Observer's `notify` callback.
 // 2. `remove_observer` attempts to lock the mediator again to access `list_notification_interests`.
-// This double lock causes a deadlock.
+// This double lock results in a deadlock.
 //
-// Recommended approach:
-// To prevent this, we should break the cycle by deferring potentially re-entrant operations.
-// One common strategy is to handle removal or other mutations asynchronously via channels,
-// ensuring that locks are never acquired recursively.
+// Solution: Deferred/Asynchronous processing.
+// To prevent this deadlock, we break the re-entrant cycle by deferring potentially recursive operations.
+// Instead of performing removals or other mutations inline, we enqueue the work for asynchronous processing.
+// Using channels (or similar queues) ensures that locks are never acquired recursively, avoiding deadlocks.
 #[test]
 fn test_modify_observer_list_during_notification() {
     let view = View::get_instance("ViewTestKey11", |k| Arc::new(View::new(k)));

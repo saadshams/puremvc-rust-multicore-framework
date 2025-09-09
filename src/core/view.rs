@@ -51,7 +51,7 @@ impl IView for View {
         }
     }
 
-    fn notify_observers(&self, notification: &Arc<Mutex<dyn INotification>>) { // todo
+    fn notify_observers(&self, notification: &Arc<Mutex<dyn INotification>>) {
         let notification_name = notification.lock().unwrap().name().to_string();
         if let Some(observers) = self.observer_map.lock().unwrap().get(&notification_name) {
             observers.iter().for_each(|observer| {
