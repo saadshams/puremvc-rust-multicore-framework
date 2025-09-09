@@ -19,8 +19,8 @@ impl SimpleCommandTestCommand {
 impl INotifier for SimpleCommandTestCommand {}
 
 impl ICommand for SimpleCommandTestCommand {
-    fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
-        let body = notification.lock().unwrap().body().cloned().unwrap();
+    fn execute(&mut self, notification: &Arc<dyn INotification>) {
+        let body = notification.body().cloned().unwrap();
 
         let mut guard = body.lock().unwrap();
         let vo = guard.downcast_mut::<SimpleCommandTestVO>().unwrap();
@@ -36,14 +36,10 @@ impl ICommand for SimpleCommandTestCommand {
 #[test]
 fn test_simple_command_execute() {
     let vo = Arc::new(Mutex::new(SimpleCommandTestVO { input: 5, result: 0 }));
-    let note: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new(
-        "SimpleCommandTestNote",
-        Some(vo.clone()),
-        None
-    )));
+    let note = Arc::new(Notification::new("SimpleCommandTestNote", Some(vo.clone()), None));
 
     let mut command = SimpleCommandTestCommand::new();
-    command.execute(&note);
+    command.execute(&(note as Arc<dyn INotification>));
 
     assert_eq!(vo.lock().unwrap().result, 10, "Expecting vo.result == 10");
 }

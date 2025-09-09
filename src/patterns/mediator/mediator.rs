@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex, Weak};
+use std::sync::{Arc, Weak};
 use crate::{IMediator, INotification, INotifier, Notifier};
 
 pub struct Mediator {
@@ -55,7 +55,7 @@ impl IMediator for Mediator {
         vec![]
     }
 
-    fn handle_notification(&mut self, _notification: &Arc<Mutex<dyn INotification>>) {
+    fn handle_notification(&mut self, _notification: &Arc<dyn INotification>) {
         
     }
 

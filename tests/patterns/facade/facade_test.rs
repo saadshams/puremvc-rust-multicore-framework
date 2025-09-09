@@ -1,5 +1,5 @@
-use std::sync::{Arc, Mutex};
-use puremvc::{Facade, ICommand, INotification, INotifier, Notification, SimpleCommand};
+use std::sync::{Arc};
+use puremvc::{Facade, ICommand, INotification, INotifier, SimpleCommand};
 
 struct FacadeTestVO {
     input: i8,
@@ -19,7 +19,7 @@ impl FacadeTestCommand {
 impl INotifier for FacadeTestCommand {}
 
 impl ICommand for FacadeTestCommand {
-    fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
+    fn execute(&mut self, _notification: &Arc<dyn INotification>) {
 
     }
 

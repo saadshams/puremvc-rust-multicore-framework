@@ -4,12 +4,12 @@ use crate::{IController, IMediator, INotification};
 use crate::interfaces::IObserver;
 
 pub struct Observer {
-    notify: Option<Arc<dyn Fn(&Arc<Mutex<dyn INotification>>) + Send + Sync>>,
+    notify: Option<Arc<dyn Fn(&Arc<dyn INotification>) + Send + Sync>>,
     context: Option<Arc<dyn Any + Send + Sync>>,
 }
 
 impl Observer {
-    pub fn new(notify: Option<Arc<dyn Fn(&Arc<Mutex<dyn INotification>>) + Send + Sync>>, context: Option<Arc<dyn Any + Send + Sync>>) -> Self {
+    pub fn new(notify: Option<Arc<dyn Fn(&Arc<dyn INotification>) + Send + Sync>>, context: Option<Arc<dyn Any + Send + Sync>>) -> Self {
         Self {
             notify,
             context,
@@ -24,11 +24,11 @@ impl dyn IObserver {
 }
 
 impl IObserver for Observer {
-    fn notify(&self) -> Option<Arc<dyn Fn(&Arc<Mutex<dyn INotification>>) + Send + Sync>> {
+    fn notify(&self) -> Option<Arc<dyn Fn(&Arc<dyn INotification>) + Send + Sync>> {
         self.notify.clone()
     }
 
-    fn set_notify(&mut self, notify: Option<Arc<dyn Fn(&Arc<Mutex<dyn INotification>>) + Send + Sync>>) {
+    fn set_notify(&mut self, notify: Option<Arc<dyn Fn(&Arc<dyn INotification>) + Send + Sync>>) {
         self.notify = notify;
     }
 
@@ -40,7 +40,7 @@ impl IObserver for Observer {
         self.context = context;
     }
 
-    fn notify_observer(&self, notification: &Arc<Mutex<dyn INotification>>) {
+    fn notify_observer(&self, notification: &Arc<dyn INotification>) {
         if let Some(notify) = self.notify() {
             notify(notification);
         }

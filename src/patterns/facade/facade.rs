@@ -102,7 +102,7 @@ impl IFacade for Facade {
         self.view.as_ref().unwrap().remove_mediator(mediator_name)
     }
 
-    fn notify_observers(&self, notification: &Arc<Mutex<dyn INotification>>) {
+    fn notify_observers(&self, notification: &Arc<dyn INotification>) {
         self.view.as_ref().unwrap().notify_observers(notification);
     }
 }
@@ -114,6 +114,6 @@ impl INotifier for Facade {
 
     fn send_notification(&self, notification_name: &str, body: Option<Arc<Mutex<dyn Any+ Send + Sync>>>, type_: Option<&str>) {
         let notification = Notification::new(notification_name, body, type_);
-        self.notify_observers(&(Arc::new(Mutex::new(notification)) as Arc<Mutex<dyn INotification>>));
+        self.notify_observers(&(Arc::new(notification) as Arc<dyn INotification>));
     }
 }

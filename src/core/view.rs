@@ -51,8 +51,8 @@ impl IView for View {
         }
     }
 
-    fn notify_observers(&self, notification: &Arc<Mutex<dyn INotification>>) {
-        let notification_name = notification.lock().unwrap().name().to_string();
+    fn notify_observers(&self, notification: &Arc<dyn INotification>) {
+        let notification_name = notification.name().to_string();
         if let Some(observers) = self.observer_map.lock().unwrap().get(&notification_name) {
             observers.iter().for_each(|observer| {
                 observer.notify_observer(notification)
@@ -73,7 +73,7 @@ impl IView for View {
         let context: Arc<dyn Any + Send + Sync> = Arc::new(Arc::clone(&mediator));
         let notify = {
             let mediator = Arc::clone(&mediator);
-            Arc::new(move |notification: &Arc<Mutex<dyn INotification>>| {
+            Arc::new(move |notification: &Arc<dyn INotification>| {
                 mediator.lock().unwrap().handle_notification(notification);
             })
         };

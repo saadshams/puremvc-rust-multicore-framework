@@ -41,8 +41,8 @@ impl dyn IController {
 }
 
 impl IController for Controller {
-    fn execute_command(&self, notification: &Arc<Mutex<dyn INotification>>) {
-        let name = notification.lock().unwrap().name().to_string();
+    fn execute_command(&self, notification: &Arc<dyn INotification>) {
+        let name = notification.name().to_string();
         if let Some(factory) = self.command_map.lock().unwrap().get(&name) {
             let mut command = factory();
             command.notifier().initialize_notifier(&self.key);
@@ -56,7 +56,7 @@ impl IController for Controller {
             let controller = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
 
             let context: Arc<dyn Any + Send + Sync> = Arc::new(Arc::clone(&controller));
-            let notify = Arc::new(move |notification: &Arc<Mutex<dyn INotification>>| {
+            let notify = Arc::new(move |notification: &Arc<dyn INotification>| {
                 controller.execute_command(&notification);
             });
 

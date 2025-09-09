@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 use crate::{ICommand, INotification, INotifier, Notifier};
 
 pub struct MacroCommand {
@@ -29,7 +29,7 @@ impl INotifier for MacroCommand {
 }
 
 impl ICommand for MacroCommand {
-    fn execute(&mut self, notification: &Arc<Mutex<dyn INotification>>) {
+    fn execute(&mut self, notification: &Arc<dyn INotification>) {
         for factory in self.sub_commands.drain(..) {
             let mut command = factory();
             command.execute(&notification);

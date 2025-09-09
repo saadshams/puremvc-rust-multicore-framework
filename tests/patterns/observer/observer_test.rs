@@ -11,9 +11,8 @@ fn test_observer_accessors() {
     let context = Arc::new(Mutex::new(Object{value: 0.0}));
     let notify = {
         let object = Arc::clone(&context);
-        Arc::new(move |notification: &Arc<Mutex<dyn INotification>>| {
-            let note = notification.lock().unwrap();
-            object.lock().unwrap().value = *note.body().unwrap().lock().unwrap().downcast_ref::<f64>().unwrap();
+        Arc::new(move |notification: &Arc<dyn INotification>| {
+            object.lock().unwrap().value = *notification.body().unwrap().lock().unwrap().downcast_ref::<f64>().unwrap();
         })
     };
 
@@ -22,8 +21,8 @@ fn test_observer_accessors() {
     observer.set_context(Some(context.clone()));
 
     let vo = Arc::new(Mutex::new(10.0));
-    let note: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new("ObserverTestNote", Some(vo), None)));
-    observer.notify_observer(&note);
+    let note = Arc::new(Notification::new("ObserverTestNote", Some(vo), None));
+    observer.notify_observer(&(note as Arc<dyn INotification>));
 
     assert_eq!(context.lock().unwrap().value, 10.0);
 }
@@ -33,17 +32,16 @@ fn test_observer_constructor() {
     let context = Arc::new(Mutex::new(Object{value: 0.0}));
     let notify = {
         let object = Arc::clone(&context);
-        Arc::new(move |notification: &Arc<Mutex<dyn INotification>>| {
-            let note = notification.lock().unwrap();
-            object.lock().unwrap().value = *note.body().unwrap().lock().unwrap().downcast_ref::<f64>().unwrap();
+        Arc::new(move |notification: &Arc<dyn INotification>| {
+            object.lock().unwrap().value = *notification.body().unwrap().lock().unwrap().downcast_ref::<f64>().unwrap();
         })
     };
 
     let observer = Observer::new(Some(notify), Some(context.clone()));
 
     let vo = Arc::new(Mutex::new(5.0));
-    let note: Arc<Mutex<dyn INotification>> = Arc::new(Mutex::new(Notification::new("ObserverTestNote", Some(vo), None)));
-    observer.notify_observer(&note);
+    let note = Arc::new(Notification::new("ObserverTestNote", Some(vo), None));
+    observer.notify_observer(&(note as Arc<dyn INotification>));
 
     assert_eq!(context.lock().unwrap().value, 5.0);
 }

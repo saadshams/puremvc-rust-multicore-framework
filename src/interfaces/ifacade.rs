@@ -17,5 +17,5 @@ pub trait IFacade: INotifier {
     fn has_mediator(&self, mediator_name: &str) -> bool;
     fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>>;
 
-    fn notify_observers(&self, notification: &Arc<Mutex<dyn INotification>>);
+    fn notify_observers(&self, notification: &Arc<dyn INotification>);
 }
