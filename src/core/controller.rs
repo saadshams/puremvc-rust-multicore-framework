@@ -84,7 +84,7 @@ impl IController for Controller {
         if map.remove(notification_name).is_some() {
             if let Some(view) = &self.view {
                 let controller = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
-                let context: Arc<dyn Any + Send + Sync> = Arc::new(Arc::clone(&controller));
+                let context: Arc<dyn Any + Send + Sync> = Arc::new(controller);
                 view.remove_observer(notification_name, context);
             }
         }
