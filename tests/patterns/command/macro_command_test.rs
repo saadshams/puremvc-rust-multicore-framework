@@ -23,11 +23,11 @@ impl INotifier for MacroCommandTestSub1Command {}
 
 impl ICommand for MacroCommandTestSub1Command {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
-        let body = notification.body().cloned().unwrap();
-        let mut guard = body.lock().unwrap();
-        let vo = guard.downcast_mut::<MacroCommandTestVO>().unwrap();
-
-        vo.result1 = 2 * vo.input;
+        if let Some(body) = notification.body() {
+            let mut vo = body.downcast_ref::<Mutex<MacroCommandTestVO>>().unwrap().lock().unwrap();
+            
+            vo.result1 = 2 * vo.input;
+        }
     }
 
     fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
@@ -51,11 +51,10 @@ impl INotifier for MacroCommandTestSub2Command {}
 
 impl ICommand for MacroCommandTestSub2Command {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
-        let body = notification.body().cloned().unwrap();
-        let mut guard = body.lock().unwrap();
-        let vo = guard.downcast_mut::<MacroCommandTestVO>().unwrap();
-
-        vo.result2 = vo.input * vo.input;
+        if let Some(body) = notification.body() {
+            let mut vo = body.downcast_ref::<Mutex<MacroCommandTestVO>>().unwrap().lock().unwrap();
+            vo.result2 = vo.input * vo.input;
+        }
     }
 
     fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {

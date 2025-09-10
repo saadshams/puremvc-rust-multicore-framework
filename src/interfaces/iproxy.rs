@@ -16,7 +16,7 @@ pub trait IProxy: INotifier {
 
     }
     
-    fn notifier_mut(&mut self) -> &mut Box<dyn INotifier + Send + Sync>;
+    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync>;
 
     fn on_register(&mut self) {
 

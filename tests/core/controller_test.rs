@@ -20,10 +20,10 @@ impl INotifier for ControllerTestCommand {}
 
 impl ICommand for ControllerTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
-        let mut guard = notification.body().unwrap().lock().unwrap();
-        let vo = guard.downcast_mut::<ControllerTestVO>().unwrap();
-
-        vo.result = 2 * vo.input;
+        if let Some(body) = notification.body() {
+            let mut vo = body.downcast_ref::<Mutex<ControllerTestVO>>().unwrap().lock().unwrap();
+            vo.result = 2 * vo.input;
+        }
     }
 
     fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
@@ -45,10 +45,10 @@ impl INotifier for ControllerTestCommand2 {}
 
 impl ICommand for ControllerTestCommand2 {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
-        let mut guard = notification.body().unwrap().lock().unwrap();
-        let vo = guard.downcast_mut::<ControllerTestVO>().unwrap();
-
-        vo.result = vo.result + (2 * vo.input);
+        if let Some(body) = notification.body() {
+            let mut vo = body.downcast_ref::<Mutex<ControllerTestVO>>().unwrap().lock().unwrap();
+            vo.result = vo.result + (2 * vo.input);
+        }
     }
 
     fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {

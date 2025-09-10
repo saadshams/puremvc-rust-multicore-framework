@@ -10,9 +10,11 @@ struct Object {
 fn test_observer_accessors() {
     let context = Arc::new(Mutex::new(Object{value: 0.0}));
     let notify = {
-        let object = Arc::clone(&context);
+        let context = Arc::clone(&context);
         Arc::new(move |notification: &Arc<dyn INotification>| {
-            object.lock().unwrap().value = *notification.body().unwrap().lock().unwrap().downcast_ref::<f64>().unwrap();
+            if let Some(body) = notification.body() {
+                context.lock().unwrap().value = *body.downcast_ref::<f64>().unwrap();
+            }
         })
     };
 
@@ -20,7 +22,7 @@ fn test_observer_accessors() {
     observer.set_notify(Some(notify));
     observer.set_context(Some(context.clone()));
 
-    let vo = Arc::new(Mutex::new(10.0));
+    let vo = Arc::new(10.0);
     let note = Arc::new(Notification::new("ObserverTestNote", Some(vo), None));
     observer.notify_observer(&(note as Arc<dyn INotification>));
 
@@ -31,15 +33,17 @@ fn test_observer_accessors() {
 fn test_observer_constructor() {
     let context = Arc::new(Mutex::new(Object{value: 0.0}));
     let notify = {
-        let object = Arc::clone(&context);
+        let context = Arc::clone(&context);
         Arc::new(move |notification: &Arc<dyn INotification>| {
-            object.lock().unwrap().value = *notification.body().unwrap().lock().unwrap().downcast_ref::<f64>().unwrap();
+            if let Some(body) = notification.body() {
+                context.lock().unwrap().value = *body.downcast_ref::<f64>().unwrap();
+            }
         })
     };
 
     let observer = Observer::new(Some(notify), Some(context.clone()));
 
-    let vo = Arc::new(Mutex::new(5.0));
+    let vo = Arc::new(5.0);
     let note = Arc::new(Notification::new("ObserverTestNote", Some(vo), None));
     observer.notify_observer(&(note as Arc<dyn INotification>));
 

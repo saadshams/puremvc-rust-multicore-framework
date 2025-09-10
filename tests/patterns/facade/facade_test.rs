@@ -25,11 +25,11 @@ impl INotifier for FacadeTestCommand {}
 
 impl ICommand for FacadeTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
-        let body = notification.body().cloned().unwrap();
-        let mut guard = body.lock().unwrap();
-        let vo = guard.downcast_mut::<FacadeTestVO>().unwrap();
-
-        vo.result = 2 * vo.input;
+        if let Some(body) = notification.body() {
+            let mut vo = body.downcast_ref::<Mutex<FacadeTestVO>>().unwrap().lock().unwrap();
+            
+            vo.result = 2 * vo.input;
+        }
     }
 
     fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {

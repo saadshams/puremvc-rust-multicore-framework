@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex, Weak};
+use std::sync::{Arc, Weak};
 use crate::interfaces::IFacade;
 
 pub trait INotifier: Any + Send + Sync {
@@ -11,7 +11,7 @@ pub trait INotifier: Any + Send + Sync {
 
     }
 
-    fn send_notification(&self, _notification_name: &str, _body: Option<Arc<Mutex<dyn Any+ Send + Sync>>>, _type_: Option<&str>) {
+    fn send_notification(&self, _notification_name: &str, _body: Option<Arc<dyn Any+ Send + Sync>>, _type_: Option<&str>) {
 
     }
 }

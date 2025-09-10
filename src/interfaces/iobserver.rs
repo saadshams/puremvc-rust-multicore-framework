@@ -7,7 +7,7 @@ pub trait IObserver: Any + Send + Sync {
 
     fn set_notify(&mut self, notify: Option<Arc<dyn Fn(&Arc<dyn INotification>) + Send + Sync>>);
 
-    fn context(&self) -> Option<Arc<dyn Any + Send + Sync>>;
+    fn context(&self) -> Option<&Arc<dyn Any + Send + Sync>>;
 
     fn set_context(&mut self, context: Option<Arc<dyn Any + Send + Sync>>);
 

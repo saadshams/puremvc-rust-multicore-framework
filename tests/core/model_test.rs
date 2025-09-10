@@ -27,8 +27,8 @@ impl IProxy for ModelTestProxy {
         self.proxy.data()
     }
 
-    fn notifier_mut(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        self.proxy.notifier_mut()
+    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
+        self.proxy.notifier()
     }
 
     fn on_register(&mut self) {
@@ -102,23 +102,18 @@ fn test_on_register_and_on_remove() {
     let proxy = Arc::new(Mutex::new(ModelTestProxy::new()));
     model.register_proxy(proxy.clone());
 
-    let value = {
-        proxy.lock().unwrap().data()
+    let value = proxy.lock().unwrap().data()
             .and_then(|d| d.downcast_ref::<&'static str>())
-            .copied()
-            .unwrap()
-    };
+            .copied().unwrap();
 
     assert_eq!(value, ModelTestProxy::ON_REGISTER_CALLED);
 
     model.remove_proxy(ModelTestProxy::NAME);
 
-    let value2 = {
-        proxy.lock().unwrap().data()
+    let value = proxy.lock().unwrap().data()
             .and_then(|d| d.downcast_ref::<&'static str>())
-            .copied()
-            .unwrap()
-    };
+            .copied().unwrap();
 
-    assert_eq!(value2, ModelTestProxy::ON_REMOVE_CALLED, "Expecting Proxy.data() == ModelTestProxy::ON_REMOVE_CALLED");
+
+    assert_eq!(value, ModelTestProxy::ON_REMOVE_CALLED, "Expecting Proxy.data() == ModelTestProxy::ON_REMOVE_CALLED");
 }

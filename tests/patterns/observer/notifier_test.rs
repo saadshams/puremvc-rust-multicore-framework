@@ -20,11 +20,10 @@ impl INotifier for NotifierTestCommand {}
 
 impl ICommand for NotifierTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
-        let body = notification.body().cloned().unwrap();
-        let mut guard = body.lock().unwrap();
-        let vo = guard.downcast_mut::<NotifierTestVO>().unwrap();
-
-        vo.result = 2 * vo.input;
+        if let Some(body) = notification.body() {
+            let mut vo = body.downcast_ref::<Mutex<NotifierTestVO>>().unwrap().lock().unwrap();
+            vo.result = 2 * vo.input;
+        }
     }
 
     fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {

@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex, Weak};
+use std::sync::{Arc, Weak};
 use crate::{INotifier};
 use crate::interfaces::IFacade;
 use crate::patterns::Facade;
@@ -34,7 +34,7 @@ impl INotifier for Notifier {
         self.key = Some(key.to_string());
     }
 
-    fn send_notification(&self, notification_name: &str, body: Option<Arc<Mutex<dyn Any + Send + Sync>>>, type_: Option<&str>) {
+    fn send_notification(&self, notification_name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
         if let Some(facade) = self.facade().unwrap().upgrade() {
             facade.send_notification(notification_name, body, type_);
         }

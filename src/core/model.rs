@@ -42,7 +42,7 @@ impl IModel for Model {
         }
 
         let mut guard = proxy.lock().unwrap();
-        guard.notifier_mut().initialize_notifier(&self.key);
+        guard.notifier().initialize_notifier(&self.key);
         guard.on_register();
     }
 

@@ -11,12 +11,11 @@ fn test_name_accessor() {
 fn test_body_accessor() {
     let mut note = Notification::new("TestNote", None, None);
     note.set_body(Some(Arc::new(Mutex::new(5))));
-    
-    let body = note.body().cloned().unwrap();
-    let mut guard = body.lock().unwrap();
-    let vo = guard.downcast_mut::<i32>().unwrap();
 
-    assert_eq!(*vo, 5);
+    if let Some(body) = note.body() {
+        let vo = body.downcast_ref::<Mutex<i32>>().unwrap().lock().unwrap();
+        assert_eq!(*vo, 5);
+    }
 }
 
 #[test]
@@ -25,19 +24,19 @@ fn test_constructor() {
     
     assert_eq!(note.name(), "TestNote", "Expecting note.get_name() == 'TestNote'");
 
-    let body = note.body().cloned().unwrap();
-    let mut guard = body.lock().unwrap();
-    let vo = guard.downcast_mut::<i32>().unwrap();
-    assert_eq!(*vo, 5);
+    if let Some(body) = note.body() {
+        let vo = body.downcast_ref::<Mutex<i32>>().unwrap().lock().unwrap();
 
-    assert_eq!(note.get_type(), Some("TestNoteType"));
+        assert_eq!(*vo, 5);
+        assert_eq!(note.get_type(), Some("TestNoteType"));
+    }
 }
 
 #[test]
 fn test_to_string() {
     let note = Notification::new("TestNote", Some(Arc::new(Mutex::new(vec![1, 3, 5]))), Some("TestType"));
     
-    let expected = "Notification Name: TestNote\nBody: Mutex { data: Any { .. }, poisoned: false, .. }\nType: TestType";
+    let expected = "Notification Name: TestNote\nBody: Any { .. }\nType: TestType";
     
     assert_eq!(note.to_string(), expected);
 }

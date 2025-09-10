@@ -103,11 +103,10 @@ impl IMediator for ViewTestMediator3 {
     }
 
     fn handle_notification(&mut self, notification: &Arc<dyn INotification>) {
-        if let Some(object) = self.mediator.component()
+        self.mediator.component()
             .and_then(|weak| weak.upgrade())
-            .and_then(|arc| arc.downcast::<Mutex<Object>>().ok()) {
-                object.lock().unwrap().last_notification = notification.name().to_string();
-            };
+            .and_then(|arc| arc.downcast::<Mutex<Object>>().ok())
+            .map(|object| object.lock().unwrap().last_notification = notification.name().to_string());
     }
 }
 
@@ -224,16 +223,18 @@ fn test_register_and_notify_observer() {
 
     let context = Arc::new(Mutex::new(Object::default()));
     let notify = {
-        let object = Arc::clone(&context);
+        let context = context.clone();
         Arc::new(move |notification: &Arc<dyn INotification>| {
-            object.lock().unwrap().test_var = *notification.body().unwrap().lock().unwrap().downcast_ref::<i32>().unwrap();
+            if let Some(body) = notification.body() {
+                context.lock().unwrap().test_var = *body.downcast_ref::<i32>().unwrap()
+            }
         })
     };
 
     let observer = Observer::new(Some(notify), Some(context.clone()));
     view.register_observer("ObserverTestNote", Arc::new(observer));
 
-    let notification = Notification::new("ObserverTestNote", Some(Arc::new(Mutex::new(10))), None);
+    let notification = Notification::new("ObserverTestNote", Some(Arc::new(10)), None);
     view.notify_observers(&(Arc::new(notification) as Arc<dyn INotification>));
 
     assert_eq!(context.lock().unwrap().test_var, 10);

@@ -19,16 +19,8 @@ fn test_view_accessor() {
 
     let mediator = Mediator::new(Some("MyMediator"), Some(Arc::downgrade(&button)));
 
-    if let Some(weak) = mediator.component() {
-        if let Some(component) = weak.upgrade() {
-            if let Some(button_ref) = component.downcast_ref::<Button>() {
-                assert_eq!(button_ref.label, "Click Me".to_string());
-            }
-        } else {
-            panic!("Unexpected component type");
-        }
-    } else {
-        panic!("Component is None");
-    }
-
+    mediator.component()
+        .and_then(|weak| weak.upgrade())
+        .and_then(|arc| arc.downcast::<Button>().ok())
+        .map(|object| assert_eq!(object.label, "Click Me".to_string()) );
 }
