@@ -31,12 +31,6 @@ impl View {
     }
 }
 
-impl dyn IView {
-    pub fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
-
 impl IView for View {
     fn register_observer(&self, notification_name: &str, observer: Arc<dyn IObserver>) {
         let mut map = self.observer_map.lock().unwrap();

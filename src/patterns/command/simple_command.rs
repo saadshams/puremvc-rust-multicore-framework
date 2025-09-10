@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc};
 use crate::{INotification, INotifier, Notifier};
 use crate::interfaces::ICommand;
@@ -12,12 +11,6 @@ impl SimpleCommand {
         Self {
             notifier: Box::new(Notifier::new())
         }
-    }
-}
-
-impl dyn ICommand {
-    pub fn as_any(&self) -> &dyn Any {
-        self
     }
 }
 

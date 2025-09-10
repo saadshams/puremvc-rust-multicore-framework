@@ -19,24 +19,18 @@ impl ModelTestProxy {
 impl INotifier for ModelTestProxy {}
 
 impl IProxy for ModelTestProxy {
-    fn name(&self) -> &str {
-        self.proxy.name()
-    }
+    fn name(&self) -> &str { self.proxy.name() }
 
-    fn data(&self) -> Option<&(dyn Any + Send + Sync)> {
-        self.proxy.data()
-    }
+    fn data(&self) -> Option<&Arc<dyn Any + Send + Sync>> { self.proxy.data() }
 
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        self.proxy.notifier()
-    }
+    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> { self.proxy.notifier() }
 
     fn on_register(&mut self) {
-        self.proxy.set_data(Some(Box::new(Self::ON_REGISTER_CALLED)));
+        self.proxy.set_data(Some(Arc::new(Self::ON_REGISTER_CALLED)));
     }
 
     fn on_remove(&mut self) {
-        self.proxy.set_data(Some(Box::new(Self::ON_REMOVE_CALLED)));
+        self.proxy.set_data(Some(Arc::new(Self::ON_REMOVE_CALLED)));
     }
 }
 
@@ -52,11 +46,11 @@ fn test_register_and_retrieve_proxy() {
     let model = Model::get_instance("ModelTestKey2", |k| Arc::new(Model::new(k)));
 
     let colors = vec!["red".to_string(), "green".to_string(), "blue".to_string()];
-    let proxy = Proxy::new(Some("colors"), Some(Box::new(colors)));
+    let proxy = Proxy::new(Some("colors"), Some(Arc::new(colors)));
     model.register_proxy(Arc::new(Mutex::new(proxy)));
 
     let retrieved_proxy = model.retrieve_proxy("colors").unwrap();
-
+    
     let data = retrieved_proxy.lock().unwrap()
         .data().unwrap()
         .downcast_ref::<Vec<String>>()

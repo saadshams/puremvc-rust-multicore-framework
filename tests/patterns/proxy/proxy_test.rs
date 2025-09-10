@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use puremvc::{IProxy, Proxy};
 
 #[test]
@@ -15,7 +16,7 @@ fn test_name_accessor() {
 fn test_data_accessors() {
     let mut proxy = Proxy::new(Some("colors"), None);
     let colors = vec!["red".to_string(), "green".to_string(), "blue".to_string()];
-    proxy.set_data(Some(Box::new(colors)));
+    proxy.set_data(Some(Arc::new(colors)));
 
     if let Some(data) = proxy.data() {
         if let Some(data) = data.downcast_ref::<Vec<String>>() {
@@ -33,7 +34,7 @@ fn test_data_accessors() {
 
 #[test]
 fn test_constructor() {
-    let proxy = Proxy::new(Some("colors"), Some(Box::new(vec!["red".to_string(), "green".to_string(), "blue".to_string()])));
+    let proxy = Proxy::new(Some("colors"), Some(Arc::new(vec!["red".to_string(), "green".to_string(), "blue".to_string()])));
 
     assert_eq!(proxy.name(), "colors", "Expecting Proxy.get_name() == 'colors'");
     if let Some(data) = proxy.data() {

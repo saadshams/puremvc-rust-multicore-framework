@@ -1,4 +1,4 @@
-use std::any::Any;
+use std::any::{Any, TypeId};
 use std::sync::{mpsc, Arc, Mutex, Weak};
 use puremvc::{IMediator, INotification, INotifier, Mediator, Notification, Observer, View};
 
@@ -307,8 +307,10 @@ fn test_successive_register_and_remove_mediator() {
         .retrieve_mediator(ViewTestMediator::NAME)
         .expect("Expecting view.retrieve_mediator(ViewTestMediator::NAME).is_some()");
 
-    assert!(retrieved.lock().unwrap().as_any().is::<ViewTestMediator>(),
-        "Expecting mediator is ViewTestMediator");
+    // println!("TypeId: {:?}", (&*(retrieved.lock().unwrap())).type_id());
+    // println!("Is ViewTestMediator? {}", (&*retrieved.lock().unwrap()).type_id() == TypeId::of::<ViewTestMediator>());
+
+    assert_eq!((&*(retrieved.lock().unwrap())).type_id(), TypeId::of::<ViewTestMediator>());
 
     view.remove_mediator(ViewTestMediator::NAME);
 
@@ -324,7 +326,7 @@ fn test_successive_register_and_remove_mediator() {
     let retrieved = view.retrieve_mediator(ViewTestMediator::NAME)
         .expect("Expecting view.retrieve_mediator(ViewTestMediator::NAME).is_some()");
 
-    assert!(retrieved.lock().unwrap().as_any().is::<ViewTestMediator>(), "Expecting mediator is ViewTestMediator");
+    assert_eq!((&*(retrieved.lock().unwrap())).type_id(), TypeId::of::<ViewTestMediator>());
 
     view.remove_mediator(ViewTestMediator::NAME);
 

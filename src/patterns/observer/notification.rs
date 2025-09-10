@@ -18,12 +18,6 @@ impl Notification {
     }
 }
 
-impl dyn INotification {
-    pub fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
-
 impl INotification for Notification {
     fn name(&self) -> &str {
         &self.name

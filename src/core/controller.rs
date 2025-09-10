@@ -38,12 +38,6 @@ impl Controller {
     }
 }
 
-impl dyn IController {
-    pub fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
-
 impl IController for Controller {
     fn execute_command(&self, notification: &Arc<dyn INotification>) {
         let name = notification.name().to_string();

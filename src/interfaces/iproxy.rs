@@ -1,18 +1,15 @@
 use std::any::Any;
+use std::sync::Arc;
 use crate::INotifier;
 
 pub trait IProxy: INotifier {
     fn name(&self) -> &str;
 
-    fn data(&self) -> Option<&(dyn Any + Send + Sync)> {
+    fn data(&self) -> Option<&Arc<dyn Any + Send + Sync>> {
         None
     }
 
-    fn data_mut(&mut self) -> Option<&mut (dyn Any + Send + Sync)> {
-        None
-    }
-
-    fn set_data(&mut self, _data: Option<Box<dyn Any + Send + Sync>>) {
+    fn set_data(&mut self, _data: Option<Arc<dyn Any + Send + Sync>>) {
 
     }
     

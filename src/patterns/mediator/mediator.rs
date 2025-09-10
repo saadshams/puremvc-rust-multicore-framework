@@ -20,12 +20,6 @@ impl Mediator {
     }
 }
 
-impl dyn IMediator {
-    pub fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
-
 impl INotifier for Mediator {
 
 }

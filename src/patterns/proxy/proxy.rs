@@ -1,4 +1,5 @@
 use std::any::Any;
+use std::sync::Arc;
 use crate::interfaces::{INotifier};
 use crate::IProxy;
 use crate::patterns::Notifier;
@@ -6,24 +7,18 @@ use crate::patterns::Notifier;
 pub struct Proxy {
     notifier: Box<dyn INotifier + Send + Sync>,
     name: String,
-    data: Option<Box<dyn Any + Send + Sync>>
+    data: Option<Arc<dyn Any + Send + Sync>>
 }
 
 impl Proxy {
     pub const NAME: &'static str = "Proxy";
 
-    pub fn new(name: Option<&str>, data: Option<Box<dyn Any + Send + Sync>>) -> Self {
+    pub fn new(name: Option<&str>, data: Option<Arc<dyn Any + Send + Sync>>) -> Self {
         Self {
             notifier: Box::new(Notifier::new()),
             name: name.unwrap_or(Self::NAME).to_string(),
             data
         }
-    }
-}
-
-impl dyn IProxy {
-    pub fn as_any(&self) -> &dyn Any {
-        self
     }
 }
 
@@ -36,15 +31,11 @@ impl IProxy for Proxy {
         &self.name
     }
 
-    fn data(&self) -> Option<&(dyn Any + Send + Sync)> {
-        self.data.as_deref()
+    fn data(&self) -> Option<&Arc<dyn Any + Send + Sync>> {
+        self.data.as_ref()
     }
 
-    fn data_mut(&mut self) -> Option<&mut (dyn Any + Send + Sync)> {
-        self.data.as_deref_mut()
-    }
-
-    fn set_data(&mut self, data: Option<Box<dyn Any + Send + Sync>>) {
+    fn set_data(&mut self, data: Option<Arc<dyn Any + Send + Sync>>) {
         self.data = data;
     }
 

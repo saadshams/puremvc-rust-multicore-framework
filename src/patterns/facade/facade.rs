@@ -62,12 +62,6 @@ impl Facade {
     }
 }
 
-impl dyn IFacade {
-    pub fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
-
 impl IFacade for Facade {
     fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>) {
         self.controller.as_ref().unwrap().register_command(notification_name, factory);

@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, Mutex};
 use crate::{IModel, IProxy};
@@ -25,12 +24,6 @@ impl Model {
     
     pub fn remove_model(key: &str) {
         INSTANCE_MAP.lock().unwrap().remove(key);
-    }
-}
-
-impl dyn IModel {
-    pub fn as_any(&self) -> &dyn Any {
-        self
     }
 }
 
