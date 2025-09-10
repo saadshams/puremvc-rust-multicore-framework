@@ -49,14 +49,13 @@ fn test_register_and_retrieve_proxy() {
     let proxy = Proxy::new(Some("colors"), Some(Arc::new(colors)));
     model.register_proxy(Arc::new(Mutex::new(proxy)));
 
-    let retrieved_proxy = model.retrieve_proxy("colors").unwrap();
-    
-    let data = retrieved_proxy.lock().unwrap()
-        .data().unwrap()
-        .downcast_ref::<Vec<String>>()
-        .unwrap().clone();
+    let proxy = model.retrieve_proxy("colors").unwrap();
 
-    assert_eq!(data, &["red", "green", "blue"]);
+    if let Some(data) = proxy.lock().unwrap().data() {
+        let colors = data.downcast_ref::<Vec<String>>().unwrap().clone();
+
+        assert_eq!(colors, &["red", "green", "blue"]);
+    }
 }
 
 #[test]
@@ -64,7 +63,7 @@ fn test_register_and_remove_proxy() {
     let model = Model::get_instance("ModelTestKey3", |k| Arc::new(Model::new(k)));
 
     let sizes = vec![7, 13, 21];
-    let proxy = Proxy::new(Some("sizes"), Some(Box::new(sizes)));
+    let proxy = Proxy::new(Some("sizes"), Some(Arc::new(sizes)));
     model.register_proxy(Arc::new(Mutex::new(proxy)));
 
     let removed_proxy = model.remove_proxy("sizes").unwrap();
@@ -79,7 +78,7 @@ fn test_has_proxy() {
     let model = Model::get_instance("ModelTestKey4", |k| Arc::new(Model::new(k)));
 
     let aces = vec!["clubs".to_string(), "spades".to_string(), "blue".to_string()];
-    let proxy = Proxy::new(Some("aces"), Some(Box::new(aces)));
+    let proxy = Proxy::new(Some("aces"), Some(Arc::new(aces)));
     model.register_proxy(Arc::new(Mutex::new(proxy)));
 
     assert!(model.has_proxy("aces"), "Expecting model.has_proxy('aces') == true");

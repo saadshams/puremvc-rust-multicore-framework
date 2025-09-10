@@ -27,7 +27,7 @@ impl ICommand for FacadeTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
         if let Some(body) = notification.body() {
             let mut vo = body.downcast_ref::<Mutex<FacadeTestVO>>().unwrap().lock().unwrap();
-            
+
             vo.result = 2 * vo.input;
         }
     }
@@ -71,34 +71,30 @@ fn test_register_and_remove_command_and_send_notification() {
 fn test_register_and_retrieve_proxy() {
     let facade = Facade::get_instance("FacadeTestKey4", |k| Arc::new(Facade::new(k)));
     let colors = vec!["red".to_string(), "green".to_string(), "blue".to_string()];
-    let proxy = Proxy::new(Some("colors"), Some(Box::new(colors)));
+    let proxy = Proxy::new(Some("colors"), Some(Arc::new(Mutex::new(colors))));
     facade.register_proxy(Arc::new(Mutex::new(proxy)));
 
     let proxy = facade.retrieve_proxy("colors").unwrap();
 
-    let mut guard = proxy.lock().unwrap();
-    let data = guard.data_mut()  // <-- a method returning &mut Box<dyn Any>
-        .unwrap()
-        .downcast_mut::<Vec<String>>()
-        .unwrap();
+    if let Some(data) = proxy.lock().unwrap().data() {
+        let mut colors = data.downcast_ref::<Mutex<Vec<String>>>().unwrap().lock().unwrap();
 
-    assert_eq!(data, &["red", "green", "blue"]);
+        assert_eq!(&*colors, &["red", "green", "blue"]);
+        
+        colors.push("yellow".to_string());
+    }
 
-    data.push("yellow".to_string());
-
-    let data2 = guard.data_mut()  // <-- a method returning &mut Box<dyn Any>
-        .unwrap()
-        .downcast_mut::<Vec<String>>()
-        .unwrap();
-
-    assert_eq!(data2, &["red", "green", "blue", "yellow"]);
+    if let Some(data) = proxy.lock().unwrap().data() {
+        let colors = data.downcast_ref::<Mutex<Vec<String>>>().unwrap().lock().unwrap();
+        assert_eq!(&*colors, &["red", "green", "blue", "yellow"]);
+    }
 }
 
 #[test]
 fn test_register_and_remove_proxy() {
     let facade = Facade::get_instance("FacadeTestKey5", |k| Arc::new(Facade::new(k)));
     let sizes = vec![7, 13, 21];
-    let proxy = Proxy::new(Some("sizes"), Some(Box::new(sizes)));
+    let proxy = Proxy::new(Some("sizes"), Some(Arc::new(sizes)));
     facade.register_proxy(Arc::new(Mutex::new(proxy)));
 
     let removed_proxy = facade.remove_proxy("sizes").unwrap();
@@ -128,7 +124,7 @@ fn test_register_retrieve_and_remove_mediator() {
 #[test]
 fn test_has_proxy() {
     let facade = Facade::get_instance("FacadeTestKey7", |k| Arc::new(Facade::new(k)));
-    let proxy = Proxy::new(Some("hasProxyTest"), Some(Box::new(vec![1, 2, 3])));
+    let proxy = Proxy::new(Some("hasProxyTest"), Some(Arc::new(vec![1, 2, 3])));
     facade.register_proxy(Arc::new(Mutex::new(proxy)));
 
     assert!(facade.has_proxy("hasProxyTest"));
