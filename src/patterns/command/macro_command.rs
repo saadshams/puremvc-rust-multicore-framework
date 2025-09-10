@@ -3,8 +3,7 @@ use crate::{ICommand, INotification, INotifier, Notifier};
 
 pub struct MacroCommand {
     notifier: Box<dyn INotifier + Send + Sync>,
-    sub_commands: Vec<Box<dyn Fn() -> Box<dyn ICommand> + Send + Sync>>,
-
+    sub_commands: Vec<Box<dyn Fn() -> Box<dyn ICommand> + Send + Sync>>
 }
 
 impl MacroCommand {
