@@ -410,10 +410,8 @@ fn test_mediator_reregistration() {
     let component = Arc::new(Mutex::new(Object::default()));
     let mediator: Arc<Mutex<dyn IMediator>> = Arc::new(Mutex::new(ViewTestMediator5::new(Some(Arc::downgrade(&component).clone()))));
 
-    view.register_mediator(mediator.clone());
-    view.register_mediator(mediator.clone());
-    // view.register_mediator(Arc::clone(&(mediator.clone() as Arc<Mutex<dyn IMediator>>)));
-    // view.register_mediator(Arc::clone(&(mediator as Arc<Mutex<dyn IMediator>>)));
+    view.register_mediator(Arc::clone(&mediator));
+    view.register_mediator(Arc::clone(&mediator));
 
     let notification = Notification::new(view_test::NOTE5, None, None);
     view.notify_observers(&(Arc::new(notification) as Arc<dyn INotification>));

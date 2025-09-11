@@ -69,14 +69,14 @@ impl IView for View {
         }
 
         let notify = {
-            let mediator = mediator.clone();
+            let mediator = Arc::clone(&mediator);
             Arc::new(move |notification: &Arc<dyn INotification>| {
                 mediator.lock().unwrap().handle_notification(notification);
             })
         };
 
         for interest in guard.list_notification_interests() {
-            let observer = Observer::new(Some(notify.clone()), Some(Arc::new(mediator.clone())));
+            let observer = Observer::new(Some(notify.clone()), Some(Arc::new(Arc::clone(&mediator))));
             self.register_observer(&interest, Arc::new(observer));
         }
 
@@ -97,16 +97,14 @@ impl IView for View {
             map.remove(mediator_name)
         };
 
-        if let Some(mediator) = mediator {
+        if let Some(mediator) = &mediator {
             let mut guard = mediator.lock().unwrap();
-            for interest in guard.list_notification_interests() { // lock 1
-                self.remove_observer(&interest, Arc::new(mediator.clone()));
+            for interest in guard.list_notification_interests() {
+                self.remove_observer(&interest, Arc::new(Arc::clone(mediator)));
             }
-
             guard.on_remove();
-            Some(mediator.clone())
-        } else {
-            None
         }
+
+        mediator
     }
 }

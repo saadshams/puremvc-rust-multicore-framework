@@ -182,7 +182,6 @@ impl TestController {
 
 impl Drop for TestController {
     fn drop(&mut self) {
-        println!("Controller Dropped");
         self.resource.lock().unwrap().state = State::Released
     }
 }

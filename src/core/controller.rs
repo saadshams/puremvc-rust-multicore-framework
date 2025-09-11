@@ -51,7 +51,7 @@ impl IController for Controller {
         if !map.contains_key(notification_name) && let Some(view) = self.view.as_ref().unwrap().upgrade() {
             let context = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
             let notify = {
-                let controller = context.clone();
+                let controller = Arc::clone(&context);
                 Arc::new(move |notification: &Arc<dyn INotification>| {
                     controller.execute_command(&notification);
                 })
@@ -71,7 +71,7 @@ impl IController for Controller {
         let mut map = self.command_map.lock().unwrap();
         if map.remove(notification_name).is_some() && let Some(view) = self.view.as_ref().unwrap().upgrade(){
             let context: Arc<dyn IController> = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
-            view.remove_observer(notification_name, Arc::new(context.clone()));
+            view.remove_observer(notification_name, Arc::new(context));
         }
     }
 }
