@@ -10,10 +10,6 @@ pub trait IMediator: INotifier {
         None
     }
 
-    fn component_mut(&mut self) -> Option<&mut Weak<dyn Any + Send + Sync>> {
-        None
-    }
-
     fn set_component(&mut self, _component: Option<Weak<dyn Any + Send + Sync>>) {
 
     }

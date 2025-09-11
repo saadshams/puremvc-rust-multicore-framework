@@ -33,10 +33,6 @@ impl IMediator for Mediator {
         self.component.as_ref()
     }
 
-    fn component_mut(&mut self) -> Option<&mut Weak<dyn Any + Send + Sync>> {
-        self.component.as_mut()
-    }
-
     fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
         self.component = component
     }
