@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, Mutex, Weak};
 use crate::{ICommand, INotification, Observer, View};
@@ -50,22 +49,15 @@ impl IController for Controller {
     fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>) {
         let mut map = self.command_map.lock().unwrap();
         if !map.contains_key(notification_name) && let Some(view) = self.view.as_ref().unwrap().upgrade() {
-            let controller = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
-
-            let context: Arc<dyn Any + Send + Sync> = Arc::new(controller.clone());
-            let weak = Arc::downgrade(&context); // Weak Controller to avoid reference cycle with the Observer.
+            let context = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
             let notify = {
-                let weak = weak.clone();
+                let controller = context.clone();
                 Arc::new(move |notification: &Arc<dyn INotification>| {
-                    if let Some(arc) = weak.upgrade() {
-                        if let Some(controller) = arc.downcast_ref::<Arc<dyn IController>>() {
-                            controller.execute_command(notification);
-                        }
-                    }
+                    controller.execute_command(&notification);
                 })
             };
 
-            let observer = Observer::new(Some(notify), Some(context));
+            let observer = Observer::new(Some(notify), Some(Arc::new(context)));
             view.register_observer(notification_name, Arc::new(observer));
         }
         map.insert(notification_name.to_string(), factory);
@@ -78,9 +70,8 @@ impl IController for Controller {
     fn remove_command(&self, notification_name: &str) {
         let mut map = self.command_map.lock().unwrap();
         if map.remove(notification_name).is_some() && let Some(view) = self.view.as_ref().unwrap().upgrade(){
-            let controller: Arc<dyn IController> = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
-            let context: Arc<dyn Any + Send + Sync> = Arc::new(controller.clone());
-            view.remove_observer(notification_name, context);
+            let context: Arc<dyn IController> = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
+            view.remove_observer(notification_name, Arc::new(context.clone()));
         }
     }
 }

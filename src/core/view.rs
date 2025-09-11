@@ -12,12 +12,6 @@ pub struct View {
     mediator_map: Mutex<HashMap<String, Arc<Mutex<dyn IMediator>>>>,
 }
 
-impl Drop for View {
-    fn drop(&mut self) {
-        println!("View Dropped");
-    }
-}
-
 impl View {
     pub fn new(key: &str) -> Self {
         Self {
@@ -47,7 +41,6 @@ impl IView for View {
         let mut map = self.observer_map.lock().unwrap();
 
         if let Some(observers) = map.get_mut(notification_name) {
-            // let weak = Arc::downgrade(&context); // todo
             observers.retain(|observer| observer.compare_notify_context(&context) == false);
 
             if observers.is_empty() {
@@ -66,38 +59,28 @@ impl IView for View {
     }
 
     fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator>>) {
+        let mut guard = mediator.lock().unwrap();
         {
             let mut map = self.mediator_map.lock().unwrap();
-            if map.contains_key(mediator.lock().unwrap().name()) { return }
+            if map.contains_key(guard.name()) { return }
 
-            let mut guard = mediator.lock().unwrap();
             guard.notifier().initialize_notifier(&self.key);
-            let _name = guard.name().to_string();
             map.insert(guard.name().to_string(), Arc::clone(&mediator));
         }
 
-        let context : Arc<Arc<Mutex<dyn IMediator>>> = Arc::new(mediator.clone());
-        let weak = Arc::downgrade(&context);
         let notify = {
-            let weak = weak.clone();
+            let mediator = mediator.clone();
             Arc::new(move |notification: &Arc<dyn INotification>| {
-                if let Some(arc) = weak.upgrade() {
-                    let mediator: Arc<Mutex<dyn IMediator>> = Arc::clone(&*arc);
-                    mediator.lock().unwrap().handle_notification(notification);
-                }
+                mediator.lock().unwrap().handle_notification(notification);
             })
         };
 
-        let interests = {
-            mediator.lock().unwrap().list_notification_interests()
-        };
-
-        for interest in interests {
-            let observer = Arc::new(Observer::new(Some(notify.clone()), Some(context.clone())));
-            self.register_observer(&interest, observer.clone());
+        for interest in guard.list_notification_interests() {
+            let observer = Observer::new(Some(notify.clone()), Some(Arc::new(mediator.clone())));
+            self.register_observer(&interest, Arc::new(observer));
         }
 
-        mediator.lock().unwrap().on_register();
+        guard.on_register();
     }
 
     fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
@@ -109,20 +92,19 @@ impl IView for View {
     }
 
     fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
-        let mut map = self.mediator_map.lock().unwrap();
+        let mediator = {
+            let mut map = self.mediator_map.lock().unwrap();
+            map.remove(mediator_name)
+        };
 
-        if let Some(mediator) = map.remove(mediator_name) {
-            let interests = {
-                mediator.lock().unwrap().list_notification_interests()
-            };
-
-            let context: Arc<dyn Any + Send + Sync> = Arc::new(mediator.clone());
-            for interest in interests {
-                self.remove_observer(&interest, context.clone());
+        if let Some(mediator) = mediator {
+            let mut guard = mediator.lock().unwrap();
+            for interest in guard.list_notification_interests() { // lock 1
+                self.remove_observer(&interest, Arc::new(mediator.clone()));
             }
 
-            mediator.lock().unwrap().on_remove();
-            Some(mediator)
+            guard.on_remove();
+            Some(mediator.clone())
         } else {
             None
         }
