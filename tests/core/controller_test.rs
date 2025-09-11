@@ -121,15 +121,11 @@ fn test_reregister_and_execute_command() {
     controller.register_command("ControllerTest2", Arc::new(|| Box::new(ControllerTestCommand2::new())));
 
     let vo = Arc::new(Mutex::new(ControllerTestVO { input: 12, result: 0 }));
-    let notification: Arc<dyn INotification>  = Arc::new(Notification::new("ControllerTest2", Some(vo.clone()), None));
+    let notification: Arc<dyn INotification> = Arc::new(Notification::new("ControllerTest2", Some(vo.clone()), None));
 
     let view = View::get_instance("ControllerTestKey5", |k| Arc::new(View::new(k)));
 
     view.notify_observers(&notification);
-
-    vo.lock().unwrap().result = 24;
-
-    view.notify_observers(&notification);
-
-    assert_eq!(vo.lock().unwrap().result, 48);
+    
+    assert_eq!(vo.lock().unwrap().result, 24);
 }

@@ -53,10 +53,18 @@ impl IController for Controller {
         if !map.contains_key(notification_name) && let Some(view) = &self.view {
             let controller = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
 
-            let context: Arc<dyn Any + Send + Sync> = Arc::new(Arc::clone(&controller));
-            let notify = Arc::new(move |notification: &Arc<dyn INotification>| {
-                controller.execute_command(&notification);
-            });
+            let context: Arc<dyn Any + Send + Sync> = Arc::new(controller.clone());
+            let weak = Arc::downgrade(&context); // Weak Controller to avoid reference cycle with the Observer.
+            let notify = {
+                let weak = weak.clone();
+                Arc::new(move |notification: &Arc<dyn INotification>| {
+                    if let Some(arc) = weak.upgrade() {
+                        if let Some(controller) = arc.downcast_ref::<Arc<dyn IController>>() {
+                            controller.execute_command(notification);
+                        }
+                    }
+                })
+            };
 
             let observer = Observer::new(Some(notify), Some(context));
             view.register_observer(notification_name, Arc::new(observer));
@@ -71,8 +79,8 @@ impl IController for Controller {
     fn remove_command(&self, notification_name: &str) {
         let mut map = self.command_map.lock().unwrap();
         if map.remove(notification_name).is_some() && let Some(view) = &self.view {
-            let controller = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
-            let context: Arc<dyn Any + Send + Sync> = Arc::new(controller);
+            let controller: Arc<dyn IController> = Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k)));
+            let context: Arc<dyn Any + Send + Sync> = Arc::new(controller.clone());
             view.remove_observer(notification_name, context);
         }
     }

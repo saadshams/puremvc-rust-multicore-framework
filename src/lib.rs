@@ -1,6 +1,7 @@
 mod interfaces;
 pub use interfaces::IController;
 pub use interfaces::IModel;
+pub use interfaces::IView;
 pub use interfaces::ICommand;
 pub use interfaces::IFacade;
 pub use interfaces::IMediator;

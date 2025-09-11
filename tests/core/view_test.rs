@@ -306,10 +306,7 @@ fn test_successive_register_and_remove_mediator() {
     let retrieved = view
         .retrieve_mediator(ViewTestMediator::NAME)
         .expect("Expecting view.retrieve_mediator(ViewTestMediator::NAME).is_some()");
-
-    // println!("TypeId: {:?}", (&*(retrieved.lock().unwrap())).type_id());
-    // println!("Is ViewTestMediator? {}", (&*retrieved.lock().unwrap()).type_id() == TypeId::of::<ViewTestMediator>());
-
+    
     assert_eq!((&*(retrieved.lock().unwrap())).type_id(), TypeId::of::<ViewTestMediator>());
 
     view.remove_mediator(ViewTestMediator::NAME);
@@ -411,10 +408,12 @@ fn test_mediator_reregistration() {
     let view = View::get_instance("ViewTestKey10", |k| Arc::new(View::new(k)));
 
     let component = Arc::new(Mutex::new(Object::default()));
-    let mediator = Arc::new(Mutex::new(ViewTestMediator5::new(Some(Arc::downgrade(&component).clone()))));
+    let mediator: Arc<Mutex<dyn IMediator>> = Arc::new(Mutex::new(ViewTestMediator5::new(Some(Arc::downgrade(&component).clone()))));
 
-    view.register_mediator(Arc::clone(&(mediator.clone() as Arc<Mutex<dyn IMediator>>)));
-    view.register_mediator(Arc::clone(&(mediator as Arc<Mutex<dyn IMediator>>)));
+    view.register_mediator(mediator.clone());
+    view.register_mediator(mediator.clone());
+    // view.register_mediator(Arc::clone(&(mediator.clone() as Arc<Mutex<dyn IMediator>>)));
+    // view.register_mediator(Arc::clone(&(mediator as Arc<Mutex<dyn IMediator>>)));
 
     let notification = Notification::new(view_test::NOTE5, None, None);
     view.notify_observers(&(Arc::new(notification) as Arc<dyn INotification>));
