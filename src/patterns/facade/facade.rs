@@ -117,7 +117,7 @@ impl INotifier for Facade {
         self.key = key.to_string();
     }
 
-    fn send_notification(&self, notification_name: &str, body: Option<Arc<dyn Any>>, type_: Option<&str>) {
+    fn send_notification(&self, notification_name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
         let notification = Notification::new(notification_name, body, type_);
         self.notify_observers(&(Arc::new(notification) as Arc<dyn INotification>));
     }
