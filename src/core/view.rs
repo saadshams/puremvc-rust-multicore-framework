@@ -76,15 +76,14 @@ impl IView for View {
             map.insert(guard.name().to_string(), Arc::clone(&mediator));
         }
 
-        // Wrap it in Arc<dyn Any> first, then downgrade for the weak reference
         let context : Arc<Arc<Mutex<dyn IMediator>>> = Arc::new(mediator.clone());
         let weak = Arc::downgrade(&context);
         let notify = {
             let weak = weak.clone();
             Arc::new(move |notification: &Arc<dyn INotification>| {
                 if let Some(arc) = weak.upgrade() {
-                    let inner: Arc<Mutex<dyn IMediator>> = Arc::clone(&*arc);
-                    inner.lock().unwrap().handle_notification(notification);
+                    let mediator: Arc<Mutex<dyn IMediator>> = Arc::clone(&*arc);
+                    mediator.lock().unwrap().handle_notification(notification);
                 }
             })
         };
@@ -112,17 +111,12 @@ impl IView for View {
     fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
         let mut map = self.mediator_map.lock().unwrap();
 
-        // mediator: Arc<Mutex<dyn IMediator>>
         if let Some(mediator) = map.remove(mediator_name) {
             let interests = {
                 mediator.lock().unwrap().list_notification_interests()
             };
 
-            // Step 1: Clone the Arc to keep the original alive
-            let mediator_clone = mediator.clone(); // todo separate or not
-
-            // Step 2: Use Arc::new to wrap the mutex in a new Arc with the correct type
-            let context: Arc<dyn Any + Send + Sync> = Arc::new(mediator_clone);
+            let context: Arc<dyn Any + Send + Sync> = Arc::new(mediator.clone());
             for interest in interests {
                 self.remove_observer(&interest, context.clone());
             }

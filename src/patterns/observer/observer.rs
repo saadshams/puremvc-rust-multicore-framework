@@ -42,26 +42,21 @@ impl IObserver for Observer {
 
     fn compare_notify_context(&self, object: &Arc<dyn Any + Send + Sync>) -> bool {
         if let Some(context) = self.context() {
-            // Correctly downcast to the single inner Arc<dyn IController>
             if let (Some(a), Some(b)) = (
                 context.downcast_ref::<Arc<dyn IController>>(),
                 object.downcast_ref::<Arc<dyn IController>>(),
             ) {
-                // Compare the pointers of the inner IController Arcs
                 return Arc::ptr_eq(a, b);
             }
 
-            // Correctly downcast to the single inner Arc<Mutex<dyn IMediator>>
             if let (Some(a), Some(b)) = (
                 context.downcast_ref::<Arc<Mutex<dyn IMediator>>>(),
                 object.downcast_ref::<Arc<Mutex<dyn IMediator>>>(),
             ) {
-                // Compare the pointers of the inner IMediator Arcs
                 return Arc::ptr_eq(a, b);
             }
         }
 
-        // If downcasting failed or context is None
         false
     }
 }

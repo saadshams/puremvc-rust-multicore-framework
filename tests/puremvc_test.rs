@@ -223,6 +223,5 @@ fn test_controller() {
         Controller::remove_controller("TestController");
         View::remove_view("TestController");
         // assert_eq!(resource1.lock().unwrap().state, State::Released);
-
     }
 }
