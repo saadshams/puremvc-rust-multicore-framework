@@ -11,7 +11,7 @@ pub trait INotifier: Any + Send + Sync {
 
     }
 
-    fn send_notification(&self, _notification_name: &str, _body: Option<Arc<dyn Any+ Send + Sync>>, _type_: Option<&str>) {
+    fn send_notification(&self, _notification_name: &str, _body: Option<Arc<dyn Any>>, _type_: Option<&str>) {
 
     }
 }
