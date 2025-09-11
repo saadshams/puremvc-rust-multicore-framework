@@ -89,5 +89,5 @@ fn test_compare_notify_context3() {
     let context = object as Arc<dyn Any + Send + Sync>;
     let observer = Observer::new(None, Some(context.clone()));
 
-    assert_eq!(observer.compare_notify_context(&context), false);
+    assert_eq!(observer.compare_notify_context(&context), true);
 }

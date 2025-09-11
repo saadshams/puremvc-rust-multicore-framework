@@ -55,6 +55,8 @@ impl IObserver for Observer {
             ) {
                 return Arc::ptr_eq(a, b);
             }
+
+            return Arc::ptr_eq(&context, object);
         }
 
         false
