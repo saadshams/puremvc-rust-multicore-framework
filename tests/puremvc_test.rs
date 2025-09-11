@@ -158,7 +158,9 @@ impl TestCommand {
 }
 
 impl Drop for TestCommand {
-    fn drop(&mut self) { self.resource.lock().unwrap().state = State::Released }
+    fn drop(&mut self) {
+        self.resource.lock().unwrap().state = State::Released
+    }
 }
 
 impl INotifier for TestCommand {}
@@ -181,7 +183,8 @@ impl TestController {
 impl Drop for TestController {
     fn drop(&mut self) {
         println!("Controller Dropped");
-        self.resource.lock().unwrap().state = State::Released }
+        self.resource.lock().unwrap().state = State::Released
+    }
 }
 
 impl IController for TestController {
@@ -218,10 +221,12 @@ fn test_controller() {
 
         let notification = Arc::new(Notification::new("TestCommand", None, None));
         controller.execute_command(&(notification as Arc<dyn INotification>));
-        assert_eq!(resource2.lock().unwrap().state, State::Released);
 
         Controller::remove_controller("TestController");
         View::remove_view("TestController");
-        // assert_eq!(resource1.lock().unwrap().state, State::Released);
+        drop(controller);
+
+        assert_eq!(resource1.lock().unwrap().state, State::Released);
+        assert_eq!(resource2.lock().unwrap().state, State::Released);
     }
 }
