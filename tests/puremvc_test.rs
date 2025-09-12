@@ -232,7 +232,7 @@ impl Drop for TestController {
 impl IController for TestController {
     fn initialize_controller(&mut self) {}
 
-    fn register_command(&self, notification_name: &str, factory: fn() -> Box<(dyn ICommand + Send + Sync + 'static)>) { self.controller.register_command(&notification_name, factory) }
+    fn register_command(&self, notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) { self.controller.register_command(&notification_name, factory) }
     fn execute_command(&self, notification: &Arc<dyn INotification>) { self.controller.execute_command(&notification); }
     fn has_command(&self, notification_name: &str) -> bool { self.controller.has_command(notification_name) }
     fn remove_command(&self, notification_name: &str) { self.controller.remove_command(notification_name); }

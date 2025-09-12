@@ -8,7 +8,7 @@ static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IController>>>> = La
 pub struct Controller {
     key: String,
     view: Option<Weak<dyn IView>>,
-    command_map: Mutex<HashMap<String, fn() -> Box<(dyn ICommand + Send + Sync)>>>
+    command_map: Mutex<HashMap<String, fn() -> Box<dyn ICommand + Send + Sync>>>
 }
 
 impl Controller {
