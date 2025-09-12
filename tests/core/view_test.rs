@@ -212,14 +212,14 @@ impl IMediator for ViewTestMediator6 {
 
 #[test]
 fn test_get_instance() {
-    let view = View::get_instance("ViewTestKey1", |k| Arc::new(View::new(k)));
+    let view = View::get_instance("ViewTestKey1", |k| View::new(k));
 
     assert!(Arc::strong_count(&view) > 0, "Expecting instance not null");
 }
 
 #[test]
 fn test_register_and_notify_observer() {
-    let view = View::get_instance("ViewTestKey2", |k| Arc::new(View::new(k)));
+    let view = View::get_instance("ViewTestKey2", |k| View::new(k));
 
     let context = Arc::new(Mutex::new(Object::default()));
     let notify = {
@@ -242,7 +242,7 @@ fn test_register_and_notify_observer() {
 
 #[test]
 fn test_register_and_retrieve_mediator() {
-    let view = View::get_instance("ViewTestKey3", |k| Arc::new(View::new(k)));
+    let view = View::get_instance("ViewTestKey3", |k| View::new(k));
 
     let component = Arc::new(Mutex::new(Object::default()));
     let mediator = ViewTestMediator::new(Some(Arc::downgrade(&component).clone()));
@@ -252,7 +252,7 @@ fn test_register_and_retrieve_mediator() {
 
 #[test]
 fn test_has_mediator() {
-    let view = View::get_instance("ViewTestKey4", |k| Arc::new(View::new(k)));
+    let view = View::get_instance("ViewTestKey4", |k| View::new(k));
 
     let mediator = Mediator::new(Some("hasMediatorTest"), None);
     view.register_mediator(Arc::new(Mutex::new(mediator)));
@@ -266,7 +266,7 @@ fn test_has_mediator() {
 
 #[test]
 fn test_register_and_remove_mediator() {
-    let view = View::get_instance("ViewTestKey5", |k| Arc::new(View::new(k)));
+    let view = View::get_instance("ViewTestKey5", |k| View::new(k));
 
     let component = Arc::new(Mutex::new(Object::default()));
     let mediator = Mediator::new(Some("testing"), Some(Arc::downgrade(&component).clone()));
@@ -282,7 +282,7 @@ fn test_register_and_remove_mediator() {
 
 #[test]
 fn test_on_register_and_on_remove() {
-    let view = View::get_instance("ViewTestKey6", |k| Arc::new(View::new(k)));
+    let view = View::get_instance("ViewTestKey6", |k| View::new(k));
 
     let component = Arc::new(Mutex::new(Object::default()));
     let mediator = ViewTestMediator4::new(Some(Arc::downgrade(&component).clone()));
@@ -297,7 +297,7 @@ fn test_on_register_and_on_remove() {
 
 #[test]
 fn test_successive_register_and_remove_mediator() {
-    let view = View::get_instance("ViewTestKey7", |k| Arc::new(View::new(k)));
+    let view = View::get_instance("ViewTestKey7", |k| View::new(k));
 
     let component = Arc::new(Mutex::new(Object::default()));
     let mediator = ViewTestMediator::new(Some(Arc::downgrade(&component).clone()));
@@ -333,7 +333,7 @@ fn test_successive_register_and_remove_mediator() {
 
 #[test]
 fn test_remove_mediator_and_subsequent_notify() {
-    let view = View::get_instance("ViewTestKey8", |k| Arc::new(View::new(k)));
+    let view = View::get_instance("ViewTestKey8", |k| View::new(k));
 
     let component = Arc::new(Mutex::new(Object::default()));
     let mediator = ViewTestMediator2::new(Some(Arc::downgrade(&component).clone()));
@@ -363,7 +363,7 @@ fn test_remove_mediator_and_subsequent_notify() {
 
 #[test]
 fn test_remove_one_of_two_mediators_and_subsequent_notify() {
-    let view = View::get_instance("ViewTestKey9", |k| Arc::new(View::new(k)));
+    let view = View::get_instance("ViewTestKey9", |k| View::new(k));
 
     let component = Arc::new(Mutex::new(Object::default()));
     let mediator = ViewTestMediator2::new(Some(Arc::downgrade(&component).clone()));
@@ -405,7 +405,7 @@ fn test_remove_one_of_two_mediators_and_subsequent_notify() {
 
 #[test]
 fn test_mediator_reregistration() {
-    let view = View::get_instance("ViewTestKey10", |k| Arc::new(View::new(k)));
+    let view = View::get_instance("ViewTestKey10", |k| View::new(k));
 
     let component = Arc::new(Mutex::new(Object::default()));
     let mediator: Arc<Mutex<dyn IMediator>> = Arc::new(Mutex::new(ViewTestMediator5::new(Some(Arc::downgrade(&component).clone()))));
@@ -440,7 +440,7 @@ fn test_mediator_reregistration() {
 // Using channels (or similar queues) ensures that locks are never acquired recursively, avoiding deadlocks.
 #[test]
 fn test_modify_observer_list_during_notification() {
-    let view = View::get_instance("ViewTestKey11", |k| Arc::new(View::new(k)));
+    let view = View::get_instance("ViewTestKey11", |k| View::new(k));
 
     let component = Arc::new(Mutex::new(Object::default()));
     let weak = Arc::downgrade(&component);

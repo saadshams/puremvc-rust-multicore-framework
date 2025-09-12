@@ -32,24 +32,6 @@ impl Facade {
         map.entry(key.to_string()).or_insert_with(|| factory(key)).clone()
     }
 
-    fn initialize_facade(&mut self) {
-        self.initialize_model();
-        self.initialize_controller();
-        self.initialize_view();
-    }
-
-    fn initialize_controller(&mut self) {
-        self.controller = Some(Controller::get_instance(&self.key, |k| Arc::new(Controller::new(k))))
-    }
-
-    fn initialize_model(&mut self) {
-        self.model = Some(Model::get_instance(&self.key, |k| Arc::new(Model::new(k))))
-    }
-
-    fn initialize_view(&mut self) {
-        self.view = Some(View::get_instance(&self.key, |k| Arc::new(View::new(k))))
-    }
-
     pub fn has_core(key: &str) -> bool {
         INSTANCE_MAP.lock().unwrap().contains_key(key)
     }
@@ -63,6 +45,24 @@ impl Facade {
 }
 
 impl IFacade for Facade {
+    fn initialize_facade(&mut self) {
+        self.initialize_model();
+        self.initialize_controller();
+        self.initialize_view();
+    }
+
+    fn initialize_controller(&mut self) {
+        self.controller = Some(Controller::get_instance(&self.key, |k| Controller::new(k)))
+    }
+
+    fn initialize_model(&mut self) {
+        self.model = Some(Model::get_instance(&self.key, |k| Model::new(k)))
+    }
+
+    fn initialize_view(&mut self) {
+        self.view = Some(View::get_instance(&self.key, |k| View::new(k)))
+    }
+
     fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>) {
         self.controller.as_ref().unwrap().register_command(notification_name, factory);
     }

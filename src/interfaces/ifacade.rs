@@ -3,6 +3,11 @@ use crate::{ICommand, IMediator, INotification, IProxy};
 use crate::interfaces::INotifier;
 
 pub trait IFacade: INotifier {
+    fn initialize_facade(&mut self) {}
+    fn initialize_controller(&mut self) {}
+    fn initialize_model(&mut self) {}
+    fn initialize_view(&mut self) {}
+
     fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>);
     fn has_command(&self, notification_name: &str) -> bool;
     fn remove_command(&self, notification_name: &str);

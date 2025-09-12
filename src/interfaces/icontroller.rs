@@ -3,6 +3,8 @@ use std::sync::{Arc};
 use crate::{ICommand, INotification};
 
 pub trait IController: Any + Send + Sync {
+    fn initialize_controller(&mut self);
+    
     fn execute_command(&self, notification: &Arc<dyn INotification>);
     fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>);
     fn has_command(&self, notification_name: &str) -> bool;

@@ -58,14 +58,14 @@ impl ICommand for ControllerTestCommand2 {
 
 #[test]
 fn test_get_instance() {
-    let controller = Controller::get_instance("ControllerTestKey1", |k| Arc::new(Controller::new(k)));
+    let controller = Controller::get_instance("ControllerTestKey1", |k| Controller::new(k));
 
     assert!(Arc::strong_count(&controller) > 0, "Expecting instance not null");
 }
 
 #[test]
 fn test_register_and_execute_command() {
-    let controller = Controller::get_instance("ControllerTestKey2", |k| Arc::new(Controller::new(k)));
+    let controller = Controller::get_instance("ControllerTestKey2", |k| Controller::new(k));
 
     controller.register_command("ControllerTest", Arc::new(|| Box::new(ControllerTestCommand::new())));
 
@@ -79,7 +79,7 @@ fn test_register_and_execute_command() {
 
 #[test]
 fn test_register_and_remove_command() {
-    let controller = Controller::get_instance("ControllerTestKey3", |k| Arc::new(Controller::new(k)));
+    let controller = Controller::get_instance("ControllerTestKey3", |k| Controller::new(k));
 
     controller.register_command("ControllerRemoveTest", Arc::new(|| Box::new(ControllerTestCommand::new())));
 
@@ -101,7 +101,7 @@ fn test_register_and_remove_command() {
 
 #[test]
 fn test_has_command() {
-    let controller = Controller::get_instance("ControllerTestKey4", |k| Arc::new(Controller::new(k)));
+    let controller = Controller::get_instance("ControllerTestKey4", |k| Controller::new(k));
 
     controller.register_command("hasCommandTest", Arc::new(|| Box::new(ControllerTestCommand::new())));
 
@@ -114,7 +114,7 @@ fn test_has_command() {
 
 #[test]
 fn test_reregister_and_execute_command() {
-    let controller = Controller::get_instance("ControllerTestKey5", |k| Arc::new(Controller::new(k)));
+    let controller = Controller::get_instance("ControllerTestKey5", |k| Controller::new(k));
 
     controller.register_command("ControllerTest2", Arc::new(|| Box::new(ControllerTestCommand2::new())));
     controller.remove_command("ControllerTest2");
@@ -123,7 +123,7 @@ fn test_reregister_and_execute_command() {
     let vo = Arc::new(Mutex::new(ControllerTestVO { input: 12, result: 0 }));
     let notification: Arc<dyn INotification> = Arc::new(Notification::new("ControllerTest2", Some(vo.clone()), None));
 
-    let view = View::get_instance("ControllerTestKey5", |k| Arc::new(View::new(k)));
+    let view = View::get_instance("ControllerTestKey5", |k| View::new(k));
 
     view.notify_observers(&notification);
     

@@ -36,14 +36,14 @@ impl IProxy for ModelTestProxy {
 
 #[test]
 fn test_get_instance() {
-    let model = Model::get_instance("ModelTestKey1", |k| Arc::new(Model::new(k)));
+    let model = Model::get_instance("ModelTestKey1", |k| Model::new(k));
 
     assert!(Arc::strong_count(&model) > 0, "Expecting instance not null");
 }
 
 #[test]
 fn test_register_and_retrieve_proxy() {
-    let model = Model::get_instance("ModelTestKey2", |k| Arc::new(Model::new(k)));
+    let model = Model::get_instance("ModelTestKey2", |k| Model::new(k));
 
     let colors = vec!["red".to_string(), "green".to_string(), "blue".to_string()];
     let proxy = Proxy::new(Some("colors"), Some(Arc::new(colors)));
@@ -60,7 +60,7 @@ fn test_register_and_retrieve_proxy() {
 
 #[test]
 fn test_register_and_remove_proxy() {
-    let model = Model::get_instance("ModelTestKey3", |k| Arc::new(Model::new(k)));
+    let model = Model::get_instance("ModelTestKey3", |k| Model::new(k));
 
     let sizes = vec![7, 13, 21];
     let proxy = Proxy::new(Some("sizes"), Some(Arc::new(sizes)));
@@ -75,7 +75,7 @@ fn test_register_and_remove_proxy() {
 
 #[test]
 fn test_has_proxy() {
-    let model = Model::get_instance("ModelTestKey4", |k| Arc::new(Model::new(k)));
+    let model = Model::get_instance("ModelTestKey4", |k| Model::new(k));
 
     let aces = vec!["clubs".to_string(), "spades".to_string(), "blue".to_string()];
     let proxy = Proxy::new(Some("aces"), Some(Arc::new(aces)));
@@ -90,7 +90,7 @@ fn test_has_proxy() {
 
 #[test]
 fn test_on_register_and_on_remove() {
-    let model = Model::get_instance("ModelTestKey5", |k| Arc::new(Model::new(k)));
+    let model = Model::get_instance("ModelTestKey5", |k| Model::new(k));
 
     let proxy = Arc::new(Mutex::new(ModelTestProxy::new()));
     model.register_proxy(proxy.clone());

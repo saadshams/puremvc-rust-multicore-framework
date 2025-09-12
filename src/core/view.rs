@@ -21,9 +21,13 @@ impl View {
         }
     }
 
-    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> Arc<dyn IView>) -> Arc<dyn IView> {
-        let mut map = INSTANCE_MAP.lock().unwrap();
-        map.entry(key.to_string()).or_insert_with(|| factory(key)).clone()
+    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> View) -> Arc<dyn IView> {
+        INSTANCE_MAP.lock().unwrap().entry(key.to_string())
+            .or_insert_with(|| {
+                let mut instance = factory(key);
+                instance.initialize_view();
+                Arc::new(instance)
+            }).clone()
     }
 
     pub fn remove_view(key: &str) {
@@ -32,6 +36,10 @@ impl View {
 }
 
 impl IView for View {
+    fn initialize_view(&mut self){
+        
+    }
+    
     fn register_observer(&self, notification_name: &str, observer: Arc<dyn IObserver>) {
         let mut map = self.observer_map.lock().unwrap();
         map.entry(notification_name.to_string()).or_default().push(observer);

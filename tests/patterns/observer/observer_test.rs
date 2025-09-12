@@ -56,13 +56,13 @@ fn test_observer_constructor() {
 
 #[test]
 fn test_compare_notify_context() {
-    let context: Arc<dyn IController> = Controller::get_instance("ObserverTestKey1", |k| Arc::new(Controller::new(k)));
+    let context: Arc<dyn IController> = Controller::get_instance("ObserverTestKey1", |k| Controller::new(k));
 
     let observer = Observer::new(None, Some(Arc::new(context.clone())));
 
     assert_eq!(observer.compare_notify_context(&(Arc::new(context) as Arc<dyn Any + Send + Sync>)), true);
 
-    let neg_controller = Controller::get_instance("ObserverTestKey2", |k| Arc::new(Controller::new(k)));
+    let neg_controller = Controller::get_instance("ObserverTestKey2", |k| Controller::new(k));
     let neg_context = neg_controller as Arc<dyn Any + Send + Sync>;
 
     assert_eq!(observer.compare_notify_context(&(Arc::new(neg_context))), false);

@@ -17,9 +17,13 @@ impl Model {
         }
     }
     
-    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> Arc<dyn IModel>) -> Arc<dyn IModel> {
-        let mut map = INSTANCE_MAP.lock().unwrap();
-        map.entry(key.to_string()).or_insert_with(|| factory(key)).clone()
+    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> Model) -> Arc<dyn IModel> {
+        INSTANCE_MAP.lock().unwrap().entry(key.to_string())
+            .or_insert_with(|| {
+                let mut instance = factory(key);
+                instance.initialize_model();
+                Arc::new(instance)
+            }).clone()
     }
     
     pub fn remove_model(key: &str) {
@@ -28,6 +32,10 @@ impl Model {
 }
 
 impl IModel for Model {
+    fn initialize_model(&mut self) {
+
+    }
+
     fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
         let mut guard = proxy.lock().unwrap();
         {
