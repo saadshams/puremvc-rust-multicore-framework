@@ -8,7 +8,7 @@ static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IController>>>> = La
 pub struct Controller {
     key: String,
     view: Option<Weak<dyn IView>>,
-    command_map: Mutex<HashMap<String, fn() -> Box<(dyn ICommand + Send + Sync + 'static)>>>
+    command_map: Mutex<HashMap<String, fn() -> Box<(dyn ICommand + Send + Sync)>>>
 }
 
 impl Controller {
@@ -39,7 +39,7 @@ impl IController for Controller {
         self.view = Some(Arc::downgrade(&(View::get_instance(&self.key, |k| View::new(k)))));
     }
 
-    fn register_command(&self, notification_name: &str, factory: fn() -> Box<(dyn ICommand + Send + Sync + 'static)>) {
+    fn register_command(&self, notification_name: &str, factory: fn() -> Box<(dyn ICommand + Send + Sync)>) {
         let mut map = self.command_map.lock().unwrap();
         if !map.contains_key(notification_name) && let Some(view) = self.view.as_ref().unwrap().upgrade() {
             let context = Controller::get_instance(&self.key, |k| Controller::new(k));
