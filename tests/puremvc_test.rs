@@ -28,13 +28,18 @@ impl IMediator for TestMediator {
 }
 
 struct TestView {
-    view: Arc<dyn IView>,
+    _key: String,
+    view: Option<Arc<dyn IView>>,
     resource: Arc<Mutex<Resource>>,
 }
 
 impl TestView {
     fn new(key: &str, resource: Arc<Mutex<Resource>>) -> Self {
-        Self { view: View::get_instance(key, |k| Arc::new(View::new(k))), resource }
+        Self {
+            _key: key.to_string(),
+            view: None,
+            resource
+        }
     }
 }
 
@@ -43,15 +48,35 @@ impl Drop for TestView {
 }
 
 impl IView for TestView {
-    fn register_observer(&self, notification_name: &str, observer: Arc<dyn IObserver>) { self.view.register_observer(notification_name, observer) }
-    fn remove_observer(&self, notification_name: &str, context: Arc<dyn Any + Send + Sync>) { self.view.remove_observer(notification_name, context) }
-    fn notify_observers(&self, notification: &Arc<dyn INotification>) { self.view.notify_observers(notification) }
+    fn register_observer(&self, notification_name: &str, observer: Arc<dyn IObserver>) {
+        if let Some(view) = &self.view { view.register_observer(notification_name, observer) }
+    }
 
-    fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator>>) { self.view.register_mediator(mediator) }
-    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> { self.view.retrieve_mediator(mediator_name) }
-    fn has_mediator(&self, mediator_name: &str) -> bool { self.view.has_mediator(mediator_name) }
-    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> { self.view.remove_mediator(mediator_name) }
+    fn remove_observer(&self, notification_name: &str, context: Arc<dyn Any + Send + Sync>) {
+        if let Some(view) = &self.view { view.remove_observer(notification_name, context) }
+    }
+
+    fn notify_observers(&self, notification: &Arc<dyn INotification>) {
+        if let Some(view) = &self.view { view.notify_observers(notification) }
+    }
+
+    fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator>>) {
+        if let Some(view) = &self.view { view.register_mediator(mediator) }
+    }
+
+    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
+        self.view.as_ref()?.retrieve_mediator(mediator_name)
+    }
+
+    fn has_mediator(&self, mediator_name: &str) -> bool {
+        self.view.as_ref().map_or(false, |v| v.has_mediator(mediator_name))
+    }
+
+    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
+        self.view.as_ref()?.remove_mediator(mediator_name)
+    }
 }
+
 
 #[test]
 fn test_mediator() {
@@ -209,12 +234,15 @@ fn test_command() {
 fn test_controller() {
     let resource1 = Arc::new(Mutex::new(Resource{state: State::Allocated}));
     let resource2 = Arc::new(Mutex::new(Resource{state: State::Allocated}));
+    let resource3 = Arc::new(Mutex::new(Resource{state: State::Allocated}));
 
     {
-        let controller = TestController::new("TestController", resource1.clone());
+        let view = View::get_instance("TestController", |k| Arc::new(TestView::new(k, resource1.clone())));
+
+        let controller = TestController::new("TestController", resource2.clone());
 
         controller.register_command("TestCommand", {
-            let resource2 = Arc::clone(&resource2);
+            let resource2 = Arc::clone(&resource3);
             Arc::new(move || Box::new(TestCommand::new(resource2.clone())))
         });
 
@@ -223,9 +251,11 @@ fn test_controller() {
 
         Controller::remove_controller("TestController");
         View::remove_view("TestController");
+        drop(view);
         drop(controller);
 
         assert_eq!(resource1.lock().unwrap().state, State::Released);
         assert_eq!(resource2.lock().unwrap().state, State::Released);
+        assert_eq!(resource3.lock().unwrap().state, State::Released);
     }
 }
