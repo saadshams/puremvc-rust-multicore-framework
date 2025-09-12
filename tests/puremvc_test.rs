@@ -252,12 +252,12 @@ fn test_command() {
 
 #[test]
 fn test_controller() {
-    // let resource1 = Arc::new(Mutex::new(Resource{state: State::Allocated}));
+    let resource1 = Arc::new(Mutex::new(Resource{state: State::Allocated}));
     let resource2 = Arc::new(Mutex::new(Resource{state: State::Allocated}));
     // let resource3 = Arc::new(Mutex::new(Resource{state: State::Allocated}));
 
     {
-        // let view = View::get_instance("TestController", |k| Arc::new(TestView::new(k, resource1.clone())));
+        let view = View::get_instance("TestController", |k| TestView::new(k, resource1.clone()));
 
         let controller = TestController::new("TestController", resource2.clone());
 
@@ -268,10 +268,10 @@ fn test_controller() {
 
         Controller::remove_controller("TestController");
         View::remove_view("TestController");
-        // drop(view);
+        drop(view);
         drop(controller);
 
-        // assert_eq!(resource1.lock().unwrap().state, State::Released);
+        assert_eq!(resource1.lock().unwrap().state, State::Released);
         assert_eq!(resource2.lock().unwrap().state, State::Released);
         // assert_eq!(resource3.lock().unwrap().state, State::Released);
     }

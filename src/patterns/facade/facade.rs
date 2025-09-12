@@ -23,7 +23,7 @@ impl Facade {
         }
     }
 
-    pub fn get_instance(key: &str, factory: fn(&str) -> Facade) -> Arc<dyn IFacade> {
+    pub fn get_instance<T: IFacade>(key: &str, factory: impl Fn(&str) -> T) -> Arc<dyn IFacade> {
         INSTANCE_MAP.lock().unwrap()
             .entry(key.to_string())
             .or_insert_with(|| {

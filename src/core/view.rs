@@ -21,7 +21,7 @@ impl View {
         }
     }
 
-    pub fn get_instance(key: &str, factory: fn(&str) -> View) -> Arc<dyn IView> {
+    pub fn get_instance<T: IView>(key: &str, factory: impl Fn(&str) -> T) -> Arc<dyn IView> {
         INSTANCE_MAP.lock().unwrap()
             .entry(key.to_string())
             .or_insert_with(|| {

@@ -20,7 +20,7 @@ impl Controller {
         }
     }
 
-    pub fn get_instance(key: &str, factory: fn(&str) -> Controller) -> Arc<dyn IController> {
+    pub fn get_instance<T: IController>(key: &str, factory: impl Fn(&str) -> T) -> Arc<dyn IController> {
         INSTANCE_MAP.lock().unwrap()
             .entry(key.to_string())
             .or_insert_with(|| {

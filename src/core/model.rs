@@ -16,8 +16,29 @@ impl Model {
             proxy_map: Mutex::new(HashMap::new())
         }
     }
-    
-    pub fn get_instance(key: &str, factory: fn(&str) -> Model) -> Arc<dyn IModel> {
+
+    // pub fn get_instance<T>(key: &str, factory: fn(&str) -> T) -> Arc<dyn IModel> where T: IModel + 'static {
+    //     INSTANCE_MAP.lock().unwrap()
+    //         .entry(key.to_string())
+    //         .or_insert_with(|| {
+    //             let mut instance = factory(key);
+    //             instance.initialize_model();
+    //             Arc::new(instance)
+    //         })
+    //         .clone()
+    // }
+    //
+    // pub fn get_instance2(key: &str, factory: fn(&str) -> Box<dyn IModel>) -> Arc<dyn IModel> {
+    //     INSTANCE_MAP.lock().unwrap()
+    //         .entry(key.to_string())
+    //         .or_insert_with(|| {
+    //             let mut instance = factory(key);
+    //             instance.initialize_model();
+    //             Arc::from(instance)
+    //         }).clone()
+    // }
+
+    pub fn get_instance<T: IModel>(key: &str, factory: impl Fn(&str) -> T) -> Arc<dyn IModel> {
         INSTANCE_MAP.lock().unwrap()
             .entry(key.to_string())
             .or_insert_with(|| {
