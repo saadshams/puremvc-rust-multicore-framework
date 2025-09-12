@@ -21,8 +21,9 @@ impl View {
         }
     }
 
-    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> View) -> Arc<dyn IView> {
-        INSTANCE_MAP.lock().unwrap().entry(key.to_string())
+    pub fn get_instance(key: &str, factory: fn(&str) -> View) -> Arc<dyn IView> {
+        INSTANCE_MAP.lock().unwrap()
+            .entry(key.to_string())
             .or_insert_with(|| {
                 let mut instance = factory(key);
                 instance.initialize_view();

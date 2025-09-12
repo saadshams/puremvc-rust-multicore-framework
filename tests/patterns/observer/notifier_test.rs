@@ -33,7 +33,7 @@ impl ICommand for NotifierTestCommand {
 
 #[test]
 fn test_notifier() {
-    let facade = Facade::get_instance("NotifierTestKey1", |k| Arc::new(Facade::new(k)));
+    let facade = Facade::get_instance("NotifierTestKey1", |k| Facade::new(k));
 
     let vo = Arc::new(Mutex::new(NotifierTestVO{ input: 5, result: 0 }));
     facade.register_command("NotifierTestNote", || Box::new(NotifierTestCommand::new()));

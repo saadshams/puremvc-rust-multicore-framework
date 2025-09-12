@@ -17,8 +17,9 @@ impl Model {
         }
     }
     
-    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> Model) -> Arc<dyn IModel> {
-        INSTANCE_MAP.lock().unwrap().entry(key.to_string())
+    pub fn get_instance(key: &str, factory: fn(&str) -> Model) -> Arc<dyn IModel> {
+        INSTANCE_MAP.lock().unwrap()
+            .entry(key.to_string())
             .or_insert_with(|| {
                 let mut instance = factory(key);
                 instance.initialize_model();

@@ -20,8 +20,9 @@ impl Controller {
         }
     }
 
-    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> Controller) -> Arc<dyn IController> {
-        INSTANCE_MAP.lock().unwrap().entry(key.to_string())
+    pub fn get_instance(key: &str, factory: fn(&str) -> Controller) -> Arc<dyn IController> {
+        INSTANCE_MAP.lock().unwrap()
+            .entry(key.to_string())
             .or_insert_with(|| {
                 let mut instance = factory(key);
                 instance.initialize_controller();

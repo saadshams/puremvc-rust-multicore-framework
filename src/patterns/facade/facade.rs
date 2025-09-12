@@ -15,21 +15,22 @@ pub struct Facade {
 
 impl Facade {
     pub fn new(key: &str) -> Self {
-        let mut instance = Self {
+        Self {
             key: key.to_string(),
             controller: None,
             model: None,
             view: None
-        };
-
-        instance.initialize_notifier(key);
-        instance.initialize_facade();
-        instance
+        }
     }
 
-    pub fn get_instance(key: &str, factory: impl FnOnce(&str) -> Arc<dyn IFacade>) -> Arc<dyn IFacade> {
-        let mut map = INSTANCE_MAP.lock().unwrap();
-        map.entry(key.to_string()).or_insert_with(|| factory(key)).clone()
+    pub fn get_instance(key: &str, factory: fn(&str) -> Facade) -> Arc<dyn IFacade> {
+        INSTANCE_MAP.lock().unwrap()
+            .entry(key.to_string())
+            .or_insert_with(|| {
+                let mut instance = factory(key);
+                instance.initialize_facade();
+                Arc::new(instance)
+            }).clone()
     }
 
     pub fn has_core(key: &str) -> bool {
@@ -63,7 +64,7 @@ impl IFacade for Facade {
         self.view = Some(View::get_instance(&self.key, |k| View::new(k)))
     }
 
-    fn register_command(&self, notification_name: &str, factory: fn() -> Box<(dyn ICommand + Send + Sync + 'static)>) {
+    fn register_command(&self, notification_name: &str, factory: fn() -> Box<(dyn ICommand + Send + Sync)>) {
         self.controller.as_ref().unwrap().register_command(notification_name, factory);
     }
 

@@ -39,14 +39,14 @@ impl ICommand for FacadeTestCommand {
 
 #[test]
 fn test_get_instance() {
-    let facade = Facade::get_instance("FacadeTestKey1", |k| Arc::new(Facade::new(k)));
+    let facade = Facade::get_instance("FacadeTestKey1", |k| Facade::new(k));
 
     assert!(Arc::strong_count(&facade) > 0, "Expecting instance not null");
 }
 
 #[test]
 fn test_register_command_and_send_notification() {
-    let facade = Facade::get_instance("FacadeTestKey2", |k| Arc::new(Facade::new(k)));
+    let facade = Facade::get_instance("FacadeTestKey2", |k| Facade::new(k));
     facade.register_command("FacadeTestNote", || Box::new(FacadeTestCommand::new()));
 
     let vo = Arc::new(Mutex::new(FacadeTestVO{input: 32, result: 0}));
@@ -57,7 +57,7 @@ fn test_register_command_and_send_notification() {
 
 #[test]
 fn test_register_and_remove_command_and_send_notification() {
-    let facade = Facade::get_instance("FacadeTestKey3", |k| Arc::new(Facade::new(k)));
+    let facade = Facade::get_instance("FacadeTestKey3", |k| Facade::new(k));
     facade.register_command( "FacadeTestNote", || Box::new(FacadeTestCommand::new()));
     facade.remove_command("FacadeTestNote");
 
@@ -69,7 +69,7 @@ fn test_register_and_remove_command_and_send_notification() {
 
 #[test]
 fn test_register_and_retrieve_proxy() {
-    let facade = Facade::get_instance("FacadeTestKey4", |k| Arc::new(Facade::new(k)));
+    let facade = Facade::get_instance("FacadeTestKey4", |k| Facade::new(k));
     let colors = vec!["red".to_string(), "green".to_string(), "blue".to_string()];
     let proxy = Proxy::new(Some("colors"), Some(Arc::new(Mutex::new(colors))));
     facade.register_proxy(Arc::new(Mutex::new(proxy)));
@@ -92,7 +92,7 @@ fn test_register_and_retrieve_proxy() {
 
 #[test]
 fn test_register_and_remove_proxy() {
-    let facade = Facade::get_instance("FacadeTestKey5", |k| Arc::new(Facade::new(k)));
+    let facade = Facade::get_instance("FacadeTestKey5", |k| Facade::new(k));
     let sizes = vec![7, 13, 21];
     let proxy = Proxy::new(Some("sizes"), Some(Arc::new(sizes)));
     facade.register_proxy(Arc::new(Mutex::new(proxy)));
@@ -106,7 +106,7 @@ fn test_register_and_remove_proxy() {
 
 #[test]
 fn test_register_retrieve_and_remove_mediator() {
-    let facade = Facade::get_instance("FacadeTestKey6", |k| Arc::new(Facade::new(k)));
+    let facade = Facade::get_instance("FacadeTestKey6", |k| Facade::new(k));
     let component = Arc::new(Mutex::new(Sprite::default()));
     let mediator = Mediator::new(Some(Mediator::NAME), Some(Arc::downgrade(&component).clone()));
 
@@ -123,7 +123,7 @@ fn test_register_retrieve_and_remove_mediator() {
 
 #[test]
 fn test_has_proxy() {
-    let facade = Facade::get_instance("FacadeTestKey7", |k| Arc::new(Facade::new(k)));
+    let facade = Facade::get_instance("FacadeTestKey7", |k| Facade::new(k));
     let proxy = Proxy::new(Some("hasProxyTest"), Some(Arc::new(vec![1, 2, 3])));
     facade.register_proxy(Arc::new(Mutex::new(proxy)));
 
@@ -132,7 +132,7 @@ fn test_has_proxy() {
 
 #[test]
 fn test_has_mediator() {
-    let facade = Facade::get_instance("FacadeTestKey8", |k| Arc::new(Facade::new(k)));
+    let facade = Facade::get_instance("FacadeTestKey8", |k| Facade::new(k));
     let component = Arc::new(Mutex::new(Sprite::default()));
     let mediator = Mediator::new(Some("facadeHasMediatorTest"), Some(Arc::downgrade(&component).clone()));
     facade.register_mediator(Arc::new(Mutex::new(mediator)));
@@ -146,7 +146,7 @@ fn test_has_mediator() {
 
 #[test]
 fn test_has_command() {
-    let facade = Facade::get_instance("FacadeTestKey9", |k| Arc::new(Facade::new(k)));
+    let facade = Facade::get_instance("FacadeTestKey9", |k| Facade::new(k));
     facade.register_command("FacadeTestCommand", || Box::new(FacadeTestCommand::new()));
 
     assert!(facade.has_command("FacadeTestCommand"));
@@ -160,7 +160,7 @@ fn test_has_command() {
 fn test_has_core_and_remove_core() {
     assert!(!Facade::has_core("FacadeTestKey10"));
 
-    Facade::get_instance("FacadeTestKey10", |k| Arc::new(Facade::new(k)));
+    Facade::get_instance("FacadeTestKey10", |k| Facade::new(k));
 
     assert!(Facade::has_core("FacadeTestKey10"));
 
