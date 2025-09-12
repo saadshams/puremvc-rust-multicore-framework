@@ -1,6 +1,7 @@
 use std::any::Any;
+use std::process::Command;
 use std::sync::{Arc, Mutex};
-use puremvc::{Controller, ICommand, IController, IMediator, IModel, INotification, INotifier, IObserver, IProxy, IView, Mediator, Model, Notification, Notifier, Proxy, View};
+use puremvc::{Controller, ICommand, IController, IMediator, IModel, INotification, INotifier, IObserver, IProxy, IView, Mediator, Model, Notification, Notifier, Proxy, SimpleCommand, View};
 
 #[derive(Debug, PartialEq, Eq)]
 enum State { Allocated, Released }
@@ -187,13 +188,13 @@ fn test_model() {
 
 // ======================================================================
 struct TestCommand {
-    notifier: Box<dyn INotifier + Send + Sync>
+    command: SimpleCommand
 }
 
 impl TestCommand {
     fn new() -> Self {
         Self {
-            notifier: Box::new(Notifier::new())
+            command: SimpleCommand::new()
         }
     }
 }
@@ -205,7 +206,7 @@ impl Drop for TestCommand {
 
 impl INotifier for TestCommand {
     fn notifier(&mut self) -> &mut dyn INotifier {
-        self.notifier.as_mut()
+        self.command.notifier()
     }
 }
 impl ICommand for TestCommand {
@@ -242,7 +243,7 @@ impl IController for TestController {
 
 #[test]
 fn test_command() {
-    // let resource = Arc::new(Mutex::new(Resource{state: State::Allocated}));
+    let resource = Arc::new(Mutex::new(Resource{state: State::Allocated}));
     {
         let command = TestCommand::new();
         drop(command);
