@@ -59,8 +59,7 @@ impl IView for View {
     }
 
     fn notify_observers(&self, notification: &Arc<dyn INotification>) {
-        let notification_name = notification.name().to_string();
-        if let Some(observers) = self.observer_map.lock().unwrap().get(&notification_name) {
+        if let Some(observers) = self.observer_map.lock().unwrap().get(&notification.name().to_string()) {
             observers.iter().for_each(|observer| {
                 observer.notify_observer(notification)
             });
