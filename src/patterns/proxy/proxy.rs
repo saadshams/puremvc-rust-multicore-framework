@@ -23,7 +23,9 @@ impl Proxy {
 }
 
 impl INotifier for Proxy {
-    
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self.notifier.as_mut()
+    }
 }
 
 impl IProxy for Proxy {
@@ -37,10 +39,6 @@ impl IProxy for Proxy {
 
     fn set_data(&mut self, data: Option<Arc<dyn Any + Send + Sync>>) {
         self.data = data;
-    }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        &mut self.notifier
     }
 
     fn on_register(&mut self) {

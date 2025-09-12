@@ -11,12 +11,16 @@ struct ControllerTestCommand {
 }
 
 impl ControllerTestCommand {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self { command: SimpleCommand::new() }
     }
 }
 
-impl INotifier for ControllerTestCommand {}
+impl INotifier for ControllerTestCommand {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self.command.notifier()
+    }
+}
 
 impl ICommand for ControllerTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
@@ -24,10 +28,6 @@ impl ICommand for ControllerTestCommand {
             let mut vo = body.downcast_ref::<Mutex<ControllerTestVO>>().unwrap().lock().unwrap();
             vo.result = 2 * vo.input;
         }
-    }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        self.command.notifier()
     }
 }
 
@@ -37,11 +37,15 @@ struct ControllerTestCommand2 {
 
 impl ControllerTestCommand2 {
     fn new() -> Self {
-        Self{command: SimpleCommand::new()}
+        Self { command: SimpleCommand::new() }
     }
 }
 
-impl INotifier for ControllerTestCommand2 {}
+impl INotifier for ControllerTestCommand2 {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self.command.notifier()
+    }
+}
 
 impl ICommand for ControllerTestCommand2 {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
@@ -49,10 +53,6 @@ impl ICommand for ControllerTestCommand2 {
             let mut vo = body.downcast_ref::<Mutex<ControllerTestVO>>().unwrap().lock().unwrap();
             vo.result = vo.result + (2 * vo.input);
         }
-    }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        self.command.notifier()
     }
 }
 
@@ -67,7 +67,7 @@ fn test_get_instance() {
 fn test_register_and_execute_command() {
     let controller = Controller::get_instance("ControllerTestKey2", |k| Controller::new(k));
 
-    controller.register_command("ControllerTest", Arc::new(|| Box::new(ControllerTestCommand::new())));
+    controller.register_command("ControllerTest", || Box::new(ControllerTestCommand::new()));
 
     let vo = Arc::new(Mutex::new(ControllerTestVO { input: 12, result: 0 }));
     let notification = Arc::new(Notification::new("ControllerTest", Some(vo.clone()), None));
@@ -81,7 +81,7 @@ fn test_register_and_execute_command() {
 fn test_register_and_remove_command() {
     let controller = Controller::get_instance("ControllerTestKey3", |k| Controller::new(k));
 
-    controller.register_command("ControllerRemoveTest", Arc::new(|| Box::new(ControllerTestCommand::new())));
+    controller.register_command("ControllerRemoveTest", || Box::new(ControllerTestCommand::new()));
 
     let vo = Arc::new(Mutex::new(ControllerTestVO { input: 12, result: 0 }));
     let notification: Arc<dyn INotification> = Arc::new(Notification::new("ControllerRemoveTest", Some(vo.clone()), None));
@@ -103,7 +103,7 @@ fn test_register_and_remove_command() {
 fn test_has_command() {
     let controller = Controller::get_instance("ControllerTestKey4", |k| Controller::new(k));
 
-    controller.register_command("hasCommandTest", Arc::new(|| Box::new(ControllerTestCommand::new())));
+    controller.register_command("hasCommandTest", || Box::new(ControllerTestCommand::new()));
 
     assert_eq!(controller.has_command("hasCommandTest"), true, "Expecting controller.has_command('hasCommandTest')");
 
@@ -116,9 +116,9 @@ fn test_has_command() {
 fn test_reregister_and_execute_command() {
     let controller = Controller::get_instance("ControllerTestKey5", |k| Controller::new(k));
 
-    controller.register_command("ControllerTest2", Arc::new(|| Box::new(ControllerTestCommand2::new())));
+    controller.register_command("ControllerTest2", || Box::new(ControllerTestCommand2::new()));
     controller.remove_command("ControllerTest2");
-    controller.register_command("ControllerTest2", Arc::new(|| Box::new(ControllerTestCommand2::new())));
+    controller.register_command("ControllerTest2", || Box::new(ControllerTestCommand2::new()));
 
     let vo = Arc::new(Mutex::new(ControllerTestVO { input: 12, result: 0 }));
     let notification: Arc<dyn INotification> = Arc::new(Notification::new("ControllerTest2", Some(vo.clone()), None));

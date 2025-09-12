@@ -19,6 +19,10 @@ impl Notifier {
 }
 
 impl INotifier for Notifier {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self as &mut dyn INotifier
+    }
+
     fn facade(&self) -> Option<Weak<dyn IFacade>> {
         let key = self.key.as_ref().expect(MULTITON_MSG);
         Some(Arc::downgrade(&Facade::get_instance(key, |k| Arc::new(Facade::new(k)))))

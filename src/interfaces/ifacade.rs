@@ -8,7 +8,7 @@ pub trait IFacade: INotifier {
     fn initialize_model(&mut self) {}
     fn initialize_view(&mut self) {}
 
-    fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>);
+    fn register_command(&self, notification_name: &str, factory: fn() -> Box<(dyn ICommand + Send + Sync + 'static)>);
     fn has_command(&self, notification_name: &str) -> bool;
     fn remove_command(&self, notification_name: &str);
 

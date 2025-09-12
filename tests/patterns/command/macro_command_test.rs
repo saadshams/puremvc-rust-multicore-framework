@@ -8,18 +8,20 @@ struct MacroCommandTestVO {
 }
 
 struct MacroCommandTestSub1Command {
-    command: SimpleCommand,
+    command: SimpleCommand
 }
 
 impl MacroCommandTestSub1Command {
-    fn new() -> Self {
-        Self {
-            command: SimpleCommand::new()
-        }
+    pub fn new() -> Self {
+        Self { command: SimpleCommand::new() }
     }
 }
 
-impl INotifier for MacroCommandTestSub1Command {}
+impl INotifier for MacroCommandTestSub1Command {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self.command.notifier()
+    }
+}
 
 impl ICommand for MacroCommandTestSub1Command {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
@@ -29,25 +31,23 @@ impl ICommand for MacroCommandTestSub1Command {
             vo.result1 = 2 * vo.input;
         }
     }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        self.command.notifier()
-    }
 }
 
 struct MacroCommandTestSub2Command {
-    command: SimpleCommand,
+    command: SimpleCommand
 }
 
 impl MacroCommandTestSub2Command {
     fn new() -> Self {
-        Self {
-            command: SimpleCommand::new()
-        }
+        Self { command: SimpleCommand::new() }
     }
 }
 
-impl INotifier for MacroCommandTestSub2Command {}
+impl INotifier for MacroCommandTestSub2Command {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self.command.notifier()
+    }
+}
 
 impl ICommand for MacroCommandTestSub2Command {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
@@ -55,10 +55,6 @@ impl ICommand for MacroCommandTestSub2Command {
             let mut vo = body.downcast_ref::<Mutex<MacroCommandTestVO>>().unwrap().lock().unwrap();
             vo.result2 = vo.input * vo.input;
         }
-    }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        self.command.notifier()
     }
 }
 
@@ -79,16 +75,16 @@ impl MacroCommandTestCommand {
     }
 }
 
-impl INotifier for MacroCommandTestCommand {}
+impl INotifier for MacroCommandTestCommand {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self as &mut dyn INotifier
+    }
+}
 
 impl ICommand for MacroCommandTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
         self.initialize_macro_command();
         self.command.execute(&notification);
-    }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        self.command.notifier()
     }
 }
 

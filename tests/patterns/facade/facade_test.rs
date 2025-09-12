@@ -17,11 +17,15 @@ struct FacadeTestCommand {
 
 impl FacadeTestCommand {
     fn new() -> Self {
-        Self { command: SimpleCommand::new()}
+        Self { command: SimpleCommand::new() }
     }
 }
 
-impl INotifier for FacadeTestCommand {}
+impl INotifier for FacadeTestCommand {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self.command.notifier()
+    }
+}
 
 impl ICommand for FacadeTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
@@ -30,10 +34,6 @@ impl ICommand for FacadeTestCommand {
 
             vo.result = 2 * vo.input;
         }
-    }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        self.command.notifier()
     }
 }
 
@@ -47,7 +47,7 @@ fn test_get_instance() {
 #[test]
 fn test_register_command_and_send_notification() {
     let facade = Facade::get_instance("FacadeTestKey2", |k| Arc::new(Facade::new(k)));
-    facade.register_command("FacadeTestNote", Arc::new(|| Box::new(FacadeTestCommand::new())));
+    facade.register_command("FacadeTestNote", || Box::new(FacadeTestCommand::new()));
 
     let vo = Arc::new(Mutex::new(FacadeTestVO{input: 32, result: 0}));
     facade.send_notification("FacadeTestNote", Some(vo.clone()), None);
@@ -58,7 +58,7 @@ fn test_register_command_and_send_notification() {
 #[test]
 fn test_register_and_remove_command_and_send_notification() {
     let facade = Facade::get_instance("FacadeTestKey3", |k| Arc::new(Facade::new(k)));
-    facade.register_command( "FacadeTestNote", Arc::new(|| Box::new(FacadeTestCommand::new())));
+    facade.register_command( "FacadeTestNote", || Box::new(FacadeTestCommand::new()));
     facade.remove_command("FacadeTestNote");
 
     let vo = Arc::new(Mutex::new(FacadeTestVO{input: 32, result: 0}));
@@ -147,7 +147,7 @@ fn test_has_mediator() {
 #[test]
 fn test_has_command() {
     let facade = Facade::get_instance("FacadeTestKey9", |k| Arc::new(Facade::new(k)));
-    facade.register_command("FacadeTestCommand", Arc::new(|| {Box::new(FacadeTestCommand::new())}));
+    facade.register_command("FacadeTestCommand", || Box::new(FacadeTestCommand::new()));
 
     assert!(facade.has_command("FacadeTestCommand"));
 

@@ -15,15 +15,13 @@ impl SimpleCommand {
 }
 
 impl INotifier for SimpleCommand {
-
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self.notifier.as_mut()
+    }
 }
 
 impl ICommand for SimpleCommand {
     fn execute(&mut self, _notification: &Arc<dyn INotification>) {
 
-    }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        &mut self.notifier
     }
 }

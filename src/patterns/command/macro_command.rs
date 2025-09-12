@@ -1,15 +1,15 @@
 use std::sync::{Arc};
-use crate::{ICommand, INotification, INotifier, Notifier};
+use crate::{ICommand, INotification, INotifier, SimpleCommand};
 
 pub struct MacroCommand {
-    notifier: Box<dyn INotifier + Send + Sync>,
+    command: SimpleCommand,
     sub_commands: Vec<Box<dyn Fn() -> Box<dyn ICommand> + Send + Sync>>
 }
 
 impl MacroCommand {
     pub fn new() -> Self {
         Self {
-            notifier: Box::new(Notifier::new()),
+            command: SimpleCommand::new(),
             sub_commands: Vec::new()
         }
     }
@@ -24,7 +24,9 @@ impl MacroCommand {
 }
 
 impl INotifier for MacroCommand {
-
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self.command.notifier()
+    }
 }
 
 impl ICommand for MacroCommand {
@@ -33,9 +35,5 @@ impl ICommand for MacroCommand {
             let mut command = factory();
             command.execute(&notification);
         }
-    }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        &mut self.notifier
     }
 }

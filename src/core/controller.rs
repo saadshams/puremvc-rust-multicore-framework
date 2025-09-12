@@ -8,7 +8,7 @@ static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IController>>>> = La
 pub struct Controller {
     key: String,
     view: Option<Weak<dyn IView>>,
-    command_map: Mutex<HashMap<String, Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>>>,
+    command_map: Mutex<HashMap<String, fn() -> Box<(dyn ICommand + Send + Sync + 'static)>>>
 }
 
 impl Controller {
@@ -39,16 +39,7 @@ impl IController for Controller {
         self.view = Some(Arc::downgrade(&(View::get_instance(&self.key, |k| View::new(k)))));
     }
 
-    fn execute_command(&self, notification: &Arc<dyn INotification>) {
-        let name = notification.name().to_string();
-        if let Some(factory) = self.command_map.lock().unwrap().get(&name) {
-            let mut command = factory();
-            command.notifier().initialize_notifier(&self.key);
-            command.execute(notification);
-        }
-    }
-
-    fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>) {
+    fn register_command(&self, notification_name: &str, factory: fn() -> Box<(dyn ICommand + Send + Sync + 'static)>) {
         let mut map = self.command_map.lock().unwrap();
         if !map.contains_key(notification_name) && let Some(view) = self.view.as_ref().unwrap().upgrade() {
             let context = Controller::get_instance(&self.key, |k| Controller::new(k));
@@ -63,6 +54,15 @@ impl IController for Controller {
             view.register_observer(notification_name, Arc::new(observer));
         }
         map.insert(notification_name.to_string(), factory);
+    }
+
+    fn execute_command(&self, notification: &Arc<dyn INotification>) {
+        let name = notification.name().to_string();
+        if let Some(factory) = self.command_map.lock().unwrap().get(&name) {
+            let mut command = Box::new(factory());
+            command.notifier().initialize_notifier(&self.key);
+            command.execute(notification);
+        }
     }
 
     fn has_command(&self, notification_name: &str) -> bool {

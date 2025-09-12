@@ -16,7 +16,11 @@ impl SimpleCommandTestCommand {
     }
 }
 
-impl INotifier for SimpleCommandTestCommand {}
+impl INotifier for SimpleCommandTestCommand {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self.command.notifier()
+    }
+}
 
 impl ICommand for SimpleCommandTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
@@ -25,10 +29,6 @@ impl ICommand for SimpleCommandTestCommand {
 
             vo.result = 2 * vo.input;
         }
-    }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        self.command.notifier()
     }
 }
 

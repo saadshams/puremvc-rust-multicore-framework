@@ -11,12 +11,16 @@ struct NotifierTestCommand {
 }
 
 impl NotifierTestCommand {
-    fn new() -> NotifierTestCommand {
+    pub fn new() -> Self {
         Self { command: SimpleCommand::new() }
     }
 }
 
-impl INotifier for NotifierTestCommand {}
+impl INotifier for NotifierTestCommand {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self.command.notifier()
+    }
+}
 
 impl ICommand for NotifierTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
@@ -25,10 +29,6 @@ impl ICommand for NotifierTestCommand {
             vo.result = 2 * vo.input;
         }
     }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        self.command.notifier()
-    }
 }
 
 #[test]
@@ -36,7 +36,7 @@ fn test_notifier() {
     let facade = Facade::get_instance("NotifierTestKey1", |k| Arc::new(Facade::new(k)));
 
     let vo = Arc::new(Mutex::new(NotifierTestVO{ input: 5, result: 0 }));
-    facade.register_command("NotifierTestNote", Arc::new(|| Box::new(NotifierTestCommand::new())));
+    facade.register_command("NotifierTestNote", || Box::new(NotifierTestCommand::new()));
 
     let mut notifier = Notifier::new();
     notifier.initialize_notifier("NotifierTestKey1");

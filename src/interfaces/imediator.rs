@@ -14,8 +14,6 @@ pub trait IMediator: INotifier {
 
     }
 
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync>;
-
     fn list_notification_interests(&self) -> Vec<String> {
         vec![]
     }

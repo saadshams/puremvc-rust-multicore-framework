@@ -16,14 +16,16 @@ impl ModelTestProxy {
     }
 }
 
-impl INotifier for ModelTestProxy {}
+impl INotifier for ModelTestProxy {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self as &mut dyn INotifier
+    }
+}
 
 impl IProxy for ModelTestProxy {
     fn name(&self) -> &str { self.proxy.name() }
 
     fn data(&self) -> Option<&Arc<dyn Any + Send + Sync>> { self.proxy.data() }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> { self.proxy.notifier() }
 
     fn on_register(&mut self) {
         self.proxy.set_data(Some(Arc::new(Self::ON_REGISTER_CALLED)));

@@ -3,6 +3,8 @@ use std::sync::{Arc, Weak};
 use crate::interfaces::IFacade;
 
 pub trait INotifier: Any + Send + Sync {
+    fn notifier(&mut self) -> &mut dyn INotifier;
+
     fn facade(&self) -> Option<Weak<dyn IFacade>> {
         None
     }

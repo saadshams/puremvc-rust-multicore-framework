@@ -42,11 +42,14 @@ impl ViewTestMediator {
     }
 }
 
-impl INotifier for ViewTestMediator {}
+impl INotifier for ViewTestMediator {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self as &mut dyn INotifier
+    }
+}
 
 impl IMediator for ViewTestMediator {
     fn name(&self) -> &str { self.mediator.name() }
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> { self.mediator.notifier() }
     fn list_notification_interests(&self) -> Vec<String> {
         vec!["ABC".to_string(), "DEF".to_string(), "GHI".to_string()]
     }
@@ -63,11 +66,14 @@ impl ViewTestMediator2 {
     }
 }
 
-impl INotifier for ViewTestMediator2 {}
+impl INotifier for ViewTestMediator2 {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self as &mut dyn INotifier
+    }
+}
 
 impl IMediator for ViewTestMediator2 {
     fn name(&self) -> &str { self.mediator.name() }
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> { self.mediator.notifier() }
 
     fn list_notification_interests(&self) -> Vec<String> {
         vec![view_test::NOTE1.to_string(), view_test::NOTE2.to_string()]
@@ -92,11 +98,14 @@ impl ViewTestMediator3 {
     }
 }
 
-impl INotifier for ViewTestMediator3 {}
+impl INotifier for ViewTestMediator3 {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self as &mut dyn INotifier
+    }
+}
 
 impl IMediator for ViewTestMediator3 {
     fn name(&self) -> &str { self.mediator.name() }
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> { self.mediator.notifier() }
 
     fn list_notification_interests(&self) -> Vec<String> {
         vec![view_test::NOTE3.to_string()]
@@ -121,15 +130,15 @@ impl ViewTestMediator4 {
     }
 }
 
-impl INotifier for ViewTestMediator4 {}
+impl INotifier for ViewTestMediator4 {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self as &mut dyn INotifier
+    }
+}
 
 impl IMediator for ViewTestMediator4 {
     fn name(&self) -> &str {
         self.mediator.name()
-    }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        self.mediator.notifier()
     }
 
     fn on_register(&mut self) {
@@ -158,11 +167,14 @@ impl ViewTestMediator5 {
     }
 }
 
-impl INotifier for ViewTestMediator5 {}
+impl INotifier for ViewTestMediator5 {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self as &mut dyn INotifier
+    }
+}
 
 impl IMediator for ViewTestMediator5 {
     fn name(&self) -> &str { self.mediator.name() }
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> { self.mediator.notifier() }
 
     fn list_notification_interests(&self) -> Vec<String> {
         vec![view_test::NOTE4.to_string(), view_test::NOTE5.to_string()]
@@ -188,11 +200,14 @@ impl ViewTestMediator6 {
     }
 }
 
-impl INotifier for ViewTestMediator6 {}
+impl INotifier for ViewTestMediator6 {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self as &mut dyn INotifier
+    }
+}
 
 impl IMediator for ViewTestMediator6 {
     fn name(&self) -> &str { self.mediator.name() }
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> { self.mediator.notifier() }
 
     fn list_notification_interests(&self) -> Vec<String> {
         vec![view_test::NOTE6.to_string()]

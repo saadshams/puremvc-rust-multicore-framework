@@ -21,7 +21,9 @@ impl Mediator {
 }
 
 impl INotifier for Mediator {
-
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self.notifier.as_mut()
+    }
 }
 
 impl IMediator for Mediator {
@@ -35,10 +37,6 @@ impl IMediator for Mediator {
 
     fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
         self.component = component
-    }
-
-    fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> {
-        &mut self.notifier
     }
 
     fn list_notification_interests(&self) -> Vec<String> {

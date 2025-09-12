@@ -63,7 +63,7 @@ impl IFacade for Facade {
         self.view = Some(View::get_instance(&self.key, |k| View::new(k)))
     }
 
-    fn register_command(&self, notification_name: &str, factory: Arc<dyn Fn() -> Box<dyn ICommand> + Send + Sync>) {
+    fn register_command(&self, notification_name: &str, factory: fn() -> Box<(dyn ICommand + Send + Sync + 'static)>) {
         self.controller.as_ref().unwrap().register_command(notification_name, factory);
     }
 
@@ -113,6 +113,10 @@ impl IFacade for Facade {
 }
 
 impl INotifier for Facade {
+    fn notifier(&mut self) -> &mut dyn INotifier {
+        self as &mut dyn INotifier
+    }
+
     fn initialize_notifier(&mut self, key: &str) {
         self.key = key.to_string();
     }
