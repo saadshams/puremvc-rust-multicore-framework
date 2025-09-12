@@ -1,7 +1,6 @@
 use std::any::Any;
-use std::process::Command;
 use std::sync::{Arc, Mutex};
-use puremvc::{Controller, ICommand, IController, IMediator, IModel, INotification, INotifier, IObserver, IProxy, IView, Mediator, Model, Notification, Notifier, Proxy, SimpleCommand, View};
+use puremvc::{Controller, ICommand, IController, IMediator, IModel, INotification, INotifier, IObserver, IProxy, IView, Mediator, Model, Notification, Proxy, SimpleCommand, View};
 
 #[derive(Debug, PartialEq, Eq)]
 enum State { Allocated, Released }
@@ -243,11 +242,9 @@ impl IController for TestController {
 
 #[test]
 fn test_command() {
-    let resource = Arc::new(Mutex::new(Resource{state: State::Allocated}));
     {
         let command = TestCommand::new();
         drop(command);
-        // assert_eq!(resource.lock().unwrap().state, State::Released);
     }
 }
 
@@ -255,7 +252,6 @@ fn test_command() {
 fn test_controller() {
     let resource1 = Arc::new(Mutex::new(Resource{state: State::Allocated}));
     let resource2 = Arc::new(Mutex::new(Resource{state: State::Allocated}));
-    // let resource3 = Arc::new(Mutex::new(Resource{state: State::Allocated}));
 
     {
         let view = View::get_instance("TestController", |k| TestView::new(k, resource1.clone()));
@@ -274,6 +270,5 @@ fn test_controller() {
 
         assert_eq!(resource1.lock().unwrap().state, State::Released);
         assert_eq!(resource2.lock().unwrap().state, State::Released);
-        // assert_eq!(resource3.lock().unwrap().state, State::Released);
     }
 }
