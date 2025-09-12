@@ -64,7 +64,7 @@ impl IFacade for Facade {
         self.view = Some(View::get_instance(&self.key, |k| View::new(k)))
     }
 
-    fn register_command(&self, notification_name: &str, factory: fn() -> Box<(dyn ICommand + Send + Sync)>) {
+    fn register_command(&self, notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) {
         self.controller.as_ref().unwrap().register_command(notification_name, factory);
     }
 

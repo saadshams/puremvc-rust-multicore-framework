@@ -40,7 +40,7 @@ impl IController for Controller {
         self.view = Some(Arc::downgrade(&(View::get_instance(&self.key, |k| View::new(k)))));
     }
 
-    fn register_command(&self, notification_name: &str, factory: fn() -> Box<(dyn ICommand + Send + Sync)>) {
+    fn register_command(&self, notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) {
         let mut map = self.command_map.lock().unwrap();
         if !map.contains_key(notification_name) && let Some(view) = self.view.as_ref().unwrap().upgrade() {
             let context = Controller::get_instance(&self.key, |k| Controller::new(k));
