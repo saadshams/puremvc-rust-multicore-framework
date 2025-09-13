@@ -1,3 +1,14 @@
+mod icommand;
+mod icontroller;
+mod ifacade;
+mod imediator;
+mod imodel;
+mod inotification;
+mod inotifier;
+mod iobserver;
+mod iproxy;
+mod iview;
+
 pub use icontroller::IController;
 pub use imodel::IModel;
 pub use iview::IView;

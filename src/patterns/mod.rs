@@ -1,3 +1,9 @@
+mod command;
+mod facade;
+mod mediator;
+mod observer;
+mod proxy;
+
 pub use command::SimpleCommand;
 pub use command::MacroCommand;
 pub use facade::Facade;
