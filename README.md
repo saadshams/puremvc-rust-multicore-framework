@@ -5,7 +5,9 @@ PureMVC is a lightweight framework for creating applications based upon the clas
 
 ## Installation
 
-Add to Cargo.toml file
+`cargo add puremvc`
+
+In your Cargo.toml add:
 
 ```
 [dependencies]
