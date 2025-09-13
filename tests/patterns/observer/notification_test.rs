@@ -1,9 +1,10 @@
 use std::sync::{Arc, Mutex};
-use puremvc::{INotification, Notification};
+use puremvc::interfaces::INotification;
+use puremvc::patterns::Notification;
 
 #[test]
 fn test_name_accessor() {
-    let note = Notification::new("TestNote", None, None);
+    let note: &dyn INotification = &Notification::new("TestNote", None, None);
     assert_eq!(note.name(), "TestNote", "Expecting note.get_name() == 'TestNote'");
 }
 

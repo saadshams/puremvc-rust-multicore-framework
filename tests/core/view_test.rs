@@ -1,6 +1,8 @@
 use std::any::{Any, TypeId};
 use std::sync::{mpsc, Arc, Mutex, Weak};
-use puremvc::{IMediator, INotification, INotifier, Mediator, Notification, Observer, View};
+use puremvc::core::View;
+use puremvc::interfaces::{IMediator, INotification, INotifier};
+use puremvc::patterns::{Mediator, Notification, Observer};
 
 pub mod view_test {
     pub const NOTE1: &'static str = "note1";

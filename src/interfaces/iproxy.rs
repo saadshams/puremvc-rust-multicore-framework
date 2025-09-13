@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::Arc;
-use crate::INotifier;
+use crate::interfaces::INotifier;
 
 pub trait IProxy: INotifier {
     fn name(&self) -> &str;

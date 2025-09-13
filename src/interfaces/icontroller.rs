@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc};
-use crate::{ICommand, INotification};
+use crate::interfaces::{ICommand, INotification};
 
 pub trait IController: Any + Send + Sync {
     fn initialize_controller(&mut self);

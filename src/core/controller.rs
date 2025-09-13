@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, Mutex, Weak};
-use crate::{ICommand, INotification, Observer, View};
-use crate::interfaces::{IController, IView};
+use crate::core::View;
+use crate::interfaces::{ICommand, IController, INotification, IView};
+use crate::patterns::Observer;
 
 static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IController>>>> = LazyLock::new(|| Default::default());
 
@@ -42,7 +43,7 @@ impl IController for Controller {
 
     fn register_command(&self, notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) {
         let mut map = self.command_map.lock().unwrap();
-        if !map.contains_key(notification_name) && let Some(view) = self.view.as_ref().unwrap().upgrade() {
+        if !map.contains_key(notification_name) && let Some(view) = self.view.as_ref().map(|v| v.upgrade().unwrap()) {
             let context = Controller::get_instance(&self.key, |k| Controller::new(k));
             let notify = {
                 let controller = Arc::clone(&context);
@@ -72,7 +73,7 @@ impl IController for Controller {
 
     fn remove_command(&self, notification_name: &str) {
         let mut map = self.command_map.lock().unwrap();
-        if map.remove(notification_name).is_some() && let Some(view) = self.view.as_ref().unwrap().upgrade(){
+        if map.remove(notification_name).is_some() && let Some(view) = self.view.as_ref().map(|v| v.upgrade().unwrap()) {
             let context: Arc<dyn IController> = Controller::get_instance(&self.key, |k| Controller::new(k));
             view.remove_observer(notification_name, Arc::new(context));
         }

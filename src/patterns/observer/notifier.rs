@@ -1,7 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc, Weak};
-use crate::{INotifier};
-use crate::interfaces::IFacade;
+use crate::interfaces::{IFacade, INotifier};
 use crate::patterns::Facade;
 
 const MULTITON_MSG: &str = "multitonKey for this Notifier not yet initialized!";

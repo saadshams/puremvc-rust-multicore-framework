@@ -1,6 +1,8 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
-use puremvc::{Controller, IController, IMediator, INotification, IObserver, Mediator, Notification, Observer};
+use puremvc::core::Controller;
+use puremvc::interfaces::{IController, IMediator, INotification, IObserver};
+use puremvc::patterns::{Mediator, Notification, Observer};
 
 struct Object {
     value: f64,
@@ -20,8 +22,8 @@ fn test_observer_accessors() {
         })
     };
 
-    let mut observer = Observer::new(None, None);
-    observer.set_notify(Some(notify));
+    let mut observer: Box<dyn IObserver> = Box::new(Observer::new(None, None));
+    observer.set_notify(Some(notify)); // cannot borrow `*observer` as mutable, as it is behind a `&` reference [E0596]
     observer.set_context(Some(context.clone()));
 
     let vo = Arc::new(10.0);

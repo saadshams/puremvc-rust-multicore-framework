@@ -1,9 +1,10 @@
 use std::sync::Arc;
-use puremvc::{IProxy, Proxy};
+use puremvc::interfaces::IProxy;
+use puremvc::patterns::Proxy;
 
 #[test]
 fn test_name_accessor() {
-    let proxy = Proxy::new(None, None);
+    let proxy: &dyn IProxy = &Proxy::new(None, None);
     assert_eq!(proxy.name(), Proxy::NAME);
     assert!(proxy.data().is_none());
     

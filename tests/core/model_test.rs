@@ -1,6 +1,8 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
-use puremvc::{INotifier, IProxy, Model, Proxy};
+use puremvc::core::Model;
+use puremvc::interfaces::{INotifier, IProxy};
+use puremvc::patterns::Proxy;
 
 pub struct ModelTestProxy {
     proxy: Proxy,

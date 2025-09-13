@@ -1,7 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc, Weak};
-use crate::INotifier;
-use crate::interfaces::INotification;
+use crate::interfaces::{INotification, INotifier};
 
 pub trait IMediator: INotifier {
     fn name(&self) -> &str;

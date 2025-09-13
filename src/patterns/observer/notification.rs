@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc};
-use crate::INotification;
+use crate::interfaces::INotification;
 
 pub struct Notification {
     name: String,

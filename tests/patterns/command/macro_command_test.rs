@@ -1,5 +1,6 @@
 use std::sync::{Arc, Mutex};
-use puremvc::{ICommand, IMacroCommand, INotification, INotifier, MacroCommand, Notification, SimpleCommand};
+use puremvc::interfaces::{ICommand, INotification, INotifier};
+use puremvc::patterns::{MacroCommand, Notification, SimpleCommand};
 
 struct MacroCommandTestVO {
     input: i8,
@@ -68,6 +69,11 @@ impl MacroCommandTestCommand {
             command: MacroCommand::new()
         }
     }
+
+    fn initialize_macro_command(&mut self) {
+        self.command.add_sub_command(|| Box::new(MacroCommandTestSub1Command::new()));
+        self.command.add_sub_command(|| Box::new(MacroCommandTestSub2Command::new()));
+    }
 }
 
 impl INotifier for MacroCommandTestCommand {
@@ -80,13 +86,6 @@ impl ICommand for MacroCommandTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
         self.initialize_macro_command();
         self.command.execute(&notification);
-    }
-}
-
-impl IMacroCommand for MacroCommandTestCommand {
-    fn initialize_macro_command(&mut self) {
-        self.command.add_sub_command(|| Box::new(MacroCommandTestSub1Command::new()));
-        self.command.add_sub_command(|| Box::new(MacroCommandTestSub2Command::new()));
     }
 }
 

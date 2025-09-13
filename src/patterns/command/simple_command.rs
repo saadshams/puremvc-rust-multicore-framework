@@ -1,6 +1,6 @@
 use std::sync::{Arc};
-use crate::{INotification, INotifier, Notifier};
-use crate::interfaces::ICommand;
+use crate::interfaces::{ICommand, INotification, INotifier};
+use crate::patterns::Notifier;
 
 pub struct SimpleCommand {
     notifier: Box<dyn INotifier + Send + Sync>,

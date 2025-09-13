@@ -1,8 +1,9 @@
 use std::any::Any;
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, Mutex};
-use crate::{Controller, ICommand, IController, IMediator, IModel, INotification, IProxy, Model, Notification, View};
-use crate::interfaces::{IFacade, INotifier, IView};
+use crate::core::{Controller, Model, View};
+use crate::interfaces::{ICommand, IController, IFacade, IMediator, IModel, INotification, INotifier, IProxy, IView};
+use crate::patterns::Notification;
 
 static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IFacade>>>> = LazyLock::new(|| Default::default());
 

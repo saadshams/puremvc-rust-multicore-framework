@@ -1,5 +1,6 @@
 use std::sync::{Arc, Mutex};
-use puremvc::{Facade, ICommand, INotification, INotifier, Mediator, Proxy, SimpleCommand};
+use puremvc::interfaces::{ICommand, INotification, INotifier};
+use puremvc::patterns::{Facade, Mediator, Proxy, SimpleCommand};
 
 struct Sprite{}
 impl Default for Sprite {

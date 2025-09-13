@@ -1,6 +1,7 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
-use puremvc::{IMediator, Mediator};
+use puremvc::interfaces::IMediator;
+use puremvc::patterns::Mediator;
 
 struct Button {
     label: String,
@@ -8,7 +9,7 @@ struct Button {
 
 #[test]
 fn test_name_accessor() {
-    let mediator = Mediator::new(None, None);
+    let mediator: &dyn IMediator = &Mediator::new(None, None);
 
     assert_eq!(mediator.name(), Mediator::NAME, "Expecting mediator.name() == Mediator::NAME");
 }

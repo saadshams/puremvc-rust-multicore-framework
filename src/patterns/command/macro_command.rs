@@ -1,5 +1,6 @@
 use std::sync::{Arc};
-use crate::{ICommand, IMacroCommand, INotification, INotifier, SimpleCommand};
+use crate::interfaces::{ICommand, INotification, INotifier};
+use crate::patterns::SimpleCommand;
 
 pub struct MacroCommand {
     command: SimpleCommand,
@@ -12,6 +13,14 @@ impl MacroCommand {
             command: SimpleCommand::new(),
             sub_commands: Vec::new()
         }
+    }
+
+    pub fn initialize_macro_command(&mut self) {
+
+    }
+
+    pub fn add_sub_command(&mut self, factory: fn() -> Box<dyn ICommand + Send + Sync>) {
+        self.sub_commands.push(factory);
     }
 }
 
@@ -27,15 +36,5 @@ impl ICommand for MacroCommand {
             let mut command = factory();
             command.execute(&notification);
         }
-    }
-}
-
-impl IMacroCommand for MacroCommand {
-    fn initialize_macro_command(&mut self) {
-
-    }
-
-    fn add_sub_command(&mut self, factory: fn() -> Box<dyn ICommand + Send + Sync>) {
-        self.sub_commands.push(factory);
     }
 }

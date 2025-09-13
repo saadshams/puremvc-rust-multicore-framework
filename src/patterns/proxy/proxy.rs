@@ -1,7 +1,6 @@
 use std::any::Any;
 use std::sync::Arc;
-use crate::interfaces::{INotifier};
-use crate::IProxy;
+use crate::interfaces::{INotifier, IProxy};
 use crate::patterns::Notifier;
 
 pub struct Proxy {

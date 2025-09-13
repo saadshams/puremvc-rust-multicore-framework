@@ -9,7 +9,6 @@ pub use iview::IView;
 
 mod icommand;
 pub use icommand::ICommand;
-pub use imacro_command::IMacroCommand;
 
 mod ifacade;
 pub use ifacade::IFacade;
@@ -27,6 +26,4 @@ mod iobserver;
 pub use iobserver::IObserver;
 
 mod iproxy;
-mod imacro_command;
-
 pub use iproxy::IProxy;

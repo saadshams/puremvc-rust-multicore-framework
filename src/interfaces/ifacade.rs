@@ -1,6 +1,5 @@
 use std::sync::{Arc, Mutex};
-use crate::{ICommand, IMediator, INotification, IProxy};
-use crate::interfaces::INotifier;
+use crate::interfaces::{ICommand, IMediator, INotification, INotifier, IProxy};
 
 pub trait IFacade: INotifier {
     fn initialize_facade(&mut self) {}

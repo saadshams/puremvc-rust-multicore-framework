@@ -1,7 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
-use crate::{IController, IMediator, INotification};
-use crate::interfaces::IObserver;
+use crate::interfaces::{IController, IMediator, INotification, IObserver};
 
 pub struct Observer {
     notify: Option<Arc<dyn Fn(&Arc<dyn INotification>) + Send + Sync>>,

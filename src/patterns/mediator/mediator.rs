@@ -1,6 +1,7 @@
 use std::any::Any;
 use std::sync::{Arc, Weak};
-use crate::{IMediator, INotification, INotifier, Notifier};
+use crate::interfaces::{IMediator, INotification, INotifier};
+use crate::patterns::Notifier;
 
 pub struct Mediator {
     notifier: Box<dyn INotifier + Send + Sync>,

@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc};
-use crate::INotification;
+use crate::interfaces::INotification;
 
 pub trait IObserver: Any + Send + Sync {
     fn notify(&self) -> Option<Arc<dyn Fn(&Arc<dyn INotification>) + Send + Sync>>;

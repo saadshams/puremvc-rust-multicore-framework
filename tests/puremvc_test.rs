@@ -1,6 +1,8 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
-use puremvc::{Controller, ICommand, IController, IMediator, IModel, INotification, INotifier, IObserver, IProxy, IView, Mediator, Model, Notification, Proxy, SimpleCommand, View};
+use puremvc::core::{Controller, Model, View};
+use puremvc::interfaces::{ICommand, IController, IMediator, IModel, INotification, INotifier, IObserver, IProxy, IView};
+use puremvc::patterns::{Mediator, Notification, Proxy, SimpleCommand};
 
 #[derive(Debug, PartialEq, Eq)]
 enum State { Allocated, Released }
@@ -28,7 +30,6 @@ impl INotifier for TestMediator {
 }
 impl IMediator for TestMediator {
     fn name(&self) -> &str { self.mediator.name() }
-    // fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> { self.mediator.notifier() }
 }
 
 struct TestView {
@@ -133,7 +134,6 @@ impl INotifier for TestProxy {
 
 impl IProxy for TestProxy {
     fn name(&self) -> &str { self.proxy.name() }
-    // fn notifier(&mut self) -> &mut Box<dyn INotifier + Send + Sync> { self.proxy.notifier() }
 }
 
 struct TestModel {

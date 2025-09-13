@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
-use crate::{IProxy};
+use crate::interfaces::IProxy;
 
 pub trait IModel: Any + Sync + Send {
     fn initialize_model(&mut self);

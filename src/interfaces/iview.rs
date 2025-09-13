@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
-use crate::{IMediator, INotification, IObserver};
+use crate::interfaces::{IMediator, INotification, IObserver};
 
 pub trait IView: Any + Sync + Send {
     fn initialize_view(&mut self);

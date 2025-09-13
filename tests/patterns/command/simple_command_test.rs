@@ -1,5 +1,6 @@
 use std::sync::{Arc, Mutex};
-use puremvc::{ICommand, INotification, INotifier, Notification, SimpleCommand};
+use puremvc::interfaces::{ICommand, INotification, INotifier};
+use puremvc::patterns::{Notification, SimpleCommand};
 
 struct SimpleCommandTestVO {
     input: i8,
