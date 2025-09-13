@@ -58,8 +58,7 @@ impl IModel for Model {
 
     fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
         let removed = {
-            let mut map = self.proxy_map.lock().unwrap();
-            map.remove(proxy_name)
+            self.proxy_map.lock().unwrap().remove(proxy_name)
         };
 
         if let Some(proxy) = &removed {

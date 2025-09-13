@@ -59,8 +59,11 @@ impl IController for Controller {
     }
 
     fn execute_command(&self, notification: &Arc<dyn INotification>) {
-        let name = notification.name().to_string();
-        if let Some(factory) = self.command_map.lock().unwrap().get(&name) {
+        let factory = {
+            self.command_map.lock().unwrap().get(notification.name()).cloned()
+        };
+
+        if let Some(factory) = factory {
             let mut command = Box::new(factory());
             command.notifier().initialize_notifier(&self.key);
             command.execute(notification);
@@ -72,8 +75,11 @@ impl IController for Controller {
     }
 
     fn remove_command(&self, notification_name: &str) {
-        let mut map = self.command_map.lock().unwrap();
-        if map.remove(notification_name).is_some() && let Some(view) = self.view.as_ref().map(|v| v.upgrade().unwrap()) {
+        let existed = {
+            self.command_map.lock().unwrap().remove(notification_name).is_some()
+        };
+
+        if existed && let Some(view) = self.view.as_ref().map(|v| v.upgrade().unwrap()) {
             let context: Arc<dyn IController> = Controller::get_instance(&self.key, |k| Controller::new(k));
             view.remove_observer(notification_name, Arc::new(context));
         }

@@ -101,8 +101,7 @@ impl IView for View {
 
     fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
         let mediator = {
-            let mut map = self.mediator_map.lock().unwrap();
-            map.remove(mediator_name)
+            self.mediator_map.lock().unwrap().remove(mediator_name)
         };
 
         if let Some(mediator) = &mediator {
