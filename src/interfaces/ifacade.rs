@@ -7,7 +7,7 @@ pub trait IFacade: INotifier {
     fn initialize_model(&mut self) {}
     fn initialize_view(&mut self) {}
 
-    fn register_command(&self, _notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) {}
+    fn register_command(&self, _notification_name: &str, _factory: fn() -> Box<dyn ICommand + Send + Sync>) {}
     fn has_command(&self, _notification_name: &str) -> bool { false }
     fn remove_command(&self, _notification_name: &str) {}
 
@@ -19,7 +19,7 @@ pub trait IFacade: INotifier {
     fn register_mediator(&self, _mediator: Arc<Mutex<dyn IMediator>>) {}
     fn retrieve_mediator(&self, _mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> { None }
     fn has_mediator(&self, _mediator_name: &str) -> bool { false }
-    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> { None }
+    fn remove_mediator(&self, _mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> { None }
 
-    fn notify_observers(&self, notification: &Arc<dyn INotification>) {}
+    fn notify_observers(&self, _notification: &Arc<dyn INotification>) {}
 }
