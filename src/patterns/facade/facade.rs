@@ -5,8 +5,8 @@ use crate::core::{Controller, Model, View};
 use crate::interfaces::{ICommand, IController, IFacade, IMediator, IModel, INotification, INotifier, IProxy, IView};
 use crate::patterns::Notification;
 
-// static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IFacade>>>> = LazyLock::new(|| Default::default());
-static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn Any + Send + Sync>>>> = LazyLock::new(|| Default::default());
+static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IFacade>>>> = LazyLock::new(|| Default::default());
+// static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn Any + Send + Sync>>>> = LazyLock::new(|| Default::default());
 
 pub struct Facade {
     key: String,
@@ -25,18 +25,15 @@ impl Facade {
         }
     }
 
-    pub fn get_instance<T: IFacade>(key: &str, factory: impl Fn(&str) -> T) -> Arc<Mutex<T>> {
+    pub fn get_instance<T: IFacade>(key: &str, factory: impl Fn(&str) -> T) -> Arc<dyn IFacade> {
         INSTANCE_MAP.lock().unwrap()
             .entry(key.to_string())
             .or_insert_with(|| {
                 let mut instance = factory(key);
                 instance.initialize_facade();
-                Arc::new(Mutex::new(instance))
+                Arc::new(instance)
             })
             .clone()
-            .downcast::<Mutex<T>>()
-            .ok()
-            .expect("Type mismatch for key")
     }
 
     pub fn has_core(key: &str) -> bool {

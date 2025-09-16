@@ -1,5 +1,5 @@
 use std::sync::{Arc, Mutex};
-use puremvc::interfaces::{ICommand, IFacade, INotification, INotifier};
+use puremvc::interfaces::{ICommand, INotification, INotifier};
 use puremvc::patterns::{Facade, Mediator, Proxy, SimpleCommand};
 
 struct Sprite{}
@@ -47,8 +47,7 @@ fn test_get_instance() {
 
 #[test]
 fn test_register_command_and_send_notification() {
-    let arc = Facade::get_instance("FacadeTestKey2", |k| Facade::new(k));
-    let facade = arc.lock().unwrap();
+    let facade = Facade::get_instance("FacadeTestKey2", |k| Facade::new(k));
     facade.register_command("FacadeTestNote", || Box::new(FacadeTestCommand::new()));
 
     let vo = Arc::new(Mutex::new(FacadeTestVO{input: 32, result: 0}));
@@ -59,8 +58,7 @@ fn test_register_command_and_send_notification() {
 
 #[test]
 fn test_register_and_remove_command_and_send_notification() {
-    let arc = Facade::get_instance("FacadeTestKey3", |k| Facade::new(k));
-    let facade = arc.lock().unwrap();
+    let facade = Facade::get_instance("FacadeTestKey3", |k| Facade::new(k));
     facade.register_command( "FacadeTestNote", || Box::new(FacadeTestCommand::new()));
     facade.remove_command("FacadeTestNote");
 
@@ -72,8 +70,7 @@ fn test_register_and_remove_command_and_send_notification() {
 
 #[test]
 fn test_register_and_retrieve_proxy() {
-    let arc = Facade::get_instance("FacadeTestKey4", |k| Facade::new(k));
-    let facade = arc.lock().unwrap();
+    let facade = Facade::get_instance("FacadeTestKey4", |k| Facade::new(k));
     let colors = vec!["red".to_string(), "green".to_string(), "blue".to_string()];
     let proxy = Proxy::new(Some("colors"), Some(Arc::new(Mutex::new(colors))));
     facade.register_proxy(Arc::new(Mutex::new(proxy)));
@@ -96,8 +93,7 @@ fn test_register_and_retrieve_proxy() {
 
 #[test]
 fn test_register_and_remove_proxy() {
-    let arc = Facade::get_instance("FacadeTestKey5", |k| Facade::new(k));
-    let facade = arc.lock().unwrap();
+    let facade = Facade::get_instance("FacadeTestKey5", |k| Facade::new(k));
     let sizes = vec![7, 13, 21];
     let proxy = Proxy::new(Some("sizes"), Some(Arc::new(sizes)));
     facade.register_proxy(Arc::new(Mutex::new(proxy)));
@@ -111,8 +107,7 @@ fn test_register_and_remove_proxy() {
 
 #[test]
 fn test_register_retrieve_and_remove_mediator() {
-    let arc = Facade::get_instance("FacadeTestKey6", |k| Facade::new(k));
-    let facade = arc.lock().unwrap();
+    let facade = Facade::get_instance("FacadeTestKey6", |k| Facade::new(k));
     let component = Arc::new(Mutex::new(Sprite::default()));
     let mediator = Mediator::new(Some(Mediator::NAME), Some(Arc::downgrade(&component).clone()));
 
@@ -129,8 +124,7 @@ fn test_register_retrieve_and_remove_mediator() {
 
 #[test]
 fn test_has_proxy() {
-    let arc = Facade::get_instance("FacadeTestKey7", |k| Facade::new(k));
-    let facade = arc.lock().unwrap();
+    let facade = Facade::get_instance("FacadeTestKey7", |k| Facade::new(k));
     let proxy = Proxy::new(Some("hasProxyTest"), Some(Arc::new(vec![1, 2, 3])));
     facade.register_proxy(Arc::new(Mutex::new(proxy)));
 
@@ -139,8 +133,7 @@ fn test_has_proxy() {
 
 #[test]
 fn test_has_mediator() {
-    let arc = Facade::get_instance("FacadeTestKey8", |k| Facade::new(k));
-    let facade = arc.lock().unwrap();
+    let facade = Facade::get_instance("FacadeTestKey8", |k| Facade::new(k));
     let component = Arc::new(Mutex::new(Sprite::default()));
     let mediator = Mediator::new(Some("facadeHasMediatorTest"), Some(Arc::downgrade(&component).clone()));
     facade.register_mediator(Arc::new(Mutex::new(mediator)));
@@ -154,8 +147,7 @@ fn test_has_mediator() {
 
 #[test]
 fn test_has_command() {
-    let arc = Facade::get_instance("FacadeTestKey9", |k| Facade::new(k));
-    let facade = arc.lock().unwrap();
+    let facade = Facade::get_instance("FacadeTestKey9", |k| Facade::new(k));
     facade.register_command("FacadeTestCommand", || Box::new(FacadeTestCommand::new()));
 
     assert!(facade.has_command("FacadeTestCommand"));

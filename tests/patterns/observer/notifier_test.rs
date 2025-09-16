@@ -1,5 +1,5 @@
 use std::sync::{Arc, Mutex};
-use puremvc::interfaces::{ICommand, IFacade, INotification, INotifier};
+use puremvc::interfaces::{ICommand, INotification, INotifier};
 use puremvc::patterns::{Facade, Notifier, SimpleCommand};
 
 struct NotifierTestVO {
@@ -34,16 +34,10 @@ impl ICommand for NotifierTestCommand {
 
 #[test]
 fn test_notifier() {
-    // let facade = Facade::get_instance("NotifierTestKey1", |k| Facade::new(k));
-
-    let arc= Facade::get_instance("NotifierTestKey1", |k| Facade::new(k));
-    {
-        let facade = arc.lock().unwrap(); // notifier.send_notification will re-lock facade
-        facade.register_command("NotifierTestNote", || Box::new(NotifierTestCommand::new()));
-    }
+    let facade= Facade::get_instance("NotifierTestKey1", |k| Facade::new(k));
+    facade.register_command("NotifierTestNote", || Box::new(NotifierTestCommand::new()));
 
     let vo = Arc::new(Mutex::new(NotifierTestVO{ input: 5, result: 0 }));
-    // facade.register_command("NotifierTestNote", || Box::new(NotifierTestCommand::new()));
 
     let mut notifier = Notifier::new();
     notifier.initialize_notifier("NotifierTestKey1");
