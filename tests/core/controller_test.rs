@@ -19,7 +19,7 @@ impl ControllerTestCommand {
 }
 
 impl INotifier for ControllerTestCommand {
-    fn notifier(&mut self) -> &mut dyn INotifier {
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
         self.command.notifier()
     }
 }
@@ -44,7 +44,7 @@ impl ControllerTestCommand2 {
 }
 
 impl INotifier for ControllerTestCommand2 {
-    fn notifier(&mut self) -> &mut dyn INotifier {
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
         self.command.notifier()
     }
 }

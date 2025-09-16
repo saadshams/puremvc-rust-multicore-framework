@@ -24,8 +24,8 @@ impl Drop for TestMediator {
 }
 
 impl INotifier for TestMediator {
-    fn notifier(&mut self) -> &mut dyn INotifier {
-        self as &mut dyn INotifier
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
+        Some(self as &mut dyn INotifier)
     }
 }
 impl IMediator for TestMediator {
@@ -127,8 +127,8 @@ impl Drop for TestProxy {
 }
 
 impl INotifier for TestProxy {
-    fn notifier(&mut self) -> &mut dyn INotifier {
-        self as &mut dyn INotifier
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
+        Some(self as &mut dyn INotifier)
     }
 }
 
@@ -204,7 +204,7 @@ impl Drop for TestCommand {
 }
 
 impl INotifier for TestCommand {
-    fn notifier(&mut self) -> &mut dyn INotifier {
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
         self.command.notifier()
     }
 }

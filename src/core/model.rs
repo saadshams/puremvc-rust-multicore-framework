@@ -24,7 +24,8 @@ impl Model {
                 let mut instance = factory(key);
                 instance.initialize_model();
                 Arc::new(instance)
-            }).clone()
+            })
+            .clone()
     }
     
     pub fn remove_model(key: &str) {
@@ -44,7 +45,7 @@ impl IModel for Model {
             map.insert(guard.name().to_string(), Arc::clone(&proxy));
         }
 
-        guard.notifier().initialize_notifier(&self.key);
+        guard.notifier().unwrap().initialize_notifier(&self.key);
         guard.on_register();
     }
 

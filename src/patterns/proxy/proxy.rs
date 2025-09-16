@@ -22,8 +22,8 @@ impl Proxy {
 }
 
 impl INotifier for Proxy {
-    fn notifier(&mut self) -> &mut dyn INotifier {
-        self.notifier.as_mut()
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
+        Some(self.notifier.as_mut())
     }
 }
 

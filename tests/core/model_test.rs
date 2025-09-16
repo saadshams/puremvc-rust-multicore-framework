@@ -19,8 +19,8 @@ impl ModelTestProxy {
 }
 
 impl INotifier for ModelTestProxy {
-    fn notifier(&mut self) -> &mut dyn INotifier {
-        self as &mut dyn INotifier
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
+        Some(self as &mut dyn INotifier)
     }
 }
 

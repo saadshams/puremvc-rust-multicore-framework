@@ -25,7 +25,7 @@ impl MacroCommand {
 }
 
 impl INotifier for MacroCommand {
-    fn notifier(&mut self) -> &mut dyn INotifier {
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
         self.command.notifier()
     }
 }

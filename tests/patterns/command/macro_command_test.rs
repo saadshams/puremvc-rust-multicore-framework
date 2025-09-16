@@ -19,7 +19,7 @@ impl MacroCommandTestSub1Command {
 }
 
 impl INotifier for MacroCommandTestSub1Command {
-    fn notifier(&mut self) -> &mut dyn INotifier {
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
         self.command.notifier()
     }
 }
@@ -45,7 +45,7 @@ impl MacroCommandTestSub2Command {
 }
 
 impl INotifier for MacroCommandTestSub2Command {
-    fn notifier(&mut self) -> &mut dyn INotifier {
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
         self.command.notifier()
     }
 }
@@ -77,8 +77,8 @@ impl MacroCommandTestCommand {
 }
 
 impl INotifier for MacroCommandTestCommand {
-    fn notifier(&mut self) -> &mut dyn INotifier {
-        self as &mut dyn INotifier
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
+        Some(self as &mut dyn INotifier)
     }
 }
 

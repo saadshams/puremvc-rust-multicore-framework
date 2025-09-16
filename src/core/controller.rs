@@ -8,7 +8,7 @@ static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IController>>>> = La
 
 pub struct Controller {
     key: String,
-    view: Option<Weak<dyn IView>>,
+    view: Weak<dyn IView>,
     command_map: Mutex<HashMap<String, fn() -> Box<dyn ICommand + Send + Sync>>>
 }
 
@@ -16,7 +16,7 @@ impl Controller {
     pub fn new(key: &str) -> Self {
         Self {
             key: key.to_string(),
-            view: None,
+            view: Arc::downgrade(&(View::get_instance(&key, |k| View::new(k)))),
             command_map: Mutex::new(HashMap::new()),
         }
     }
@@ -28,7 +28,8 @@ impl Controller {
                 let mut instance = factory(key);
                 instance.initialize_controller();
                 Arc::new(instance)
-            }).clone()
+            })
+            .clone()
     }
 
     pub fn remove_controller(key: &str) {
@@ -38,12 +39,12 @@ impl Controller {
 
 impl IController for Controller {
     fn initialize_controller(&mut self) {
-        self.view = Some(Arc::downgrade(&(View::get_instance(&self.key, |k| View::new(k)))));
+        // self.view = Some(Arc::downgrade(&(View::get_instance(&self.key, |k| View::new(k)))));
     }
 
     fn register_command(&self, notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) {
         let mut map = self.command_map.lock().unwrap();
-        if !map.contains_key(notification_name) && let Some(view) = self.view.as_ref().map(|v| v.upgrade().unwrap()) {
+        if !map.contains_key(notification_name) && let Some(view) = self.view.upgrade() {
             let context = Controller::get_instance(&self.key, |k| Controller::new(k));
             let notify = {
                 let controller = Arc::clone(&context);
@@ -65,7 +66,7 @@ impl IController for Controller {
 
         if let Some(factory) = factory {
             let mut command = Box::new(factory());
-            command.notifier().initialize_notifier(&self.key);
+            command.notifier().unwrap().initialize_notifier(&self.key);
             command.execute(notification);
         }
     }
@@ -79,7 +80,7 @@ impl IController for Controller {
             self.command_map.lock().unwrap().remove(notification_name).is_some()
         };
 
-        if existed && let Some(view) = self.view.as_ref().map(|v| v.upgrade().unwrap()) {
+        if existed && let Some(view) = self.view.upgrade() {
             let context: Arc<dyn IController> = Controller::get_instance(&self.key, |k| Controller::new(k));
             view.remove_observer(notification_name, Arc::new(context));
         }

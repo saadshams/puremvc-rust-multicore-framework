@@ -18,7 +18,7 @@ impl SimpleCommandTestCommand {
 }
 
 impl INotifier for SimpleCommandTestCommand {
-    fn notifier(&mut self) -> &mut dyn INotifier {
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
         self.command.notifier()
     }
 }

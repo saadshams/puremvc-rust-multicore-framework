@@ -28,7 +28,8 @@ impl View {
                 let mut instance = factory(key);
                 instance.initialize_view();
                 Arc::new(instance)
-            }).clone()
+            })
+            .clone()
     }
 
     pub fn remove_view(key: &str) {
@@ -72,7 +73,7 @@ impl IView for View {
             let mut map = self.mediator_map.lock().unwrap();
             if map.contains_key(guard.name()) { return }
 
-            guard.notifier().initialize_notifier(&self.key);
+            guard.notifier().unwrap().initialize_notifier(&self.key);
             map.insert(guard.name().to_string(), Arc::clone(&mediator));
         }
 

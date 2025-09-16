@@ -45,8 +45,8 @@ impl ViewTestMediator {
 }
 
 impl INotifier for ViewTestMediator {
-    fn notifier(&mut self) -> &mut dyn INotifier {
-        self as &mut dyn INotifier
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
+        Some(self as &mut dyn INotifier)
     }
 }
 
@@ -69,8 +69,8 @@ impl ViewTestMediator2 {
 }
 
 impl INotifier for ViewTestMediator2 {
-    fn notifier(&mut self) -> &mut dyn INotifier {
-        self as &mut dyn INotifier
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
+        Some(self as &mut dyn INotifier)
     }
 }
 
@@ -101,8 +101,8 @@ impl ViewTestMediator3 {
 }
 
 impl INotifier for ViewTestMediator3 {
-    fn notifier(&mut self) -> &mut dyn INotifier {
-        self as &mut dyn INotifier
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
+        Some(self as &mut dyn INotifier)
     }
 }
 
@@ -133,8 +133,8 @@ impl ViewTestMediator4 {
 }
 
 impl INotifier for ViewTestMediator4 {
-    fn notifier(&mut self) -> &mut dyn INotifier {
-        self as &mut dyn INotifier
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
+        Some(self as &mut dyn INotifier)
     }
 }
 
@@ -170,8 +170,8 @@ impl ViewTestMediator5 {
 }
 
 impl INotifier for ViewTestMediator5 {
-    fn notifier(&mut self) -> &mut dyn INotifier {
-        self as &mut dyn INotifier
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
+        Some(self as &mut dyn INotifier)
     }
 }
 
@@ -203,8 +203,8 @@ impl ViewTestMediator6 {
 }
 
 impl INotifier for ViewTestMediator6 {
-    fn notifier(&mut self) -> &mut dyn INotifier {
-        self as &mut dyn INotifier
+    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
+        Some(self as &mut dyn INotifier)
     }
 }
 
