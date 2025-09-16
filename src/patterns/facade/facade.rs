@@ -20,7 +20,7 @@ impl Facade {
             key: key.to_string(),
             controller: Controller::get_instance(key, |k| Controller::new(k)),
             model: Model::get_instance(key, |k| Model::new(k)),
-            view: View::get_instance(key, |v| View::new(v))
+            view: View::get_instance(key, |k| View::new(k))
         }
     }
 
