@@ -21,7 +21,7 @@ impl Model {
         INSTANCE_MAP.lock().unwrap()
             .entry(key.to_string())
             .or_insert_with(|| {
-                let mut instance = factory(key);
+                let instance = factory(key);
                 instance.initialize_model();
                 Arc::new(instance)
             })
@@ -34,7 +34,7 @@ impl Model {
 }
 
 impl IModel for Model {
-    fn initialize_model(&mut self) {
+    fn initialize_model(&self) {
 
     }
 

@@ -28,7 +28,7 @@ impl Facade {
         INSTANCE_MAP.lock().unwrap()
             .entry(key.to_string())
             .or_insert_with(|| {
-                let mut instance = factory(key);
+                let instance = factory(key);
                 instance.initialize_facade();
                 Arc::new(instance)
             })
@@ -48,22 +48,22 @@ impl Facade {
 }
 
 impl IFacade for Facade {
-    fn initialize_facade(&mut self) {
+    fn initialize_facade(&self) {
         self.initialize_model();
         self.initialize_controller();
         self.initialize_view();
     }
 
-    fn initialize_controller(&mut self) {
-        
+    fn initialize_controller(&self) {
+
     }
 
-    fn initialize_model(&mut self) {
-        
+    fn initialize_model(&self) {
+
     }
 
-    fn initialize_view(&mut self) {
-        
+    fn initialize_view(&self) {
+
     }
 
     fn register_command(&self, notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) {

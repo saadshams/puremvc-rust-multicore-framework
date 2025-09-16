@@ -25,7 +25,7 @@ impl View {
         INSTANCE_MAP.lock().unwrap()
             .entry(key.to_string())
             .or_insert_with(|| {
-                let mut instance = factory(key);
+                let instance = factory(key);
                 instance.initialize_view();
                 Arc::new(instance)
             })
@@ -38,7 +38,7 @@ impl View {
 }
 
 impl IView for View {
-    fn initialize_view(&mut self){
+    fn initialize_view(&self){
         
     }
     

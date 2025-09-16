@@ -2,10 +2,10 @@ use std::sync::{Arc, Mutex};
 use crate::interfaces::{ICommand, IMediator, INotification, INotifier, IProxy};
 
 pub trait IFacade: INotifier {
-    fn initialize_facade(&mut self) {}
-    fn initialize_controller(&mut self) {}
-    fn initialize_model(&mut self) {}
-    fn initialize_view(&mut self) {}
+    fn initialize_facade(&self) {}
+    fn initialize_controller(&self) {}
+    fn initialize_model(&self) {}
+    fn initialize_view(&self) {}
 
     fn register_command(&self, _notification_name: &str, _factory: fn() -> Box<dyn ICommand + Send + Sync>) {}
     fn has_command(&self, _notification_name: &str) -> bool { false }

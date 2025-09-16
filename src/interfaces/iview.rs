@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use crate::interfaces::{IMediator, INotification, IObserver};
 
 pub trait IView: Any + Sync + Send {
-    fn initialize_view(&mut self);
+    fn initialize_view(&self);
 
     fn register_observer(&self, notification_name: &str, observer: Arc<dyn IObserver>);
     fn remove_observer(&self, notification_name: &str, context: Arc<dyn Any + Send + Sync>);

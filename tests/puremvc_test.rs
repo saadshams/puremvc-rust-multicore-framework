@@ -53,7 +53,7 @@ impl Drop for TestView {
 }
 
 impl IView for TestView {
-    fn initialize_view(&mut self) {
+    fn initialize_view(&self) {
 
     }
 
@@ -152,7 +152,7 @@ impl Drop for TestModel {
 }
 
 impl IModel for TestModel {
-    fn initialize_model(&mut self) {}
+    fn initialize_model(&self) {}
 
     fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) { self.model.register_proxy(proxy) }
     fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> { self.model.retrieve_proxy(proxy_name) }
@@ -230,7 +230,7 @@ impl Drop for TestController {
 }
 
 impl IController for TestController {
-    fn initialize_controller(&mut self) {}
+    fn initialize_controller(&self) {}
 
     fn register_command(&self, notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) { self.controller.register_command(&notification_name, factory) }
     fn execute_command(&self, notification: &Arc<dyn INotification>) { self.controller.execute_command(&notification); }

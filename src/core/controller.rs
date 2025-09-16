@@ -25,7 +25,7 @@ impl Controller {
         INSTANCE_MAP.lock().unwrap()
             .entry(key.to_string())
             .or_insert_with(|| {
-                let mut instance = factory(key);
+                let instance = factory(key);
                 instance.initialize_controller();
                 Arc::new(instance)
             })
@@ -38,8 +38,8 @@ impl Controller {
 }
 
 impl IController for Controller {
-    fn initialize_controller(&mut self) {
-        // self.view = Some(Arc::downgrade(&(View::get_instance(&self.key, |k| View::new(k)))));
+    fn initialize_controller(&self) {
+
     }
 
     fn register_command(&self, notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) {
