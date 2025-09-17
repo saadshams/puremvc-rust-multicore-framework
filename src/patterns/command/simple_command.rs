@@ -1,5 +1,6 @@
+use std::any::Any;
 use std::sync::{Arc};
-use crate::interfaces::{ICommand, INotification, INotifier};
+use crate::interfaces::{ICommand, IFacade, INotification, INotifier};
 use crate::patterns::Notifier;
 
 pub struct SimpleCommand {
@@ -17,6 +18,14 @@ impl SimpleCommand {
 impl INotifier for SimpleCommand {
     fn notifier(&mut self) -> Option<&mut dyn INotifier> {
         Some(self.notifier.as_mut())
+    }
+
+    fn facade(&self) -> Option<Arc<dyn IFacade>> {
+        self.notifier.facade()
+    }
+
+    fn send_notification(&self, _notification_name: &str, _body: Option<Arc<dyn Any + Send + Sync>>, _type_: Option<&str>) {
+        self.notifier.send_notification(_notification_name, _body, _type_);
     }
 }
 

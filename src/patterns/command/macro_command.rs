@@ -1,5 +1,6 @@
+use std::any::Any;
 use std::sync::{Arc};
-use crate::interfaces::{ICommand, INotification, INotifier};
+use crate::interfaces::{ICommand, IFacade, INotification, INotifier};
 use crate::patterns::SimpleCommand;
 
 pub struct MacroCommand {
@@ -27,6 +28,14 @@ impl MacroCommand {
 impl INotifier for MacroCommand {
     fn notifier(&mut self) -> Option<&mut dyn INotifier> {
         self.command.notifier()
+    }
+
+    fn facade(&self) -> Option<Arc<dyn IFacade>> {
+        self.command.facade()
+    }
+
+    fn send_notification(&self, _notification_name: &str, _body: Option<Arc<dyn Any + Send + Sync>>, _type_: Option<&str>) {
+        self.command.send_notification(_notification_name, _body, _type_);
     }
 }
 
