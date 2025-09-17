@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Weak};
+use std::sync::{Arc};
 use crate::interfaces::IFacade;
 
 pub trait INotifier: Any + Send + Sync {
@@ -7,7 +7,7 @@ pub trait INotifier: Any + Send + Sync {
         None
     }
 
-    fn facade(&self) -> Option<Weak<dyn IFacade>> {
+    fn facade(&self) -> Option<Arc<dyn IFacade>> {
         None
     }
 
