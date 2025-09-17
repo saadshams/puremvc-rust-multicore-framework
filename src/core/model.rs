@@ -40,27 +40,32 @@ impl IModel for Model {
 
     fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
         let mut guard = proxy.lock().unwrap();
-        {
-            let mut map = self.proxy_map.lock().unwrap();
-            map.insert(guard.name().to_string(), Arc::clone(&proxy));
-        }
+        self.proxy_map.lock().ok()
+            .and_then(|mut map| {
+                map.insert(guard.name().to_string(), Arc::clone(&proxy))
+            });
 
-        guard.notifier().unwrap().initialize_notifier(&self.key);
+        guard.notifier().map(|notifier| {
+            notifier.initialize_notifier(&self.key)
+        });
         guard.on_register();
     }
 
     fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
-        self.proxy_map.lock().unwrap().get(proxy_name).cloned()
+        self.proxy_map.lock().ok()
+            .map(|map| map.get(proxy_name).cloned())
+            .unwrap()
     }
 
     fn has_proxy(&self, proxy_name: &str) -> bool {
-        self.proxy_map.lock().unwrap().contains_key(proxy_name)
+        self.proxy_map.lock().ok()
+            .map(|map| map.contains_key(proxy_name))
+            .unwrap()
     }
 
     fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
-        let removed = {
-            self.proxy_map.lock().unwrap().remove(proxy_name)
-        };
+        let removed = self.proxy_map.lock().ok()
+            .and_then(|mut map| map.remove(proxy_name));
 
         if let Some(proxy) = &removed {
             let mut guard = proxy.lock().unwrap();
