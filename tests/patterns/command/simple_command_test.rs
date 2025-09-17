@@ -25,11 +25,12 @@ impl INotifier for SimpleCommandTestCommand {
 
 impl ICommand for SimpleCommandTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
-        if let Some(body) = notification.body() {
-            let mut vo = body.downcast_ref::<Mutex<SimpleCommandTestVO>>().unwrap().lock().unwrap();
-
-            vo.result = 2 * vo.input;
-        }
+        notification.body()
+            .and_then(|body| body.downcast_ref::<Mutex<SimpleCommandTestVO>>())
+            .and_then(|mutex| mutex.lock().ok())
+            .map(|mut vo| {
+                vo.result = 2 * vo.input;
+            });
     }
 }
 

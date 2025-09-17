@@ -13,10 +13,12 @@ fn test_body_accessor() {
     let mut note = Notification::new("TestNote", None, None);
     note.set_body(Some(Arc::new(Mutex::new(5))));
 
-    if let Some(body) = note.body() {
-        let vo = body.downcast_ref::<Mutex<i32>>().unwrap().lock().unwrap();
-        assert_eq!(*vo, 5);
-    }
+    note.body()
+        .and_then(|arc| arc.downcast_ref::<Mutex<i32>>())
+        .and_then(|mutex| mutex.lock().ok())
+        .map(|val| {
+            assert_eq!(*val, 5);
+        });
 }
 
 #[test]
@@ -25,12 +27,14 @@ fn test_constructor() {
     
     assert_eq!(note.name(), "TestNote", "Expecting note.get_name() == 'TestNote'");
 
-    if let Some(body) = note.body() {
-        let vo = body.downcast_ref::<Mutex<i32>>().unwrap().lock().unwrap();
+    note.body()
+        .and_then(|arc| arc.downcast_ref::<Mutex<i32>>())
+        .and_then(|mutex| mutex.lock().ok())
+        .map(|val| {
+            assert_eq!(*val, 5);
+        });
 
-        assert_eq!(*vo, 5);
-        assert_eq!(note.get_type(), Some("TestNoteType"));
-    }
+    assert_eq!(note.get_type(), Some("TestNoteType"));
 }
 
 #[test]

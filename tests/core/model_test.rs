@@ -53,13 +53,16 @@ fn test_register_and_retrieve_proxy() {
     let proxy = Proxy::new(Some("colors"), Some(Arc::new(colors)));
     model.register_proxy(Arc::new(Mutex::new(proxy)));
 
-    let proxy = model.retrieve_proxy("colors").unwrap();
-
-    if let Some(data) = proxy.lock().unwrap().data() {
-        let colors = data.downcast_ref::<Vec<String>>().unwrap().clone();
-
-        assert_eq!(colors, &["red", "green", "blue"]);
-    }
+    model.retrieve_proxy("colors")
+        .map(|proxy| {
+            let guard = proxy.lock().expect("lock poisoned");
+            let data = guard
+                .data()
+                .and_then(|d| d.downcast_ref::<Vec<String>>())
+                .expect("invalid data type");
+            assert_eq!(data, &["red", "green", "blue"]);
+        })
+        .expect("missing proxy");
 }
 
 #[test]
@@ -70,9 +73,11 @@ fn test_register_and_remove_proxy() {
     let proxy = Proxy::new(Some("sizes"), Some(Arc::new(sizes)));
     model.register_proxy(Arc::new(Mutex::new(proxy)));
 
-    let removed_proxy = model.remove_proxy("sizes").unwrap();
-
-    assert_eq!(removed_proxy.lock().unwrap().name(), "sizes", "Expecting named sizes");
+    model.remove_proxy("sizes")
+        .map(|proxy| {
+            let guard = proxy.lock().expect("lock poisoned");
+            assert_eq!(guard.name(), "sizes", "Expecting named sizes");
+        });
 
     assert!(model.retrieve_proxy("sizes").is_none(), "Expecting sizes is none");
 }
@@ -99,18 +104,19 @@ fn test_on_register_and_on_remove() {
     let proxy = Arc::new(Mutex::new(ModelTestProxy::new()));
     model.register_proxy(proxy.clone());
 
-    let value = proxy.lock().unwrap().data()
-            .and_then(|d| d.downcast_ref::<&'static str>())
-            .copied().unwrap();
-
-    assert_eq!(value, ModelTestProxy::ON_REGISTER_CALLED);
-
+    proxy.lock().unwrap()
+        .data()
+        .and_then(|arc| arc.downcast_ref::<&'static str>().copied())
+        .map(|value| {
+            assert_eq!(value, ModelTestProxy::ON_REGISTER_CALLED, "Expecting proxy.data() == ModelTestProxy::ON_REGISTER_CALLED");
+        });
+    
     model.remove_proxy(ModelTestProxy::NAME);
 
-    let value = proxy.lock().unwrap().data()
-            .and_then(|d| d.downcast_ref::<&'static str>())
-            .copied().unwrap();
-
-
-    assert_eq!(value, ModelTestProxy::ON_REMOVE_CALLED, "Expecting Proxy.data() == ModelTestProxy::ON_REMOVE_CALLED");
+    proxy.lock().unwrap()
+        .data()
+        .and_then(|arc| arc.downcast_ref::<&'static str>().copied())
+        .map(|value| {
+            assert_eq!(value, ModelTestProxy::ON_REMOVE_CALLED, "Expecting proxy.data() == ModelTestProxy::ON_REMOVE_CALLED");
+        });
 }

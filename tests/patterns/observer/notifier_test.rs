@@ -25,10 +25,12 @@ impl INotifier for NotifierTestCommand {
 
 impl ICommand for NotifierTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
-        if let Some(body) = notification.body() {
-            let mut vo = body.downcast_ref::<Mutex<NotifierTestVO>>().unwrap().lock().unwrap();
-            vo.result = 2 * vo.input;
-        }
+        notification.body()
+            .and_then(|arc| arc.downcast_ref::<Mutex<NotifierTestVO>>())
+            .and_then(|mutex| mutex.lock().ok())
+            .map(|mut vo| {
+                vo.result = 2 * vo.input;
+            });
     }
 }
 
