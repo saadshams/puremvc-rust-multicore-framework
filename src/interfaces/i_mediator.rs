@@ -9,16 +9,16 @@ pub trait IMediator: INotifier {
         None
     }
 
-    fn set_component(&mut self, _component: Option<Weak<dyn Any + Send + Sync>>) {
-
+    fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
+        let _ = component;
     }
 
     fn list_notification_interests(&self) -> Vec<String> {
         vec![]
     }
 
-    fn handle_notification(&mut self, _notification: &Arc<dyn INotification>) {
-
+    fn handle_notification(&mut self, notification: &Arc<dyn INotification>) {
+        let _ = notification;
     }
 
     fn on_register(&mut self) {

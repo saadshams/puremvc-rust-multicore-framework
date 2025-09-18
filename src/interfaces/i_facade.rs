@@ -7,19 +7,51 @@ pub trait IFacade: INotifier {
     fn initialize_model(&self) {}
     fn initialize_view(&self) {}
 
-    fn register_command(&self, _notification_name: &str, _factory: fn() -> Box<dyn ICommand + Send + Sync>) {}
-    fn has_command(&self, _notification_name: &str) -> bool { false }
-    fn remove_command(&self, _notification_name: &str) {}
+    fn register_command(&self, notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) {
+        let _ = notification_name; let _ = factory;
+    }
 
-    fn register_proxy(&self, _proxy: Arc<Mutex<dyn IProxy>>) {}
-    fn retrieve_proxy(&self, _proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> { None }
-    fn has_proxy(&self, _proxy_name: &str) -> bool { false}
-    fn remove_proxy(&self, _proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> { None }
+    fn has_command(&self, notification_name: &str) -> bool {
+        let _ = notification_name; false
+    }
 
-    fn register_mediator(&self, _mediator: Arc<Mutex<dyn IMediator>>) {}
-    fn retrieve_mediator(&self, _mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> { None }
-    fn has_mediator(&self, _mediator_name: &str) -> bool { false }
-    fn remove_mediator(&self, _mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> { None }
+    fn remove_command(&self, notification_name: &str) {
+        let _ = notification_name;
+    }
 
-    fn notify_observers(&self, _notification: &Arc<dyn INotification>) {}
+    fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
+        let _ = proxy;
+    }
+
+    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
+        let _ = proxy_name; None
+    }
+
+    fn has_proxy(&self, proxy_name: &str) -> bool {
+        let _ = proxy_name; false
+    }
+
+    fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
+        let _ = proxy_name; None
+    }
+
+    fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator>>) {
+        let _ = mediator;
+    }
+
+    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
+        let _ = mediator_name; None
+    }
+
+    fn has_mediator(&self, mediator_name: &str) -> bool {
+        let _ = mediator_name; false
+    }
+
+    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
+        let _ = mediator_name; None
+    }
+
+    fn notify_observers(&self, notification: &Arc<dyn INotification>) {
+        let _ = notification;
+    }
 }

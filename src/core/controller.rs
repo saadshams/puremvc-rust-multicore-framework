@@ -43,22 +43,21 @@ impl IController for Controller {
     }
 
     fn register_command(&self, notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) {
-        self.command_map.lock().ok()
-            .map(|mut map| {
-                if !map.contains_key(notification_name) && let Some(view) = self.view.upgrade() {
-                    let context = Controller::get_instance(&self.key, |k| Controller::new(k));
-                    let notify = {
-                        let controller = Arc::clone(&context);
-                        Arc::new(move |notification: &Arc<dyn INotification>| {
-                            controller.execute_command(&notification);
-                        })
-                    };
+        if let Ok(mut map) = self.command_map.lock() {
+            if !map.contains_key(notification_name) && let Some(view) = self.view.upgrade() {
+                let context = Controller::get_instance(&self.key, |k| Controller::new(k));
+                let notify = {
+                    let controller = Arc::clone(&context);
+                    Arc::new(move |notification: &Arc<dyn INotification>| {
+                        controller.execute_command(&notification);
+                    })
+                };
 
-                    let observer = Observer::new(Some(notify), Some(Arc::new(context)));
-                    view.register_observer(notification_name, Arc::new(observer));
-                }
-                map.insert(notification_name.to_string(), factory)
-            });
+                let observer = Observer::new(Some(notify), Some(Arc::new(context)));
+                view.register_observer(notification_name, Arc::new(observer));
+            }
+            map.insert(notification_name.to_string(), factory);
+        }
     }
 
     fn execute_command(&self, notification: &Arc<dyn INotification>) {

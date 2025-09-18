@@ -9,8 +9,8 @@ pub trait IProxy: INotifier {
         None
     }
 
-    fn set_data(&mut self, _data: Option<Arc<dyn Any + Send + Sync>>) {
-
+    fn set_data(&mut self, data: Option<Arc<dyn Any + Send + Sync>>) {
+        let _ = data;
     }
     
     fn on_register(&mut self) {
