@@ -19,7 +19,7 @@ impl Notifier {
 
 impl INotifier for Notifier {
     fn key(&self) -> &str {
-        self.key.as_ref().map(String::as_str).unwrap_or("")
+        self.key.as_deref().unwrap_or("")
     }
 
     fn facade(&self) -> Arc<dyn IFacade> {
