@@ -23,7 +23,7 @@ impl Mediator {
 
 impl INotifier for Mediator {
     fn key(&self) -> &str {
-        ""
+        self.notifier.key()
     }
 
     fn facade(&self) -> Arc<dyn IFacade> {

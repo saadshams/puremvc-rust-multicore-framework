@@ -23,7 +23,7 @@ impl Proxy {
 
 impl INotifier for Proxy {
     fn key(&self) -> &str {
-        ""
+        self.notifier.key()
     }
 
     fn facade(&self) -> Arc<dyn IFacade> {
