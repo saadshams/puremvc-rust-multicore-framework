@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::sync::{Arc, Mutex};
 use puremvc::interfaces::{ICommand, IFacade, INotification, INotifier};
 use puremvc::patterns::{MacroCommand, Notification, SimpleCommand};
@@ -29,6 +30,10 @@ impl INotifier for MacroCommandTestSub1Command {
 
     fn initialize_notifier(&mut self, key: &str) {
         self.command.initialize_notifier(key);
+    }
+    
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.command.send_notification(name, body, type_);
     }
 }
 
@@ -64,6 +69,10 @@ impl INotifier for MacroCommandTestSub2Command {
 
     fn initialize_notifier(&mut self, key: &str) {
         self.command.initialize_notifier(key);
+    }
+
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.command.send_notification(name, body, type_);
     }
 }
 
@@ -106,6 +115,10 @@ impl INotifier for MacroCommandTestCommand {
 
     fn initialize_notifier(&mut self, key: &str) {
         self.command.initialize_notifier(key);
+    }
+
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.command.send_notification(name, body, type_);
     }
 }
 

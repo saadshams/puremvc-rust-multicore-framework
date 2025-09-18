@@ -56,6 +56,10 @@ impl INotifier for ViewTestMediator {
     fn initialize_notifier(&mut self, key: &str) {
         self.mediator.initialize_notifier(key);
     }
+    
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.mediator.send_notification(name, body, type_);
+    }
 }
 
 impl IMediator for ViewTestMediator {
@@ -87,6 +91,10 @@ impl INotifier for ViewTestMediator2 {
 
     fn initialize_notifier(&mut self, key: &str) {
         self.mediator.initialize_notifier(key);
+    }
+
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.mediator.send_notification(name, body, type_);
     }
 }
 
@@ -128,6 +136,10 @@ impl INotifier for ViewTestMediator3 {
     fn initialize_notifier(&mut self, key: &str) {
         self.mediator.initialize_notifier(key);
     }
+
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.mediator.send_notification(name, body, type_);
+    }
 }
 
 impl IMediator for ViewTestMediator3 {
@@ -167,6 +179,10 @@ impl INotifier for ViewTestMediator4 {
 
     fn initialize_notifier(&mut self, key: &str) {
         self.mediator.initialize_notifier(key);
+    }
+
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.mediator.send_notification(name, body, type_);
     }
 }
 
@@ -213,6 +229,10 @@ impl INotifier for ViewTestMediator5 {
     fn initialize_notifier(&mut self, key: &str) {
         self.mediator.initialize_notifier(key);
     }
+
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.mediator.send_notification(name, body, type_);
+    }
 }
 
 impl IMediator for ViewTestMediator5 {
@@ -253,6 +273,10 @@ impl INotifier for ViewTestMediator6 {
 
     fn initialize_notifier(&mut self, key: &str) {
         self.mediator.initialize_notifier(key);
+    }
+    
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.mediator.send_notification(name, body, type_);
     }
 }
 

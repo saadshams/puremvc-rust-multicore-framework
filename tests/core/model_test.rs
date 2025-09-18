@@ -31,6 +31,10 @@ impl INotifier for ModelTestProxy {
     fn initialize_notifier(&mut self, key: &str) {
         self.proxy.initialize_notifier(key);
     }
+
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.proxy.send_notification(name, body, type_);
+    }
 }
 
 impl IProxy for ModelTestProxy {

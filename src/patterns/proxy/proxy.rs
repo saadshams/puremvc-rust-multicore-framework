@@ -34,8 +34,8 @@ impl INotifier for Proxy {
         self.notifier.initialize_notifier(key);
     }
 
-    fn send_notification(&self, _notification_name: &str, _body: Option<Arc<dyn Any + Send + Sync>>, _type_: Option<&str>) {
-        self.notifier.send_notification(_notification_name, _body, _type_);
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.notifier.send_notification(name, body, type_);
     }
 }
 

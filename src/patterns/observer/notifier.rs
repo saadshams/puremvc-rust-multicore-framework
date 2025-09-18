@@ -6,7 +6,7 @@ use crate::patterns::Facade;
 const MULTITON_MSG: &str = "multitonKey for this Notifier not yet initialized!";
 
 pub struct Notifier {
-    pub key: Option<String>
+    key: Option<String>
 }
 
 impl Notifier {

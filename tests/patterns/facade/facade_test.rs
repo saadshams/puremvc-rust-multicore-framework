@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::sync::{Arc, Mutex};
 use puremvc::interfaces::{ICommand, IFacade, INotification, INotifier};
 use puremvc::patterns::{Facade, Mediator, Proxy, SimpleCommand};
@@ -33,6 +34,10 @@ impl INotifier for FacadeTestCommand {
 
     fn initialize_notifier(&mut self, key: &str) {
         self.command.initialize_notifier(key);
+    }
+
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.command.send_notification(name, body, type_);
     }
 }
 
