@@ -6,7 +6,7 @@ use crate::patterns::Facade;
 const MULTITON_MSG: &str = "multitonKey for this Notifier not yet initialized!";
 
 pub struct Notifier {
-    key: Option<String>
+    pub key: Option<String>
 }
 
 impl Notifier {
@@ -18,13 +18,13 @@ impl Notifier {
 }
 
 impl INotifier for Notifier {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        Some(self)
+    fn key(&self) -> &str {
+        self.key.as_ref().map(String::as_str).unwrap_or("")
     }
 
-    fn facade(&self) -> Option<Arc<dyn IFacade>> {
+    fn facade(&self) -> Arc<dyn IFacade> {
         let key = self.key.as_ref().expect(MULTITON_MSG);
-        Some(Facade::get_instance(key, |k| Facade::new(k)))
+        Facade::get_instance(key, |k| Facade::new(k))
     }
 
     fn initialize_notifier(&mut self, key: &str) {
@@ -32,6 +32,6 @@ impl INotifier for Notifier {
     }
 
     fn send_notification(&self, notification_name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
-        self.facade().unwrap().send_notification(notification_name, body, type_);
+        self.facade().send_notification(notification_name, body, type_);
     }
 }

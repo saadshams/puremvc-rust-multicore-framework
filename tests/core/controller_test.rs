@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 use puremvc::core::{Controller, View};
-use puremvc::interfaces::{ICommand, INotification, INotifier};
+use puremvc::interfaces::{ICommand, IFacade, INotification, INotifier};
 use puremvc::patterns::{Notification, SimpleCommand};
 
 struct ControllerTestVO {
@@ -19,8 +19,16 @@ impl ControllerTestCommand {
 }
 
 impl INotifier for ControllerTestCommand {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        self.command.notifier()
+    fn key(&self) -> &str {
+        self.command.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.command.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.command.initialize_notifier(key);
     }
 }
 
@@ -46,8 +54,16 @@ impl ControllerTestCommand2 {
 }
 
 impl INotifier for ControllerTestCommand2 {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        self.command.notifier()
+    fn key(&self) -> &str {
+        self.command.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.command.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.command.initialize_notifier(key);
     }
 }
 

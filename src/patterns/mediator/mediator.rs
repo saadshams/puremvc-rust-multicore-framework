@@ -22,12 +22,16 @@ impl Mediator {
 }
 
 impl INotifier for Mediator {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        Some(self.notifier.as_mut())
+    fn key(&self) -> &str {
+        ""
     }
 
-    fn facade(&self) -> Option<Arc<dyn IFacade>> {
+    fn facade(&self) -> Arc<dyn IFacade> {
         self.notifier.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.notifier.initialize_notifier(key);
     }
 
     fn send_notification(&self, _notification_name: &str, _body: Option<Arc<dyn Any + Send + Sync>>, _type_: Option<&str>) {

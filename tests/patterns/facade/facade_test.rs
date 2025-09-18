@@ -1,5 +1,5 @@
 use std::sync::{Arc, Mutex};
-use puremvc::interfaces::{ICommand, INotification, INotifier};
+use puremvc::interfaces::{ICommand, IFacade, INotification, INotifier};
 use puremvc::patterns::{Facade, Mediator, Proxy, SimpleCommand};
 
 struct Sprite{}
@@ -23,8 +23,16 @@ impl FacadeTestCommand {
 }
 
 impl INotifier for FacadeTestCommand {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        self.command.notifier()
+    fn key(&self) -> &str {
+        self.command.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.command.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.command.initialize_notifier(key);
     }
 }
 

@@ -1,7 +1,7 @@
 use std::any::{Any, TypeId};
 use std::sync::{mpsc, Arc, Mutex, Weak};
 use puremvc::core::View;
-use puremvc::interfaces::{IMediator, INotification, INotifier};
+use puremvc::interfaces::{IFacade, IMediator, INotification, INotifier};
 use puremvc::patterns::{Mediator, Notification, Observer};
 
 pub mod view_test {
@@ -45,8 +45,16 @@ impl ViewTestMediator {
 }
 
 impl INotifier for ViewTestMediator {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        Some(self as &mut dyn INotifier)
+    fn key(&self) -> &str {
+        self.mediator.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.mediator.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.mediator.initialize_notifier(key);
     }
 }
 
@@ -69,8 +77,16 @@ impl ViewTestMediator2 {
 }
 
 impl INotifier for ViewTestMediator2 {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        Some(self as &mut dyn INotifier)
+    fn key(&self) -> &str {
+        self.mediator.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.mediator.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.mediator.initialize_notifier(key);
     }
 }
 
@@ -101,8 +117,16 @@ impl ViewTestMediator3 {
 }
 
 impl INotifier for ViewTestMediator3 {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        Some(self as &mut dyn INotifier)
+    fn key(&self) -> &str {
+        self.mediator.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.mediator.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.mediator.initialize_notifier(key);
     }
 }
 
@@ -133,8 +157,16 @@ impl ViewTestMediator4 {
 }
 
 impl INotifier for ViewTestMediator4 {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        Some(self as &mut dyn INotifier)
+    fn key(&self) -> &str {
+        self.mediator.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.mediator.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.mediator.initialize_notifier(key);
     }
 }
 
@@ -170,8 +202,16 @@ impl ViewTestMediator5 {
 }
 
 impl INotifier for ViewTestMediator5 {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        Some(self as &mut dyn INotifier)
+    fn key(&self) -> &str {
+        self.mediator.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.mediator.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.mediator.initialize_notifier(key);
     }
 }
 
@@ -203,8 +243,16 @@ impl ViewTestMediator6 {
 }
 
 impl INotifier for ViewTestMediator6 {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        Some(self as &mut dyn INotifier)
+    fn key(&self) -> &str {
+        self.mediator.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.mediator.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.mediator.initialize_notifier(key);
     }
 }
 

@@ -1,5 +1,5 @@
 use std::sync::{Arc, Mutex};
-use puremvc::interfaces::{ICommand, INotification, INotifier};
+use puremvc::interfaces::{ICommand, IFacade, INotification, INotifier};
 use puremvc::patterns::{MacroCommand, Notification, SimpleCommand};
 
 struct MacroCommandTestVO {
@@ -19,8 +19,16 @@ impl MacroCommandTestSub1Command {
 }
 
 impl INotifier for MacroCommandTestSub1Command {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        self.command.notifier()
+    fn key(&self) -> &str {
+        self.command.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.command.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.command.initialize_notifier(key);
     }
 }
 
@@ -46,8 +54,16 @@ impl MacroCommandTestSub2Command {
 }
 
 impl INotifier for MacroCommandTestSub2Command {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        self.command.notifier()
+    fn key(&self) -> &str {
+        self.command.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.command.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.command.initialize_notifier(key);
     }
 }
 
@@ -80,8 +96,16 @@ impl MacroCommandTestCommand {
 }
 
 impl INotifier for MacroCommandTestCommand {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        Some(self as &mut dyn INotifier)
+    fn key(&self) -> &str {
+        self.command.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.command.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.command.initialize_notifier(key);
     }
 }
 

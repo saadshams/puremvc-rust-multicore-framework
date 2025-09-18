@@ -116,6 +116,14 @@ impl IFacade for Facade {
 }
 
 impl INotifier for Facade {
+    fn key(&self) -> &str {
+        self.key.as_str()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        Facade::get_instance(&self.key, |k| Facade::new(k))
+    }
+
     fn initialize_notifier(&mut self, key: &str) {
         self.key = key.to_string();
     }

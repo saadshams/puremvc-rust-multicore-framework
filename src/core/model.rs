@@ -44,10 +44,8 @@ impl IModel for Model {
             .and_then(|mut map| {
                 map.insert(guard.name().to_string(), Arc::clone(&proxy))
             });
-
-        guard.notifier().map(|notifier| {
-            notifier.initialize_notifier(&self.key)
-        });
+        
+        guard.initialize_notifier(&self.key);
         guard.on_register();
     }
 

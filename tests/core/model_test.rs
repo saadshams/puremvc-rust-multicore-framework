@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
 use puremvc::core::Model;
-use puremvc::interfaces::{INotifier, IProxy};
+use puremvc::interfaces::{IFacade, INotifier, IProxy};
 use puremvc::patterns::Proxy;
 
 pub struct ModelTestProxy {
@@ -19,8 +19,17 @@ impl ModelTestProxy {
 }
 
 impl INotifier for ModelTestProxy {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        Some(self as &mut dyn INotifier)
+    fn key(&self) -> &str {
+        self.proxy.key()
+    }
+
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.proxy.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.proxy.initialize_notifier(key);
     }
 }
 

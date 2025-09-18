@@ -66,9 +66,7 @@ impl IController for Controller {
 
         if let Some(factory) = factory {
             let mut command = Box::new(factory());
-            command.notifier().map(|notifier| {
-                notifier.initialize_notifier(&self.key)
-            });
+            command.initialize_notifier(&self.key);
             command.execute(notification);
         }
     }

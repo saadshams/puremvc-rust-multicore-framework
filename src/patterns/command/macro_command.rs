@@ -26,12 +26,16 @@ impl MacroCommand {
 }
 
 impl INotifier for MacroCommand {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        self.command.notifier()
+    fn key(&self) -> &str {
+        self.command.key()
     }
 
-    fn facade(&self) -> Option<Arc<dyn IFacade>> {
+    fn facade(&self) -> Arc<dyn IFacade> {
         self.command.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.command.initialize_notifier(key);
     }
 
     fn send_notification(&self, _notification_name: &str, _body: Option<Arc<dyn Any + Send + Sync>>, _type_: Option<&str>) {
@@ -43,6 +47,7 @@ impl ICommand for MacroCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
         for factory in self.sub_commands.drain(..) {
             let mut command = factory();
+            command.initialize_notifier(self.command.key());
             command.execute(&notification);
         }
     }

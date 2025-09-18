@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
 use puremvc::core::{Controller, Model, View};
-use puremvc::interfaces::{ICommand, IController, IMediator, IModel, INotification, INotifier, IObserver, IProxy, IView};
+use puremvc::interfaces::{ICommand, IController, IFacade, IMediator, IModel, INotification, INotifier, IObserver, IProxy, IView};
 use puremvc::patterns::{Mediator, Notification, Proxy, SimpleCommand};
 
 #[derive(Debug, PartialEq, Eq)]
@@ -24,8 +24,17 @@ impl Drop for TestMediator {
 }
 
 impl INotifier for TestMediator {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        Some(self as &mut dyn INotifier)
+    fn key(&self) -> &str {
+        self.mediator.key()
+    }
+
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.mediator.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.mediator.initialize_notifier(key);
     }
 }
 impl IMediator for TestMediator {
@@ -127,8 +136,16 @@ impl Drop for TestProxy {
 }
 
 impl INotifier for TestProxy {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        Some(self as &mut dyn INotifier)
+    fn key(&self) -> &str {
+        self.proxy.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.proxy.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.proxy.initialize_notifier(key);
     }
 }
 
@@ -204,8 +221,16 @@ impl Drop for TestCommand {
 }
 
 impl INotifier for TestCommand {
-    fn notifier(&mut self) -> Option<&mut dyn INotifier> {
-        self.command.notifier()
+    fn key(&self) -> &str {
+        self.command.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.command.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.command.initialize_notifier(key);
     }
 }
 impl ICommand for TestCommand {

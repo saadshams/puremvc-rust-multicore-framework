@@ -95,9 +95,7 @@ impl IView for View {
             self.register_observer(&interest, Arc::new(observer));
         }
 
-        guard.notifier().map(|notifier| {
-            notifier.initialize_notifier(&self.key)
-        });
+        guard.initialize_notifier(&self.key);
         guard.on_register();
     }
 
