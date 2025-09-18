@@ -53,13 +53,13 @@ impl IView for View {
 
     fn remove_observer(&self, notification_name: &str, context: Arc<dyn Any + Send + Sync>) {
         self.observer_map.lock().ok()
-            .map(|mut map| {
-                if let Some(observers) = map.get_mut(notification_name) {
-                    observers.retain(|observer| !observer.compare_notify_context(&context));
+            .and_then(|mut map| map.get_mut(notification_name).cloned())
+            .map(|mut observers| {
+                observers.retain(|observer| !observer.compare_notify_context(&context));
 
-                    if observers.is_empty() {
-                        map.remove(notification_name);
-                    }
+                if observers.is_empty() {
+                    self.observer_map.lock().ok()
+                        .map(|mut map| map.remove(notification_name));
                 }
             });
     }
