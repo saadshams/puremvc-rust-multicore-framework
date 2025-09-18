@@ -39,14 +39,13 @@ impl IModel for Model {
     }
 
     fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
-        let mut guard = proxy.lock().unwrap();
         self.proxy_map.lock().ok()
-            .and_then(|mut map| {
-                map.insert(guard.name().to_string(), Arc::clone(&proxy))
+            .map(|mut map| {
+                let mut guard = proxy.lock().unwrap();
+                map.insert(guard.name().to_string(), Arc::clone(&proxy));
+                guard.initialize_notifier(&self.key);
+                guard.on_register();
             });
-        
-        guard.initialize_notifier(&self.key);
-        guard.on_register();
     }
 
     fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
@@ -62,14 +61,11 @@ impl IModel for Model {
     }
 
     fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
-        let removed = self.proxy_map.lock().ok()
-            .and_then(|mut map| map.remove(proxy_name));
-
-        if let Some(proxy) = &removed {
-            let mut guard = proxy.lock().unwrap();
-            guard.on_remove();
-        }
-
-        removed
+        self.proxy_map.lock().ok()
+            .and_then(|mut map| map.remove(proxy_name))
+            .map(|proxy| {
+                proxy.lock().unwrap().on_remove();
+                proxy
+            })
     }
 }

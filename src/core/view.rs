@@ -112,17 +112,15 @@ impl IView for View {
     }
 
     fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
-        let removed = self.mediator_map.lock().ok()
-                .and_then(|mut map| map.remove(mediator_name));
-
-        if let Some(mediator) = &removed {
-            let mut guard = mediator.lock().unwrap();
-            for interest in guard.list_notification_interests() {
-                self.remove_observer(&interest, Arc::new(Arc::clone(mediator)));
-            }
-            guard.on_remove();
-        }
-
-        removed
+        self.mediator_map.lock().ok()
+            .and_then(|mut map| map.remove(mediator_name))
+            .map(|mediator| {
+                let mut guard = mediator.lock().unwrap();
+                for interest in guard.list_notification_interests() {
+                    self.remove_observer(&interest, Arc::new(Arc::clone(&mediator)));
+                }
+                guard.on_remove();
+                mediator.clone()
+            })
     }
 }
