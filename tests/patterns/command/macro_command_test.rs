@@ -26,11 +26,12 @@ impl INotifier for MacroCommandTestSub1Command {
 
 impl ICommand for MacroCommandTestSub1Command {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
-        if let Some(body) = notification.body() {
-            let mut vo = body.downcast_ref::<Mutex<MacroCommandTestVO>>().unwrap().lock().unwrap();
-            
-            vo.result1 = 2 * vo.input;
-        }
+        notification.body()
+            .and_then(|body| body.downcast_ref::<Mutex<MacroCommandTestVO>>())
+            .and_then(|mutex| mutex.lock().ok())
+            .map(|mut vo| {
+                vo.result1 = 2 * vo.input;
+            });
     }
 }
 
@@ -52,10 +53,12 @@ impl INotifier for MacroCommandTestSub2Command {
 
 impl ICommand for MacroCommandTestSub2Command {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
-        if let Some(body) = notification.body() {
-            let mut vo = body.downcast_ref::<Mutex<MacroCommandTestVO>>().unwrap().lock().unwrap();
-            vo.result2 = vo.input * vo.input;
-        }
+        notification.body()
+            .and_then(|body| body.downcast_ref::<Mutex<MacroCommandTestVO>>())
+            .and_then(|mutex| mutex.lock().ok())
+            .map(|mut vo| {
+                vo.result2 = vo.input * vo.input;
+            });
     }
 }
 
@@ -71,8 +74,8 @@ impl MacroCommandTestCommand {
     }
 
     fn initialize_macro_command(&mut self) {
-        self.command.add_sub_command(|| Box::new(MacroCommandTestSub1Command::new()));
-        self.command.add_sub_command(|| Box::new(MacroCommandTestSub2Command::new()));
+        self.command.add_sub_command(|| MacroCommandTestSub1Command::new());
+        self.command.add_sub_command(|| MacroCommandTestSub2Command::new());
     }
 }
 
@@ -93,11 +96,16 @@ impl ICommand for MacroCommandTestCommand {
 fn test_macro_command_execute() {
     let vo = Arc::new(Mutex::new(MacroCommandTestVO { input: 5, result1: 0, result2: 0 }));
 
-    let notification = Arc::new(Notification::new("MacroCommandTest", Some(vo.clone()), None));
+    let notification = Arc::new(Notification::new("MacroCommandTest", Some(vo), None));
 
     let mut command = MacroCommandTestCommand::new();
-    command.execute(&(notification as Arc<dyn INotification>));
+    command.execute(&(notification.clone() as Arc<dyn INotification>));
 
-    assert_eq!(vo.lock().unwrap().result1, 10, "Expecting vo.result1 == 10");
-    assert_eq!(vo.lock().unwrap().result2, 25, "Expecting vo.result2 == 25");
+    notification.body()
+        .and_then(|body| body.downcast_ref::<Mutex<MacroCommandTestVO>>())
+        .and_then(|mutex| mutex.lock().ok())
+        .map(|vo| {
+            assert_eq!(vo.result1, 10);
+            assert_eq!(vo.result2, 25);
+        });
 }

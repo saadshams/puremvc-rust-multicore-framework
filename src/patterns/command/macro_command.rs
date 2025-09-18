@@ -5,7 +5,7 @@ use crate::patterns::SimpleCommand;
 
 pub struct MacroCommand {
     command: SimpleCommand,
-    sub_commands: Vec<fn() -> Box<dyn ICommand + Send + Sync>>
+    sub_commands: Vec<Box<dyn Fn() -> Box<dyn ICommand + Send + Sync> + Send + Sync>>,
 }
 
 impl MacroCommand {
@@ -20,8 +20,8 @@ impl MacroCommand {
 
     }
 
-    pub fn add_sub_command(&mut self, factory: fn() -> Box<dyn ICommand + Send + Sync>) {
-        self.sub_commands.push(factory);
+    pub fn add_sub_command<T: ICommand + Send + Sync>(&mut self, factory: fn() -> T) {
+        self.sub_commands.push(Box::new(move || Box::new(factory())));
     }
 }
 

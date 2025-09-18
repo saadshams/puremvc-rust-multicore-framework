@@ -26,10 +26,12 @@ impl INotifier for ControllerTestCommand {
 
 impl ICommand for ControllerTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
-        if let Some(body) = notification.body() {
-            let mut vo = body.downcast_ref::<Mutex<ControllerTestVO>>().unwrap().lock().unwrap();
-            vo.result = 2 * vo.input;
-        }
+        notification.body()
+            .and_then(|body| body.downcast_ref::<Mutex<ControllerTestVO>>())
+            .and_then(|mutex| mutex.lock().ok())
+            .map(|mut vo| {
+                vo.result = 2 * vo.input;
+            });
     }
 }
 
@@ -51,10 +53,12 @@ impl INotifier for ControllerTestCommand2 {
 
 impl ICommand for ControllerTestCommand2 {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
-        if let Some(body) = notification.body() {
-            let mut vo = body.downcast_ref::<Mutex<ControllerTestVO>>().unwrap().lock().unwrap();
-            vo.result = vo.result + (2 * vo.input);
-        }
+        notification.body()
+            .and_then(|body| body.downcast_ref::<Mutex<ControllerTestVO>>())
+            .and_then(|mutex| mutex.lock().ok())
+            .map(|mut vo| {
+                vo.result = vo.result + (2 * vo.input);
+            });
     }
 }
 
