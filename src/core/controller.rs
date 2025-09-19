@@ -15,7 +15,7 @@ pub struct Controller {
 impl Controller {
     pub fn new(key: &str) -> Self {
         Self {
-            key: key.to_string(),
+            key: key.into(),
             view: Arc::downgrade(&(View::get_instance(&key, |k| View::new(k)))),
             command_map: Mutex::new(HashMap::new()),
         }
@@ -23,7 +23,7 @@ impl Controller {
 
     pub fn get_instance<T: IController>(key: &str, factory: impl Fn(&str) -> T) -> Arc<dyn IController> {
         INSTANCE_MAP.lock().unwrap()
-            .entry(key.to_string())
+            .entry(key.into())
             .or_insert_with(|| {
                 let instance = factory(key);
                 instance.initialize_controller();
@@ -57,7 +57,7 @@ impl IController for Controller {
                     let observer = Observer::new(Some(notify), Some(Arc::new(context)));
                     view.register_observer(notification_name, Arc::new(observer));
                 }
-                map.insert(notification_name.to_string(), factory)
+                map.insert(notification_name.into(), factory)
             });
     }
 

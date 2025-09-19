@@ -15,7 +15,7 @@ impl Proxy {
     pub fn new(name: Option<&str>, data: Option<Arc<dyn Any + Send + Sync>>) -> Self {
         Self {
             notifier: Box::new(Notifier::new()),
-            name: name.unwrap_or(Self::NAME).to_string(),
+            name: name.unwrap_or(Self::NAME).into(),
             data
         }
     }

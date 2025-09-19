@@ -17,7 +17,7 @@ pub struct Facade {
 impl Facade {
     pub fn new(key: &str) -> Self {
         Self {
-            key: key.to_string(),
+            key: key.into(),
             controller: Controller::get_instance(key, |k| Controller::new(k)),
             model: Model::get_instance(key, |k| Model::new(k)),
             view: View::get_instance(key, |k| View::new(k))
@@ -26,7 +26,7 @@ impl Facade {
 
     pub fn get_instance<T: IFacade>(key: &str, factory: impl Fn(&str) -> T) -> Arc<dyn IFacade> {
         INSTANCE_MAP.lock().unwrap()
-            .entry(key.to_string())
+            .entry(key.into())
             .or_insert_with(|| {
                 let instance = factory(key);
                 instance.initialize_facade();
@@ -125,7 +125,7 @@ impl INotifier for Facade {
     }
 
     fn initialize_notifier(&mut self, key: &str) {
-        self.key = key.to_string();
+        self.key = key.into();
     }
 
     fn send_notification(&self, notification_name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {

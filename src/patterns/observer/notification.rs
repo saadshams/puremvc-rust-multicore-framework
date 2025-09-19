@@ -11,9 +11,9 @@ pub struct Notification {
 impl Notification {
     pub fn new(name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) -> Self {
         Self {
-            name: name.to_string(),
+            name: name.into(),
             body,
-            type_: type_.map(|t| t.to_string()),
+            type_: type_.map(|t| t.into()),
         }
     }
 }
@@ -43,7 +43,7 @@ impl INotification for Notification {
         let name = &self.name;
         let body = match &self.body {
             Some(b) => format!("{:?}", b),
-            None => "null".to_string()
+            None => "null".into()
         };
         let type_ = self.r#type_.as_deref().unwrap_or("null");
         format!("Notification Name: {}\nBody: {}\nType: {}", name, body, type_)

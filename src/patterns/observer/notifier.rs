@@ -28,7 +28,7 @@ impl INotifier for Notifier {
     }
 
     fn initialize_notifier(&mut self, key: &str) {
-        self.key = Some(key.to_string());
+        self.key = Some(key.into());
     }
 
     fn send_notification(&self, notification_name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {

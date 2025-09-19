@@ -15,7 +15,7 @@ pub struct View {
 impl View {
     pub fn new(key: &str) -> Self {
         Self {
-            key: key.to_string(),
+            key: key.into(),
             observer_map: Mutex::new(HashMap::new()),
             mediator_map: Mutex::new(HashMap::new()),
         }
@@ -23,7 +23,7 @@ impl View {
 
     pub fn get_instance<T: IView>(key: &str, factory: impl Fn(&str) -> T) -> Arc<dyn IView> {
         INSTANCE_MAP.lock().unwrap()
-            .entry(key.to_string())
+            .entry(key.into())
             .or_insert_with(|| {
                 let instance = factory(key);
                 instance.initialize_view();
@@ -45,7 +45,7 @@ impl IView for View {
     fn register_observer(&self, notification_name: &str, observer: Arc<dyn IObserver>) {
         self.observer_map.lock().ok()
             .map(|mut map| {
-                map.entry(notification_name.to_string())
+                map.entry(notification_name.into())
                     .or_default()
                     .push(observer);
             });
@@ -79,7 +79,7 @@ impl IView for View {
         {
             let mut map = self.mediator_map.lock().unwrap();
             if map.contains_key(guard.name()) { return }
-            map.insert(guard.name().to_string(), Arc::clone(&mediator));
+            map.insert(guard.name().into(), Arc::clone(&mediator));
         }
 
         let notify = {

@@ -12,14 +12,14 @@ pub struct Model {
 impl Model {
     pub fn new(key: &str) -> Self {
         Self {
-            key: key.to_string(),
+            key: key.into(),
             proxy_map: Mutex::new(HashMap::new())
         }
     }
 
     pub fn get_instance<T: IModel>(key: &str, factory: impl Fn(&str) -> T) -> Arc<dyn IModel> {
         INSTANCE_MAP.lock().unwrap()
-            .entry(key.to_string())
+            .entry(key.into())
             .or_insert_with(|| {
                 let instance = factory(key);
                 instance.initialize_model();
@@ -42,7 +42,7 @@ impl IModel for Model {
         self.proxy_map.lock().ok()
             .map(|mut map| {
                 let mut guard = proxy.lock().unwrap();
-                map.insert(guard.name().to_string(), Arc::clone(&proxy));
+                map.insert(guard.name().into(), Arc::clone(&proxy));
                 guard.initialize_notifier(&self.key);
                 guard.on_register();
             });
