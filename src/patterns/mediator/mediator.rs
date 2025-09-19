@@ -21,24 +21,6 @@ impl Mediator {
     }
 }
 
-impl INotifier for Mediator {
-    fn key(&self) -> &str {
-        self.notifier.key()
-    }
-
-    fn facade(&self) -> Arc<dyn IFacade> {
-        self.notifier.facade()
-    }
-
-    fn initialize_notifier(&mut self, key: &str) {
-        self.notifier.initialize_notifier(key);
-    }
-
-    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
-        self.notifier.send_notification(name, body, type_);
-    }
-}
-
 impl IMediator for Mediator {
     fn name(&self) -> &str {
         &self.name
@@ -66,5 +48,23 @@ impl IMediator for Mediator {
     
     fn on_remove(&mut self) {
         
+    }
+}
+
+impl INotifier for Mediator {
+    fn key(&self) -> &str {
+        self.notifier.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.notifier.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.notifier.initialize_notifier(key);
+    }
+
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.notifier.send_notification(name, body, type_);
     }
 }

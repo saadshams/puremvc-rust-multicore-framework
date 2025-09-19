@@ -15,6 +15,12 @@ impl SimpleCommand {
     }
 }
 
+impl ICommand for SimpleCommand {
+    fn execute(&mut self, _notification: &Arc<dyn INotification>) {
+
+    }
+}
+
 impl INotifier for SimpleCommand {
     fn key(&self) -> &str {
         self.notifier.key()
@@ -30,11 +36,5 @@ impl INotifier for SimpleCommand {
 
     fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
         self.notifier.send_notification(name, body, type_);
-    }
-}
-
-impl ICommand for SimpleCommand {
-    fn execute(&mut self, _notification: &Arc<dyn INotification>) {
-
     }
 }

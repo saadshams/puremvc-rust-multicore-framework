@@ -64,6 +64,15 @@ impl INotifier for ViewTestMediator {
 
 impl IMediator for ViewTestMediator {
     fn name(&self) -> &str { self.mediator.name() }
+
+    fn component(&self) -> Option<&Weak<dyn Any + Send + Sync>> {
+        self.mediator.component()
+    }
+
+    fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
+        self.mediator.set_component(component);
+    }
+
     fn list_notification_interests(&self) -> Vec<String> {
         vec!["ABC".to_string(), "DEF".to_string(), "GHI".to_string()]
     }
@@ -100,6 +109,14 @@ impl INotifier for ViewTestMediator2 {
 
 impl IMediator for ViewTestMediator2 {
     fn name(&self) -> &str { self.mediator.name() }
+
+    fn component(&self) -> Option<&Weak<dyn Any + Send + Sync>> {
+        self.mediator.component()
+    }
+
+    fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
+        self.mediator.set_component(component);
+    }
 
     fn list_notification_interests(&self) -> Vec<String> {
         vec![view_test::NOTE1.to_string(), view_test::NOTE2.to_string()]
@@ -145,6 +162,14 @@ impl INotifier for ViewTestMediator3 {
 impl IMediator for ViewTestMediator3 {
     fn name(&self) -> &str { self.mediator.name() }
 
+    fn component(&self) -> Option<&Weak<dyn Any + Send + Sync>> {
+        self.mediator.component()
+    }
+
+    fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
+        self.mediator.set_component(component);
+    }
+
     fn list_notification_interests(&self) -> Vec<String> {
         vec![view_test::NOTE3.to_string()]
     }
@@ -189,6 +214,14 @@ impl INotifier for ViewTestMediator4 {
 impl IMediator for ViewTestMediator4 {
     fn name(&self) -> &str {
         self.mediator.name()
+    }
+
+    fn component(&self) -> Option<&Weak<dyn Any + Send + Sync>> {
+        self.mediator.component()
+    }
+
+    fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
+        self.mediator.set_component(component);
     }
 
     fn on_register(&mut self) {
@@ -238,6 +271,14 @@ impl INotifier for ViewTestMediator5 {
 impl IMediator for ViewTestMediator5 {
     fn name(&self) -> &str { self.mediator.name() }
 
+    fn component(&self) -> Option<&Weak<dyn Any + Send + Sync>> {
+        self.mediator.component()
+    }
+
+    fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
+        self.mediator.set_component(component);
+    }
+
     fn list_notification_interests(&self) -> Vec<String> {
         vec![view_test::NOTE4.to_string(), view_test::NOTE5.to_string()]
     }
@@ -282,6 +323,14 @@ impl INotifier for ViewTestMediator6 {
 
 impl IMediator for ViewTestMediator6 {
     fn name(&self) -> &str { self.mediator.name() }
+
+    fn component(&self) -> Option<&Weak<dyn Any + Send + Sync>> {
+        self.mediator.component()
+    }
+
+    fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
+        self.mediator.set_component(component);
+    }
 
     fn list_notification_interests(&self) -> Vec<String> {
         vec![view_test::NOTE6.to_string()]

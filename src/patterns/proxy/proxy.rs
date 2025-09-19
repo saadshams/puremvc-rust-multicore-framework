@@ -21,24 +21,6 @@ impl Proxy {
     }
 }
 
-impl INotifier for Proxy {
-    fn key(&self) -> &str {
-        self.notifier.key()
-    }
-
-    fn facade(&self) -> Arc<dyn IFacade> {
-        self.notifier.facade()
-    }
-
-    fn initialize_notifier(&mut self, key: &str) {
-        self.notifier.initialize_notifier(key);
-    }
-
-    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
-        self.notifier.send_notification(name, body, type_);
-    }
-}
-
 impl IProxy for Proxy {
     fn name(&self) -> &str {
         &self.name
@@ -58,5 +40,23 @@ impl IProxy for Proxy {
 
     fn on_remove(&mut self) {
 
+    }
+}
+
+impl INotifier for Proxy {
+    fn key(&self) -> &str {
+        self.notifier.key()
+    }
+
+    fn facade(&self) -> Arc<dyn IFacade> {
+        self.notifier.facade()
+    }
+
+    fn initialize_notifier(&mut self, key: &str) {
+        self.notifier.initialize_notifier(key);
+    }
+
+    fn send_notification(&self, name: &str, body: Option<Arc<dyn Any + Send + Sync>>, type_: Option<&str>) {
+        self.notifier.send_notification(name, body, type_);
     }
 }

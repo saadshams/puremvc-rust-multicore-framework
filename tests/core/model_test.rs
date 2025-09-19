@@ -40,7 +40,13 @@ impl INotifier for ModelTestProxy {
 impl IProxy for ModelTestProxy {
     fn name(&self) -> &str { self.proxy.name() }
 
-    fn data(&self) -> Option<&Arc<dyn Any + Send + Sync>> { self.proxy.data() }
+    fn data(&self) -> Option<&Arc<dyn Any + Send + Sync>> {
+        self.proxy.data()
+    }
+
+    fn set_data(&mut self, data: Option<Arc<dyn Any + Send + Sync>>) {
+        self.proxy.set_data(data);
+    }
 
     fn on_register(&mut self) {
         self.proxy.set_data(Some(Arc::new(Self::ON_REGISTER_CALLED)));

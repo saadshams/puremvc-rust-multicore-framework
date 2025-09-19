@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, Weak};
 use puremvc::core::{Controller, Model, View};
 use puremvc::interfaces::{ICommand, IController, IFacade, IMediator, IModel, INotification, INotifier, IObserver, IProxy, IView};
 use puremvc::patterns::{Mediator, Notification, Proxy, SimpleCommand};
@@ -42,6 +42,14 @@ impl INotifier for TestMediator {
 }
 impl IMediator for TestMediator {
     fn name(&self) -> &str { self.mediator.name() }
+
+    fn component(&self) -> Option<&Weak<dyn Any + Send + Sync>> {
+        self.mediator.component()
+    }
+
+    fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
+        self.mediator.set_component(component);
+    }
 }
 
 struct TestView {
@@ -158,6 +166,14 @@ impl INotifier for TestProxy {
 
 impl IProxy for TestProxy {
     fn name(&self) -> &str { self.proxy.name() }
+
+    fn data(&self) -> Option<&Arc<dyn Any + Send + Sync>> {
+        self.proxy.data()
+    }
+
+    fn set_data(&mut self, data: Option<Arc<dyn Any + Send + Sync>>) {
+        self.proxy.set_data(data);
+    }
 }
 
 struct TestModel {
