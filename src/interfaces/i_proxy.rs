@@ -16,4 +16,6 @@ pub trait IProxy: INotifier {
     fn on_remove(&mut self) {
 
     }
+
+    fn as_any(&mut self) -> &mut dyn Any;
 }

@@ -76,6 +76,10 @@ impl IMediator for ViewTestMediator {
     fn list_notification_interests(&self) -> Vec<String> {
         vec!["ABC".to_string(), "DEF".to_string(), "GHI".to_string()]
     }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
+    }
 }
 
 struct ViewTestMediator2 {
@@ -128,6 +132,10 @@ impl IMediator for ViewTestMediator2 {
             .and_then(|arc| arc.downcast::<Mutex<Object>>().ok())
             .map(|object| object.lock().unwrap().last_notification = notification.name().to_string());
     }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
+    }
 }
 
 struct ViewTestMediator3 {
@@ -179,6 +187,10 @@ impl IMediator for ViewTestMediator3 {
             .and_then(|weak| weak.upgrade())
             .and_then(|arc| arc.downcast::<Mutex<Object>>().ok())
             .map(|object| object.lock().unwrap().last_notification = notification.name().to_string());
+    }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
     }
 }
 
@@ -237,6 +249,10 @@ impl IMediator for ViewTestMediator4 {
             .and_then(|arc| arc.downcast::<Mutex<Object>>().ok())
             .map(|object| { object.lock().unwrap().on_remove_called = true });
     }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
+    }
 }
 
 struct ViewTestMediator5 {
@@ -288,6 +304,10 @@ impl IMediator for ViewTestMediator5 {
             .and_then(|weak| weak.upgrade())
             .and_then(|arc| arc.downcast::<Mutex<Object>>().ok())
             .map(|object| object.lock().unwrap().counter += 1 );
+    }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
     }
 }
 
@@ -345,6 +365,10 @@ impl IMediator for ViewTestMediator6 {
             .and_then(|weak| weak.upgrade())
             .and_then(|arc| arc.downcast::<Mutex<Object>>().ok())
             .map(|object| object.lock().unwrap().counter += 1);
+    }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
     }
 }
 

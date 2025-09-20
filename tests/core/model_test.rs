@@ -55,6 +55,10 @@ impl IProxy for ModelTestProxy {
     fn on_remove(&mut self) {
         self.proxy.set_data(Some(Arc::new(Self::ON_REMOVE_CALLED)));
     }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
+    }
 }
 
 #[test]

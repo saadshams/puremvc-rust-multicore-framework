@@ -50,6 +50,10 @@ impl IMediator for TestMediator {
     fn set_component(&mut self, component: Option<Weak<dyn Any + Send + Sync>>) {
         self.mediator.set_component(component);
     }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
+    }
 }
 
 struct TestView {
@@ -173,6 +177,10 @@ impl IProxy for TestProxy {
 
     fn set_data(&mut self, data: Option<Arc<dyn Any + Send + Sync>>) {
         self.proxy.set_data(data);
+    }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
     }
 }
 

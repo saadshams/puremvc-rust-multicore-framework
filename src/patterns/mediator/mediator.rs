@@ -49,6 +49,10 @@ impl IMediator for Mediator {
     fn on_remove(&mut self) {
         
     }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
+    }
 }
 
 impl INotifier for Mediator {

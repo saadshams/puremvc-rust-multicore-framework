@@ -41,6 +41,10 @@ impl IProxy for Proxy {
     fn on_remove(&mut self) {
 
     }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
+    }
 }
 
 impl INotifier for Proxy {
