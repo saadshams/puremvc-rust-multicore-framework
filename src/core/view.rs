@@ -121,26 +121,16 @@ impl IView for View {
             .and_then(|mut map| map.remove(mediator_name))
             .map(|mediator| {
                 let interests = {
-                    mediator.read().unwrap().list_notification_interests() // Get interests under a scoped read lock
+                    mediator.read().unwrap().list_notification_interests()
                 };
 
-                // Remove observers for each interest
                 for interest in interests {
                     self.remove_observer(&interest, Arc::new(Arc::clone(&mediator)));
                 }
 
-                // Call on_remove under a write lock
                 mediator.write().unwrap().on_remove();
 
-                // Return the Arc
                 mediator
-
-                // let guard = mediator.read().unwrap();
-                // for interest in guard.list_notification_interests() {
-                //     self.remove_observer(&interest, Arc::new(Arc::clone(&mediator)));
-                // }
-                // mediator.write().unwrap().on_remove();
-                // mediator.clone()
             })
     }
 }
