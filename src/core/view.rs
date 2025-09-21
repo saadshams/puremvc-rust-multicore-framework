@@ -76,10 +76,7 @@ impl IView for View {
 
     fn register_mediator(&self, mediator: Arc<RwLock<dyn IMediator>>) {
         {
-            let name = {
-                let guard = mediator.read().unwrap();
-                guard.name().to_string()
-            };
+            let name = mediator.read().unwrap().name().to_string();
             let mut map = self.mediator_map.write().unwrap();
             if map.contains_key(&name) { return }
             map.insert(name, Arc::clone(&mediator));
@@ -120,17 +117,9 @@ impl IView for View {
         self.mediator_map.write().ok()
             .and_then(|mut map| map.remove(mediator_name))
             .map(|mediator| {
-                let interests = {
-                    mediator.read().unwrap().list_notification_interests()
-                };
-
-                for interest in interests {
+                for interest in mediator.read().unwrap().list_notification_interests() {
                     self.remove_observer(&interest, Arc::new(Arc::clone(&mediator)));
                 }
-
-                mediator.write().unwrap().on_remove();
-
-                mediator
-            })
+                mediator.write().unwrap().on_remove(); mediator })
     }
 }
