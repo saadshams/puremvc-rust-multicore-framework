@@ -43,12 +43,6 @@ impl IView for View {
     }
     
     fn register_observer(&self, notification_name: &str, observer: Arc<dyn IObserver>) {
-        // if let Ok(mut map) = self.observer_map.write() {
-        //     map.entry(notification_name.into())
-        //         .or_default()
-        //         .push(observer);
-        // }
-
         self.observer_map.write().ok()
             .map(|mut map| {
                 map.entry(notification_name.into())
@@ -58,16 +52,6 @@ impl IView for View {
     }
 
     fn remove_observer(&self, notification_name: &str, context: Arc<dyn Any + Send + Sync>) {
-        // if let Ok(mut map) = self.observer_map.write() {
-        //     if let Some(observers) = map.get_mut(notification_name) {
-        //         observers.retain(|observer| !observer.compare_notify_context(&context));
-        //
-        //         if observers.is_empty() {
-        //             map.remove(notification_name);
-        //         }
-        //     }
-        // }
-
         self.observer_map.write().ok()
             .and_then(|mut map| map.get_mut(notification_name).cloned())
             .map(|mut observers| {
@@ -81,14 +65,6 @@ impl IView for View {
     }
 
     fn notify_observers(&self, notification: &Arc<dyn INotification>) {
-        // if let Ok(map) = self.observer_map.read() {
-        //     if let Some(observers) = map.get(notification.name()) {
-        //         for observer in observers.iter() {
-        //             observer.notify_observer(notification);
-        //         }
-        //     }
-        // }
-
         self.observer_map.read().ok()
             .and_then(|map| map.get(notification.name()).cloned())
             .map(|observers| {
@@ -106,7 +82,7 @@ impl IView for View {
             };
             let mut map = self.mediator_map.write().unwrap();
             if map.contains_key(&name) { return }
-            map.insert(name, Arc::clone(&mediator)); // still held
+            map.insert(name, Arc::clone(&mediator));
         }
 
         let notify = {
