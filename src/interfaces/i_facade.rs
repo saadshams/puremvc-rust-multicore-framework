@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 use crate::interfaces::{ICommand, IMediator, INotification, INotifier, IProxy};
 
 pub trait IFacade: INotifier {
@@ -19,11 +19,11 @@ pub trait IFacade: INotifier {
         let _ = notification_name;
     }
 
-    fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
+    fn register_proxy(&self, proxy: Arc<RwLock<dyn IProxy>>) {
         let _ = proxy;
     }
 
-    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
+    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<RwLock<dyn IProxy>>> {
         let _ = proxy_name; None
     }
 
@@ -31,15 +31,15 @@ pub trait IFacade: INotifier {
         let _ = proxy_name; false
     }
 
-    fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
+    fn remove_proxy(&self, proxy_name: &str) -> Option<Arc<RwLock<dyn IProxy>>> {
         let _ = proxy_name; None
     }
 
-    fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator>>) {
+    fn register_mediator(&self, mediator: Arc<RwLock<dyn IMediator>>) {
         let _ = mediator;
     }
 
-    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
+    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<RwLock<dyn IMediator>>> {
         let _ = mediator_name; None
     }
 
@@ -47,7 +47,7 @@ pub trait IFacade: INotifier {
         let _ = mediator_name; false
     }
 
-    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
+    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<RwLock<dyn IMediator>>> {
         let _ = mediator_name; None
     }
 

@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 use crate::interfaces::{IController, IMediator, INotification, IObserver};
 
 pub struct Observer {
@@ -49,8 +49,8 @@ impl IObserver for Observer {
             }
 
             if let (Some(a), Some(b)) = (
-                context.downcast_ref::<Arc<Mutex<dyn IMediator>>>(),
-                object.downcast_ref::<Arc<Mutex<dyn IMediator>>>(),
+                context.downcast_ref::<Arc<RwLock<dyn IMediator>>>(),
+                object.downcast_ref::<Arc<RwLock<dyn IMediator>>>(),
             ) {
                 return Arc::ptr_eq(a, b);
             }

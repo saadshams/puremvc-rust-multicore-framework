@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 use puremvc::interfaces::IMediator;
 use puremvc::patterns::Mediator;
 
@@ -34,17 +34,17 @@ fn test_view_accessor() {
 fn test_change_button_label() {
     let button = Button { label: "Click Me".to_string() };
 
-    let component: Arc<dyn Any + Send + Sync> = Arc::new(Mutex::new(button));
+    let component: Arc<dyn Any + Send + Sync> = Arc::new(RwLock::new(button));
     let mediator = Mediator::new(Some("MyMediator"), Some(Arc::downgrade(&component)));
 
     mediator.component()
         .and_then(|weak| weak.upgrade())
-        .and_then(|arc| arc.downcast::<Mutex<Button>>().ok())
+        .and_then(|arc| arc.downcast::<RwLock<Button>>().ok())
         .map(|object| {
-            object.lock().unwrap().label = "Button Changed".to_string();
+            object.write().unwrap().label = "Button Changed".to_string();
         })
         .expect("Failed to change button label");
 
     // assert for the label changes
-    assert_eq!(component.downcast::<Mutex<Button>>().ok().unwrap().lock().unwrap().label, "Button Changed".to_string());
+    assert_eq!(component.downcast::<RwLock<Button>>().ok().unwrap().read().unwrap().label, "Button Changed".to_string());
 }

@@ -1,11 +1,11 @@
 use std::any::Any;
 use std::collections::HashMap;
-use std::sync::{Arc, LazyLock, Mutex};
+use std::sync::{Arc, LazyLock, RwLock};
 use crate::core::{Controller, Model, View};
 use crate::interfaces::{ICommand, IController, IFacade, IMediator, IModel, INotification, INotifier, IProxy, IView};
 use crate::patterns::Notification;
 
-static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IFacade>>>> = LazyLock::new(|| Default::default());
+static INSTANCE_MAP: LazyLock<RwLock<HashMap<String, Arc<dyn IFacade>>>> = LazyLock::new(|| Default::default());
 
 pub struct Facade {
     key: String,
@@ -25,7 +25,7 @@ impl Facade {
     }
 
     pub fn get_instance<T: IFacade>(key: &str, factory: impl Fn(&str) -> T) -> Arc<dyn IFacade> {
-        INSTANCE_MAP.lock().unwrap()
+        INSTANCE_MAP.write().unwrap()
             .entry(key.into())
             .or_insert_with(|| {
                 let instance = factory(key);
@@ -36,14 +36,14 @@ impl Facade {
     }
 
     pub fn has_core(key: &str) -> bool {
-        INSTANCE_MAP.lock().unwrap().contains_key(key)
+        INSTANCE_MAP.read().unwrap().contains_key(key)
     }
 
     pub fn remove_core(key: &str) {
         Model::remove_model(key);
         View::remove_view(key);
         Controller::remove_controller(key);
-        INSTANCE_MAP.lock().unwrap().remove(key);
+        INSTANCE_MAP.write().unwrap().remove(key);
     }
 }
 
@@ -78,11 +78,11 @@ impl IFacade for Facade {
         self.controller.remove_command(notification_name);
     }
 
-    fn register_proxy(&self, proxy: Arc<Mutex<dyn IProxy>>) {
+    fn register_proxy(&self, proxy: Arc<RwLock<dyn IProxy>>) {
         self.model.register_proxy(proxy);
     }
 
-    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
+    fn retrieve_proxy(&self, proxy_name: &str) -> Option<Arc<RwLock<dyn IProxy>>> {
         self.model.retrieve_proxy(proxy_name)
     }
 
@@ -90,15 +90,15 @@ impl IFacade for Facade {
         self.model.has_proxy(proxy_name)
     }
 
-    fn remove_proxy(&self, name: &str) -> Option<Arc<Mutex<dyn IProxy>>> {
+    fn remove_proxy(&self, name: &str) -> Option<Arc<RwLock<dyn IProxy>>> {
         self.model.remove_proxy(name)
     }
 
-    fn register_mediator(&self, mediator: Arc<Mutex<dyn IMediator>>) {
+    fn register_mediator(&self, mediator: Arc<RwLock<dyn IMediator>>) {
         self.view.register_mediator(mediator);
     }
 
-    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
+    fn retrieve_mediator(&self, mediator_name: &str) -> Option<Arc<RwLock<dyn IMediator>>> {
         self.view.retrieve_mediator(mediator_name)
     }
 
@@ -106,7 +106,7 @@ impl IFacade for Facade {
         self.view.has_mediator(mediator_name)
     }
 
-    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<Mutex<dyn IMediator>>> {
+    fn remove_mediator(&self, mediator_name: &str) -> Option<Arc<RwLock<dyn IMediator>>> {
         self.view.remove_mediator(mediator_name)
     }
 

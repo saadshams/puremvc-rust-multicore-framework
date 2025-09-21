@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 use puremvc::core::Model;
 use puremvc::interfaces::{IFacade, INotifier, IProxy};
 use puremvc::patterns::Proxy;
@@ -74,11 +74,11 @@ fn test_register_and_retrieve_proxy() {
 
     let colors = vec!["red".to_string(), "green".to_string(), "blue".to_string()];
     let proxy = Proxy::new(Some("colors"), Some(Arc::new(colors)));
-    model.register_proxy(Arc::new(Mutex::new(proxy)));
+    model.register_proxy(Arc::new(RwLock::new(proxy)));
 
     model.retrieve_proxy("colors")
         .map(|proxy| {
-            let guard = proxy.lock().expect("lock poisoned");
+            let guard = proxy.read().expect("lock poisoned");
             let data = guard
                 .data()
                 .and_then(|d| d.downcast_ref::<Vec<String>>())
@@ -94,11 +94,11 @@ fn test_register_and_remove_proxy() {
 
     let sizes = vec![7, 13, 21];
     let proxy = Proxy::new(Some("sizes"), Some(Arc::new(sizes)));
-    model.register_proxy(Arc::new(Mutex::new(proxy)));
+    model.register_proxy(Arc::new(RwLock::new(proxy)));
 
     model.remove_proxy("sizes")
         .map(|proxy| {
-            let guard = proxy.lock().expect("lock poisoned");
+            let guard = proxy.read().expect("lock poisoned");
             assert_eq!(guard.name(), "sizes", "Expecting named sizes");
         });
 
@@ -111,7 +111,7 @@ fn test_has_proxy() {
 
     let aces = vec!["clubs".to_string(), "spades".to_string(), "blue".to_string()];
     let proxy = Proxy::new(Some("aces"), Some(Arc::new(aces)));
-    model.register_proxy(Arc::new(Mutex::new(proxy)));
+    model.register_proxy(Arc::new(RwLock::new(proxy)));
 
     assert!(model.has_proxy("aces"), "Expecting model.has_proxy('aces') == true");
 
@@ -124,10 +124,10 @@ fn test_has_proxy() {
 fn test_on_register_and_on_remove() {
     let model = Model::get_instance("ModelTestKey5", |k| Model::new(k));
 
-    let proxy = Arc::new(Mutex::new(ModelTestProxy::new()));
+    let proxy = Arc::new(RwLock::new(ModelTestProxy::new()));
     model.register_proxy(proxy.clone());
 
-    proxy.lock().unwrap()
+    proxy.read().unwrap()
         .data()
         .and_then(|arc| arc.downcast_ref::<&'static str>().copied())
         .map(|value| {
@@ -136,7 +136,7 @@ fn test_on_register_and_on_remove() {
     
     model.remove_proxy(ModelTestProxy::NAME);
 
-    proxy.lock().unwrap()
+    proxy.read().unwrap()
         .data()
         .and_then(|arc| arc.downcast_ref::<&'static str>().copied())
         .map(|value| {

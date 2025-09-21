@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 use puremvc::interfaces::{ICommand, IFacade, INotification, INotifier};
 use puremvc::patterns::{Notification, SimpleCommand};
 
@@ -39,8 +39,8 @@ impl INotifier for SimpleCommandTestCommand {
 impl ICommand for SimpleCommandTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
         notification.body()
-            .and_then(|body| body.downcast_ref::<Mutex<SimpleCommandTestVO>>())
-            .and_then(|mutex| mutex.lock().ok())
+            .and_then(|body| body.downcast_ref::<RwLock<SimpleCommandTestVO>>())
+            .and_then(|mutex| mutex.write().ok())
             .map(|mut vo| {
                 vo.result = 2 * vo.input;
             });
@@ -49,11 +49,11 @@ impl ICommand for SimpleCommandTestCommand {
 
 #[test]
 fn test_simple_command_execute() {
-    let vo = Arc::new(Mutex::new(SimpleCommandTestVO { input: 5, result: 0 }));
+    let vo = Arc::new(RwLock::new(SimpleCommandTestVO { input: 5, result: 0 }));
     let note = Arc::new(Notification::new("SimpleCommandTestNote", Some(vo.clone()), None));
 
     let mut command = SimpleCommandTestCommand::new();
     command.execute(&(note as Arc<dyn INotification>));
 
-    assert_eq!(vo.lock().unwrap().result, 10, "Expecting vo.result == 10");
+    assert_eq!(vo.read().unwrap().result, 10, "Expecting vo.result == 10");
 }

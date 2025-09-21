@@ -1,15 +1,15 @@
 use std::collections::HashMap;
-use std::sync::{Arc, LazyLock, Mutex, Weak};
+use std::sync::{Arc, LazyLock, RwLock, Weak};
 use crate::core::View;
 use crate::interfaces::{ICommand, IController, INotification, IView};
 use crate::patterns::Observer;
 
-static INSTANCE_MAP: LazyLock<Mutex<HashMap<String, Arc<dyn IController>>>> = LazyLock::new(|| Default::default());
+static INSTANCE_MAP: LazyLock<RwLock<HashMap<String, Arc<dyn IController>>>> = LazyLock::new(|| Default::default());
 
 pub struct Controller {
     key: String,
     view: Weak<dyn IView>,
-    command_map: Mutex<HashMap<String, fn() -> Box<dyn ICommand + Send + Sync>>>
+    command_map: RwLock<HashMap<String, fn() -> Box<dyn ICommand + Send + Sync>>>
 }
 
 impl Controller {
@@ -17,12 +17,12 @@ impl Controller {
         Self {
             key: key.into(),
             view: Arc::downgrade(&(View::get_instance(&key, |k| View::new(k)))),
-            command_map: Mutex::new(HashMap::new()),
+            command_map: RwLock::new(HashMap::new()),
         }
     }
 
     pub fn get_instance<T: IController>(key: &str, factory: impl Fn(&str) -> T) -> Arc<dyn IController> {
-        INSTANCE_MAP.lock().unwrap()
+        INSTANCE_MAP.write().unwrap()
             .entry(key.into())
             .or_insert_with(|| {
                 let instance = factory(key);
@@ -33,7 +33,7 @@ impl Controller {
     }
 
     pub fn remove_controller(key: &str) {
-        INSTANCE_MAP.lock().unwrap().remove(key);
+        INSTANCE_MAP.write().unwrap().remove(key);
     }
 }
 
@@ -43,7 +43,7 @@ impl IController for Controller {
     }
 
     fn register_command(&self, notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) {
-        self.command_map.lock().ok()
+        self.command_map.write().ok()
             .and_then(|mut map| {
                 if !map.contains_key(notification_name) && let Some(view) = self.view.upgrade() {
                     let context = Controller::get_instance(&self.key, |k| Controller::new(k));
@@ -62,7 +62,7 @@ impl IController for Controller {
     }
 
     fn execute_command(&self, notification: &Arc<dyn INotification>) {
-        self.command_map.lock().ok()
+        self.command_map.read().ok()
             .and_then(|map| map.get(notification.name()).cloned())
             .map(|factory| {
                 let mut command = factory();
@@ -72,13 +72,13 @@ impl IController for Controller {
     }
 
     fn has_command(&self, notification_name: &str) -> bool {
-        self.command_map.lock().ok()
+        self.command_map.read().ok()
             .map(|map| map.contains_key(notification_name))
             .unwrap_or(false)
     }
 
     fn remove_command(&self, notification_name: &str) {
-        self.command_map.lock().ok()
+        self.command_map.write().ok()
             .and_then(|mut map| map.remove(notification_name))
             .and_then(|_| self.view.upgrade())
             .map(|view| {

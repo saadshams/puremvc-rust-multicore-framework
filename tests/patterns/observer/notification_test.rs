@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 use puremvc::interfaces::INotification;
 use puremvc::patterns::Notification;
 
@@ -11,11 +11,11 @@ fn test_name_accessor() {
 #[test]
 fn test_body_accessor() {
     let mut note = Notification::new("TestNote", None, None);
-    note.set_body(Some(Arc::new(Mutex::new(5))));
+    note.set_body(Some(Arc::new(RwLock::new(5))));
 
     note.body()
-        .and_then(|arc| arc.downcast_ref::<Mutex<i32>>())
-        .and_then(|mutex| mutex.lock().ok())
+        .and_then(|arc| arc.downcast_ref::<RwLock<i32>>())
+        .and_then(|mutex| mutex.read().ok())
         .map(|val| {
             assert_eq!(*val, 5);
         });
@@ -23,13 +23,13 @@ fn test_body_accessor() {
 
 #[test]
 fn test_constructor() {
-    let note = Notification::new("TestNote", Some(Arc::new(Mutex::new(5i32))), Some("TestNoteType"));
+    let note = Notification::new("TestNote", Some(Arc::new(RwLock::new(5i32))), Some("TestNoteType"));
     
     assert_eq!(note.name(), "TestNote", "Expecting note.get_name() == 'TestNote'");
 
     note.body()
-        .and_then(|arc| arc.downcast_ref::<Mutex<i32>>())
-        .and_then(|mutex| mutex.lock().ok())
+        .and_then(|arc| arc.downcast_ref::<RwLock<i32>>())
+        .and_then(|mutex| mutex.read().ok())
         .map(|val| {
             assert_eq!(*val, 5);
         });
@@ -39,7 +39,7 @@ fn test_constructor() {
 
 #[test]
 fn test_to_string() {
-    let note = Notification::new("TestNote", Some(Arc::new(Mutex::new(vec![1, 3, 5]))), Some("TestType"));
+    let note = Notification::new("TestNote", Some(Arc::new(RwLock::new(vec![1, 3, 5]))), Some("TestType"));
     
     let expected = "Notification Name: TestNote\nBody: Any { .. }\nType: TestType";
     

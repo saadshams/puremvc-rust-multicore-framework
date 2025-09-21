@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 use puremvc::core::{Controller, View};
 use puremvc::interfaces::{ICommand, IFacade, INotification, INotifier};
 use puremvc::patterns::{Notification, SimpleCommand};
@@ -40,8 +40,8 @@ impl INotifier for ControllerTestCommand {
 impl ICommand for ControllerTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
         notification.body()
-            .and_then(|body| body.downcast_ref::<Mutex<ControllerTestVO>>())
-            .and_then(|mutex| mutex.lock().ok())
+            .and_then(|body| body.downcast_ref::<RwLock<ControllerTestVO>>())
+            .and_then(|mutex| mutex.write().ok())
             .map(|mut vo| {
                 vo.result = 2 * vo.input;
             });
@@ -79,8 +79,8 @@ impl INotifier for ControllerTestCommand2 {
 impl ICommand for ControllerTestCommand2 {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
         notification.body()
-            .and_then(|body| body.downcast_ref::<Mutex<ControllerTestVO>>())
-            .and_then(|mutex| mutex.lock().ok())
+            .and_then(|body| body.downcast_ref::<RwLock<ControllerTestVO>>())
+            .and_then(|mutex| mutex.write().ok())
             .map(|mut vo| {
                 vo.result = vo.result + (2 * vo.input);
             });
@@ -100,12 +100,12 @@ fn test_register_and_execute_command() {
 
     controller.register_command("ControllerTest", || Box::new(ControllerTestCommand::new()));
 
-    let vo = Arc::new(Mutex::new(ControllerTestVO { input: 12, result: 0 }));
+    let vo = Arc::new(RwLock::new(ControllerTestVO { input: 12, result: 0 }));
     let notification = Arc::new(Notification::new("ControllerTest", Some(vo.clone()), None));
 
     controller.execute_command(&(notification as Arc<dyn INotification>));
 
-    assert_eq!(vo.lock().unwrap().result, 24);
+    assert_eq!(vo.write().unwrap().result, 24);
 }
 
 #[test]
@@ -114,20 +114,20 @@ fn test_register_and_remove_command() {
 
     controller.register_command("ControllerRemoveTest", || Box::new(ControllerTestCommand::new()));
 
-    let vo = Arc::new(Mutex::new(ControllerTestVO { input: 12, result: 0 }));
+    let vo = Arc::new(RwLock::new(ControllerTestVO { input: 12, result: 0 }));
     let notification: Arc<dyn INotification> = Arc::new(Notification::new("ControllerRemoveTest", Some(vo.clone()), None));
 
     controller.execute_command(&notification);
 
-    assert_eq!(vo.lock().unwrap().result, 24);
+    assert_eq!(vo.read().unwrap().result, 24);
 
-    vo.lock().unwrap().result = 0;
+    vo.write().unwrap().result = 0;
 
     controller.remove_command("ControllerRemoveTest");
 
     controller.execute_command(&notification);
 
-    assert_eq!(vo.lock().unwrap().result, 0);
+    assert_eq!(vo.read().unwrap().result, 0);
 }
 
 #[test]
@@ -151,12 +151,12 @@ fn test_reregister_and_execute_command() {
     controller.remove_command("ControllerTest2");
     controller.register_command("ControllerTest2", || Box::new(ControllerTestCommand2::new()));
 
-    let vo = Arc::new(Mutex::new(ControllerTestVO { input: 12, result: 0 }));
+    let vo = Arc::new(RwLock::new(ControllerTestVO { input: 12, result: 0 }));
     let notification: Arc<dyn INotification> = Arc::new(Notification::new("ControllerTest2", Some(vo.clone()), None));
 
     let view = View::get_instance("ControllerTestKey5", |k| View::new(k));
 
     view.notify_observers(&notification);
     
-    assert_eq!(vo.lock().unwrap().result, 24);
+    assert_eq!(vo.read().unwrap().result, 24);
 }

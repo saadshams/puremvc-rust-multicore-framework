@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 use puremvc::interfaces::{ICommand, IFacade, INotification, INotifier};
 use puremvc::patterns::{MacroCommand, Notification, SimpleCommand};
 
@@ -40,8 +40,8 @@ impl INotifier for MacroCommandTestSub1Command {
 impl ICommand for MacroCommandTestSub1Command {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
         notification.body()
-            .and_then(|body| body.downcast_ref::<Mutex<MacroCommandTestVO>>())
-            .and_then(|mutex| mutex.lock().ok())
+            .and_then(|body| body.downcast_ref::<RwLock<MacroCommandTestVO>>())
+            .and_then(|mutex| mutex.write().ok())
             .map(|mut vo| {
                 vo.result1 = 2 * vo.input;
             });
@@ -79,8 +79,8 @@ impl INotifier for MacroCommandTestSub2Command {
 impl ICommand for MacroCommandTestSub2Command {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
         notification.body()
-            .and_then(|body| body.downcast_ref::<Mutex<MacroCommandTestVO>>())
-            .and_then(|mutex| mutex.lock().ok())
+            .and_then(|body| body.downcast_ref::<RwLock<MacroCommandTestVO>>())
+            .and_then(|mutex| mutex.write().ok())
             .map(|mut vo| {
                 vo.result2 = vo.input * vo.input;
             });
@@ -131,7 +131,7 @@ impl ICommand for MacroCommandTestCommand {
 
 #[test]
 fn test_macro_command_execute() {
-    let vo = Arc::new(Mutex::new(MacroCommandTestVO { input: 5, result1: 0, result2: 0 }));
+    let vo = Arc::new(RwLock::new(MacroCommandTestVO { input: 5, result1: 0, result2: 0 }));
 
     let notification = Arc::new(Notification::new("MacroCommandTest", Some(vo), None));
 
@@ -139,8 +139,8 @@ fn test_macro_command_execute() {
     command.execute(&(notification.clone() as Arc<dyn INotification>));
 
     notification.body()
-        .and_then(|body| body.downcast_ref::<Mutex<MacroCommandTestVO>>())
-        .and_then(|mutex| mutex.lock().ok())
+        .and_then(|body| body.downcast_ref::<RwLock<MacroCommandTestVO>>())
+        .and_then(|mutex| mutex.read().ok())
         .map(|vo| {
             assert_eq!(vo.result1, 10);
             assert_eq!(vo.result2, 25);

@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 use puremvc::interfaces::{ICommand, IFacade, INotification, INotifier};
 use puremvc::patterns::{Facade, Notifier, SimpleCommand};
 
@@ -39,8 +39,8 @@ impl INotifier for NotifierTestCommand {
 impl ICommand for NotifierTestCommand {
     fn execute(&mut self, notification: &Arc<dyn INotification>) {
         notification.body()
-            .and_then(|arc| arc.downcast_ref::<Mutex<NotifierTestVO>>())
-            .and_then(|mutex| mutex.lock().ok())
+            .and_then(|arc| arc.downcast_ref::<RwLock<NotifierTestVO>>())
+            .and_then(|mutex| mutex.write().ok())
             .map(|mut vo| {
                 vo.result = 2 * vo.input;
             });
@@ -52,11 +52,11 @@ fn test_notifier() {
     let facade= Facade::get_instance("NotifierTestKey1", |k| Facade::new(k));
     facade.register_command("NotifierTestNote", || Box::new(NotifierTestCommand::new()));
 
-    let vo = Arc::new(Mutex::new(NotifierTestVO{ input: 5, result: 0 }));
+    let vo = Arc::new(RwLock::new(NotifierTestVO{ input: 5, result: 0 }));
 
     let mut notifier = Notifier::new();
     notifier.initialize_notifier("NotifierTestKey1");
     notifier.send_notification("NotifierTestNote", Some(vo.clone()), None);
 
-    assert_eq!(vo.lock().unwrap().result, 10);
+    assert_eq!(vo.read().unwrap().result, 10);
 }
