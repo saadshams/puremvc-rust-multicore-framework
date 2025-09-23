@@ -76,6 +76,7 @@ cargo bench
 ## Documentation
 ```
 cargo doc --open
+cargo doc --open --document-private-items  # Doc with private methods
 ```
 
 ## Clean
