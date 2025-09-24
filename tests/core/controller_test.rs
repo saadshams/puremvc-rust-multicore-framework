@@ -165,7 +165,7 @@ fn test_register_and_execute_command() {
     controller.execute_command(&(notification as Arc<dyn INotification>));
 
     // Assert that the result is input * 2 (12 * 2 = 24)
-    assert_eq!(vo.read().unwrap().result, 24);
+    assert_eq!(vo.write().unwrap().result, 24);
 }
 
 /// Tests Command registration and removal.
@@ -254,5 +254,5 @@ fn test_reregister_and_execute_command() {
     view.notify_observers(&notification);
 
     // Assert that the result is input * 2 (12 * 2 = 24), confirming single execution
-    assert_eq!(vo.write().unwrap().result, 24);
+    assert_eq!(vo.read().unwrap().result, 24);
 }
