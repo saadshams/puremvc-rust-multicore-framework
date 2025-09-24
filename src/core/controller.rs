@@ -3,36 +3,36 @@ use std::sync::{Arc, LazyLock, RwLock, Weak};
 use crate::core::View;
 use crate::interfaces::{ICommand, IController, INotification, IView};
 use crate::patterns::Observer;
+
 static INSTANCE_MAP: LazyLock<RwLock<HashMap<String, Arc<dyn IController>>>> = LazyLock::new(|| Default::default());
 
-/// A PureMVC MultiCore [`IController`] implementation.
+/// A PureMVC MultiCore `IController` implementation.
 ///
-/// In PureMVC, an [`IController`] implementor follows the 'Command and Controller' strategy, and
+/// In PureMVC, an `IController` implementor follows the 'Command and Controller' strategy, and
 /// assumes these responsibilities:
 ///
-/// - Remembering which [`ICommand`]s are intended to handle which [`INotification`]s.
-/// - Registering itself as an [`crate::patterns::Observer`] with the [`View`] for each [`INotification`] that it has an [`ICommand`] mapping for.
-/// - Creating a new instance of the proper [`ICommand`] to handle a given [`INotification`] when notified by the [`IView`].
-/// - Calling the [`ICommand`]'s `execute` method, passing in the [`INotification`].
+/// - Remembering which `ICommand`s are intended to handle which `INotification`s.
+/// - Registering itself as an `Observer` with the View for each `INotification` that it has an ICommand mapping for.
+/// - Creating a new instance of the proper `ICommand` to handle a given `INotification` when notified by the `IView`.
+/// - Calling the ICommand's `execute` method, passing in the INotification.
 ///
-/// See [`crate::interfaces::INotification`], [`crate::interfaces::ICommand`]
+/// See `INotification`, `ICommand`
 pub struct Controller {
     /// The Multiton Key for this Core
     key: String,
-    /// Local reference to this core's [`IView`]
+    /// Local reference to this core's IView
     view: Weak<dyn IView>,
-    /// Mapping of Notification names to Command factory functions
+    /// Mapping of `Notification` names to Command factory functions
     command_map: RwLock<HashMap<String, fn() -> Box<dyn ICommand + Send + Sync>>>
 }
 
 impl Controller {
     /// Constructor.
     ///
-    /// This [`IController`] implementation is a Multiton, so you should not call the constructor directly,
-    /// but instead call the static [`Controller::get_instance`] method.
+    /// This `IController` implementation is a Multiton, so you should not call the constructor directly,
+    /// but instead call the static `Controller::get_instance` method.
     ///
-    /// Panics with [`crate::core::controller::MultitonErrorControllerExists`] if an instance for this Multiton key has already been constructed.
-    ///
+    /// Panics with `crate::core::controller::MultitonErrorControllerExists` if an instance for this Multiton key has already been constructed.
     pub fn new(key: &str) -> Self {
         Self {
             key: key.into(),
@@ -41,9 +41,9 @@ impl Controller {
         }
     }
 
-    /// [`IController`] Multiton Factory method.
+    /// IController Multiton Factory method.
     ///
-    /// Returns the [`IController`] Multiton instance for the specified key.
+    /// Returns the `IController` Multiton instance for the specified key.
     pub fn get_instance<T: IController>(key: &str, factory: impl Fn(&str) -> T) -> Arc<dyn IController> {
         INSTANCE_MAP.write().unwrap()
             .entry(key.into())
@@ -55,32 +55,32 @@ impl Controller {
             .clone()
     }
 
-    /// Remove an [`IController`] instance.
+    /// Remove an `IController` instance.
     ///
     /// # Arguments
-    /// * `key` - Multiton key of the [`IController`] instance to remove
+    /// * `key` - Multiton key of the `IController` instance to remove
     pub fn remove_controller(key: &str) {
         INSTANCE_MAP.write().unwrap().remove(key);
     }
 }
 
 impl IController for Controller {
-    /// Initialize the [`IController`] Multiton instance.
+    /// Initialize the `IController` Multiton instance.
     ///
     /// Called automatically by the constructor.
     ///
-    /// Note that if you are using a custom [`IView`] implementor in your application,
-    /// you should also subclass [`Controller`] and override the [`IController::initialize_controller`] method,
-    /// setting `view` equal to the return value of a call to `get_instance` on your [`IView`] implementor.
+    /// Note that if you are using a custom `IView` implementor in your application,
+    /// you should also subclass `Controller` and override the `IController::initialize_controller` method,
+    /// setting `view` equal to the return value of a call to `get_instance` on your IView implementor.
     fn initialize_controller(&self) {
         // Default implementation assigns the view
     }
 
-    /// Register an [`INotification`] to [`ICommand`] mapping with the [`Controller`].
+    /// Register an INotification to `ICommand` mapping with the Controller.
     ///
     /// # Arguments
-    /// * `notification_name` - The name of the [`INotification`] to associate the [`ICommand`] with.
-    /// * `factory` - A function that creates a new instance of the [`ICommand`].
+    /// * `notification_name` - The name of the INotification to associate the `ICommand` with.
+    /// * `factory` - A function that creates a new instance of the `ICommand`.
     fn register_command(&self, notification_name: &str, factory: fn() -> Box<dyn ICommand + Send + Sync>) {
         self.command_map.write().ok()
             .and_then(|mut map| {
@@ -100,11 +100,11 @@ impl IController for Controller {
             });
     }
 
-    /// Execute the [`ICommand`] previously registered as the handler for [`INotification`]s
+    /// Execute the `ICommand` previously registered as the handler for `INotifications`
     /// with the given notification's name.
     ///
     /// # Arguments
-    /// * `notification` - The [`INotification`] to execute the associated [`ICommand`] for
+    /// * `notification` - The `INotification` to execute the associated `ICommand` for
     fn execute_command(&self, notification: &Arc<dyn INotification>) {
         self.command_map.read().ok()
             .and_then(|map| map.get(notification.name()).cloned())
@@ -115,22 +115,22 @@ impl IController for Controller {
             });
     }
 
-    /// Check if an [`ICommand`] is registered for a given [`INotification`] name with the [`Controller`].
+    /// Check if an `ICommand` is registered for a given `INotification` name with the `Controller`.
     ///
     /// # Arguments
-    /// * `notification_name` - The name of the [`INotification`].
+    /// * `notification_name` - The name of the `INotification`.
     ///
-    /// Returns `true` if an [`ICommand`] is currently registered for the given `notification_name`, otherwise `false`.
+    /// Returns `true` if an `ICommand` is currently registered for the given `notification_name`, otherwise `false`.
     fn has_command(&self, notification_name: &str) -> bool {
         self.command_map.read().ok()
             .map(|map| map.contains_key(notification_name))
             .unwrap_or(false)
     }
 
-    /// Remove a previously registered [`INotification`] to [`ICommand`] mapping from the [`Controller`].
+    /// Remove a previously registered `Notification` to `ICommand` mapping from the `Controller`.
     ///
     /// # Arguments
-    /// * `notification_name` - The name of the [`INotification`] to remove the [`ICommand`] mapping for.
+    /// * `notification_name` - The name of the `INotification` to remove the `ICommand` mapping for.
     fn remove_command(&self, notification_name: &str) {
         self.command_map.write().ok()
             .and_then(|mut map| map.remove(notification_name))
