@@ -821,11 +821,17 @@ fn test_mediator_reregistration() {
     assert_eq!(component.write().unwrap().counter, 0);
 }
 
-/// Tests modifying the observer list during notification, ensuring all mediators are notified.
-///
-/// When mediators remove themselves in response to a notification, the observer list is
-/// modified. This test uses deferred removal via a channel to avoid re-entrant locking
-/// issues, ensuring all mediators are notified exactly once.
+// When `view.notify_observers` is called, it iterates over observers and invokes their `notify` callbacks.
+// If an `Observer`'s `notify` triggers `mediator.handle_notification`, which in turn calls `remove_observer`
+// (via the facade) to mutate the observer list for iteration safety, we can encounter re-entrant locking on the same mediator:
+// 1. The mediator is already locked inside the Observer's `notify` callback.
+// 2. `remove_observer` attempts to lock the mediator again to access `list_notification_interests`.
+// This double lock results in a deadlock.
+//
+// Solution: Deferred/Asynchronous processing.
+// To prevent this deadlock, we break the re-entrant cycle by deferring potentially recursive operations.
+// Instead of performing removals or other mutations inline, we enqueue the work for asynchronous processing.
+// Using channels (or similar queues) ensures that locks are never acquired recursively, avoiding deadlocks.
 #[test]
 fn test_modify_observer_list_during_notification() {
     // Get a Multiton View instance
