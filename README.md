@@ -5,38 +5,52 @@ PureMVC is a lightweight framework for creating applications based upon the clas
 
 ## Installation
 
-`cargo add puremvc`
-
 In your Cargo.toml add:
-
 ```
 [dependencies]
 puremvc = "1.0.0"
 ```
 
-## Dependencies
+### Development
+```
 cargo fetch
+```
 
-## Build
-cargo build
-cargo build --release
+#### Build
+```
+cargo build           # Debug build
+cargo build --release # Optimized release build
+```
 
-## Run
-cargo run
-cargo run --release
+#### Run
+```
+cargo run              # Run in debug mode
+cargo run --release    # Run in release mode
+```
 
-## Test
+#### Test
+```
 cargo test
+```
 
-## Benchmarks
+#### Benchmarks
+```
 cargo bench
+```
 
-## Documentation
+#### Documentation
+```
 cargo doc --open
+cargo doc --open --document-private-items  # Doc with private methods
+```
 
-## Clean
+#### Clean
+```
 cargo clean
 cargo check
+```
 
-# Publish
-cargo publish
+#### Publish
+```
+cargo publish         # Publish to crates.io
+```
