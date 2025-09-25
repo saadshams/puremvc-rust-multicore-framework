@@ -5,87 +5,52 @@ PureMVC is a lightweight framework for creating applications based upon the clas
 
 ## Installation
 
-Clone this repo from GitHub:
-```
-git clone https://github.com/saadshams/puremvc-rust-multicore-framework.git
-```
-
-In your terminal, locate the project folder:
-```
-cd puremvc-rust-multicore-framework
-```
-
 In your Cargo.toml add:
 ```
 [dependencies]
-ruex = "0.1.5"
-
-[lib]
-name = "puremvc"
-path = "src/lib.rs"
-
-[[bin]]
-name = "puremvc"
-path = "src/main.rs"
+puremvc = "1.0.0"
 ```
 
-In the src/ dir, create a main.rs file and paste the code below;
-```
-use puremvc::patterns::Facade;
-
-fn main() {
-    // Create a factory closure that returns a new Facade
-    let _facade_factory = |key: &str| -> Facade {
-        Facade::new(key)
-    };
-}
-```
-
-In src/patterns/mod.rs file, Add pub to the facade module
-```
-pub mod facade
-```
-
-## Dependencies
+### Development
 ```
 cargo fetch
 ```
 
-## Build
+#### Build
 ```
 cargo build           # Debug build
 cargo build --release # Optimized release build
 ```
 
-## Run
+#### Run
 ```
 cargo run              # Run in debug mode
 cargo run --release    # Run in release mode
 ```
 
-## Test
+#### Test
 ```
 cargo test
 ```
 
-## Benchmarks
+#### Benchmarks
 ```
 cargo bench
 ```
 
-## Documentation
+#### Documentation
 ```
 cargo doc --open
 cargo doc --open --document-private-items  # Doc with private methods
 ```
 
-## Clean
+#### Clean
 ```
 cargo clean
 cargo check
 ```
 
-# Publish
+#### Publish
 ```
 cargo publish         # Publish to crates.io
 ```
