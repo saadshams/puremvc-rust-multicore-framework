@@ -12,7 +12,7 @@ static INSTANCE_MAP: LazyLock<RwLock<HashMap<String, Arc<dyn IController>>>> = L
 /// assumes these responsibilities:
 ///
 /// - Remembering which `ICommand`s are intended to handle which `INotification`s.
-/// - Registering itself as an `Observer` with the View for each `INotification` that it has an ICommand mapping for.
+/// - Registering itself as an `Observer` with the View for each `INotification` that it has an `ICommand` mapping for.
 /// - Creating a new instance of the proper `ICommand` to handle a given `INotification` when notified by the `IView`.
 /// - Calling the ICommand's `execute` method, passing in the INotification.
 ///
@@ -73,7 +73,7 @@ impl IController for Controller {
     /// you should also subclass `Controller` and override the `IController::initialize_controller` method,
     /// setting `view` equal to the return value of a call to `get_instance` on your IView implementor.
     fn initialize_controller(&self) {
-        // Default implementation assigns the view
+
     }
 
     /// Register an INotification to `ICommand` mapping with the Controller.
