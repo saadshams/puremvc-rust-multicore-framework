@@ -1,5 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc};
+use crate::interfaces::{IView, IObserver};
 
 /// The trait definition for a PureMVC MultiCore `INotification`.
 ///
@@ -15,7 +16,7 @@ use std::sync::{Arc};
 /// then handled in the usual way, and may lead to the broadcast of `INotification`s that
 /// trigger `ICommand`s or notify `IMediator`s.
 ///
-/// See `IView`, `IObserver`
+/// See [`IView`], [`IObserver`]
 pub trait INotification: Any + Send + Sync {
     /// Get the name of the `Notification`.
     ///

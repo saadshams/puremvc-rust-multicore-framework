@@ -1,14 +1,14 @@
 use std::any::Any;
 use std::sync::{Arc};
-use crate::interfaces::{ICommand, IFacade, INotification, INotifier};
-use crate::patterns::Notifier;
+use crate::interfaces::{ICommand, IFacade, INotification, INotifier, IController};
+use crate::patterns::{Notifier, MacroCommand};
 
 /// A base `ICommand` implementation for executing a block of business logic.
 ///
 /// Your implementation should override the `execute` method where your business logic will
 /// handle the `INotification`.
 ///
-/// See `ICommand`, `IController`, `INotification`, `MacroCommand`, `INotifier`
+/// See [`ICommand`], [`IController`], [`INotification`], [`MacroCommand`], [`INotifier`]
 pub struct SimpleCommand {
     /// The underlying `INotifier` instance used for notification functionality.
     notifier: Box<dyn INotifier + Send + Sync>,

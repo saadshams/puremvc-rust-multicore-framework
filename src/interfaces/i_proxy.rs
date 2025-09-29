@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::Arc;
-use crate::interfaces::INotifier;
+use crate::interfaces::{INotifier, IModel};
 
 /// The trait definition for a PureMVC MultiCore `IProxy`.
 ///
@@ -16,7 +16,7 @@ use crate::interfaces::INotifier;
 /// - Expose their name as a constant string called `NAME`.
 /// - Encapsulate interaction with local or remote services used to fetch and persist data.
 ///
-/// See `IModel`
+/// See [`IModel`]
 pub trait IProxy: INotifier {
     /// Get the `Proxy` instance's name.
     ///

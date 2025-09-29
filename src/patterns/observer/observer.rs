@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc, RwLock};
-use crate::interfaces::{IController, IMediator, INotification, IObserver};
+use crate::interfaces::{IController, IMediator, INotification, IObserver, IView};
 
 /// A base `IObserver` implementation.
 ///
@@ -21,7 +21,7 @@ use crate::interfaces::{IController, IMediator, INotification, IObserver};
 /// `IObserver`s can receive `Notification`s by having their `notify_observer` method invoked,
 /// passing in an object implementing the `INotification` interface.
 ///
-/// See `IView`, `INotification`
+/// See [`IView`], [`INotification`]
 pub struct Observer {
     /// The notification callback method of the interested object.
     notify: Option<Arc<dyn Fn(&Arc<dyn INotification>) + Send + Sync>>,

@@ -17,7 +17,7 @@ static INSTANCE_MAP: LazyLock<RwLock<HashMap<String, Arc<dyn IView>>>> = LazyLoc
 /// - Providing a method for broadcasting a `Notification` to each of the `IObserver`s in a list.
 /// - Notifying the `IObserver`s of a given `Notification` when it broadcast.
 ///
-/// See `IMediator`, `IObserver`, `INotification`
+/// See [`IMediator`], [`IObserver`], [`INotification`]
 pub struct View {
     /// The Multiton key for this Core
     key: String,

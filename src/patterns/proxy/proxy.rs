@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::Arc;
-use crate::interfaces::{IFacade, INotifier, IProxy};
+use crate::interfaces::{IFacade, INotifier, IProxy, IModel};
 use crate::patterns::Notifier;
 
 /// A base `IProxy` implementation.
@@ -17,7 +17,7 @@ use crate::patterns::Notifier;
 /// - Expose their name as a constant called `NAME`.
 /// - Encapsulate interaction with local or remote services used to fetch and persist data.
 ///
-/// See `IModel`
+/// See [`IModel`]
 pub struct Proxy {
     /// The underlying `INotifier` instance used for notification functionality.
     notifier: Box<dyn INotifier + Send + Sync>,

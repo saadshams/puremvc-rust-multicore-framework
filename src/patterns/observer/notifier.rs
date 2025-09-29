@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::sync::{Arc};
-use crate::interfaces::{IFacade, INotifier};
-use crate::patterns::Facade;
+use crate::interfaces::{IFacade, INotifier, IProxy, IMediator};
+use crate::patterns::{Facade, MacroCommand, SimpleCommand};
 
 /// Error message for uninitialized Multiton key access.
 const MULTITON_MSG: &str = "multitonKey for this Notifier not yet initialized!";
@@ -26,7 +26,7 @@ const MULTITON_MSG: &str = "multitonKey for this Notifier not yet initialized!";
 /// - On an `IMediator` when it is registered with the `IView`.
 /// - On an `IProxy` when it is registered with the `IModel`.
 ///
-/// See `IProxy`, `IFacade`, `IMediator`, `MacroCommand`, `SimpleCommand`
+/// See [`IProxy`], [`IFacade`], [`IMediator`], [`MacroCommand`], [`SimpleCommand`]
 pub struct Notifier {
     /// The Multiton key for this `Notifier`.
     key: Option<String>

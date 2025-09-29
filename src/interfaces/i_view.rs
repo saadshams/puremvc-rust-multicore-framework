@@ -13,7 +13,7 @@ use crate::interfaces::{IMediator, INotification, IObserver};
 /// - Provide a method for broadcasting an `INotification` to each of the `IObserver`s in a list.
 /// - Notify the `IObserver`s of a given `INotification` when it is broadcast.
 ///
-/// See `IMediator`, `IObserver`, `INotification`
+/// See [`IMediator`], [`IObserver`], [`INotification`]
 pub trait IView: Any + Sync + Send {
     /// Initialize the `IView` Multiton instance.
     ///

@@ -12,7 +12,7 @@ use crate::interfaces::{ICommand, INotification};
 /// - Creating a new instance of the proper `ICommand` to handle a given `INotification` when notified by the `IView`.
 /// - Calling the `ICommand`'s `execute` method, passing in the `INotification`.
 ///
-/// See `INotification`, `ICommand`
+/// See [`INotification`], [`ICommand`]
 pub trait IController: Any + Send + Sync {
 
     /// Initialize the `IController` Multiton instance.

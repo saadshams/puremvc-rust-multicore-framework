@@ -16,7 +16,7 @@ static INSTANCE_MAP: LazyLock<RwLock<HashMap<String, Arc<dyn IController>>>> = L
 /// - Creating a new instance of the proper `ICommand` to handle a given `INotification` when notified by the `IView`.
 /// - Calling the ICommand's `execute` method, passing in the INotification.
 ///
-/// See `INotification`, `ICommand`
+/// See [`INotification`], [`ICommand`]
 pub struct Controller {
     /// The Multiton Key for this Core
     key: String,
