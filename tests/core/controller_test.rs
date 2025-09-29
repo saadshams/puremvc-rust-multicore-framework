@@ -143,7 +143,7 @@ fn test_get_instance() {
 /// Tests Command registration and execution.
 ///
 /// This test gets a Multiton Controller instance and registers the
-/// `ControllerTestCommand` to handle 'ControllerTest' notifications.
+/// `ControllerTestCommand` to handle `ControllerTest` notifications.
 /// It then constructs such a notification and tells the Controller
 /// to execute the associated Command. Success is determined by
 /// evaluating a property on an object passed to the Command, which
