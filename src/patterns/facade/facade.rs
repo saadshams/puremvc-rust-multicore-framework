@@ -22,7 +22,7 @@ static INSTANCE_MAP: LazyLock<RwLock<HashMap<String, Arc<dyn IFacade>>>> = LazyL
 /// `IMediator`s, and `IProxy`s all have a built-in reference to their `IFacade` after
 /// initialization, so they're all plugged in and ready to communicate with each other.
 ///
-/// See `Model`, `View`, `Controller`, `INotification`, `ICommand`, `IMediator`, `IProxy`
+/// See [`Model`], [`View`], [`Controller`], [`INotification`], [`ICommand`], [`IMediator`], [`IProxy`]
 pub struct Facade {
     /// The Multiton key for this `Facade` instance.
     key: String,

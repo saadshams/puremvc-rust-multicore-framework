@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc};
-use crate::interfaces::INotification;
+use crate::interfaces::{INotification, IView, IObserver};
 
 /// A base `INotification` implementation.
 ///
@@ -16,7 +16,7 @@ use crate::interfaces::INotification;
 /// handled in the usual way, and may lead to the broadcast of `INotification`s that trigger
 /// `ICommand`s or notify `IMediator`s.
 ///
-/// See `IView`, `IObserver`, `Notification`
+/// See [`IView`], [`IObserver`], [`Notification`]
 pub struct Notification {
     /// The `Notification`'s name.
     name: String,

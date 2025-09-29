@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc, RwLock};
-use crate::interfaces::IProxy;
+use crate::interfaces::{IProxy, IFacade};
 
 /// The trait definition for a PureMVC MultiCore `IModel`.
 ///
@@ -15,7 +15,7 @@ use crate::interfaces::IProxy;
 /// `ICommand` to create and register `IProxy` instances once the `IFacade` has initialized the core
 /// actors.
 ///
-/// See `IProxy`, `IFacade`
+/// See [`IProxy`], [`IFacade`]
 pub trait IModel: Any + Sync + Send {
     /// Initialize the `IModel` Multiton instance.
     ///

@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc};
-use crate::interfaces::{ICommand, IFacade, INotification, INotifier};
+use crate::interfaces::{ICommand, IFacade, INotification, INotifier, IController};
 use crate::patterns::SimpleCommand;
 
 /// A base `ICommand` implementation that synchronously executes other `ICommand`s.
@@ -15,7 +15,7 @@ use crate::patterns::SimpleCommand;
 /// should override the `initialize_macro_command` method, calling `add_sub_command` once for
 /// each SubCommand to be executed.
 ///
-/// See `ICommand`, `IController`, `INotification`, `SimpleCommand`, `INotifier`
+/// See [`ICommand`], [`IController`], [`INotification`], [`SimpleCommand`], [`INotifier`]
 pub struct MacroCommand {
     /// The underlying `SimpleCommand` instance used for `INotifier` implementation.
     command: SimpleCommand,

@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc, Weak};
-use crate::interfaces::{IFacade, IMediator, INotification, INotifier};
+use crate::interfaces::{IFacade, IMediator, INotification, INotifier, IView};
 use crate::patterns::Notifier;
 
 /// A base `IMediator` implementation.
@@ -24,7 +24,7 @@ use crate::patterns::Notifier;
 /// method and register the `Observer` for each `INotification` name returned by the `IMediator`'s
 /// `list_notification_interests` method.
 ///
-/// See `INotification`, `IView`
+/// See [`INotification`], [`IView`]
 pub struct Mediator {
     /// The underlying `INotifier` instance used for notification functionality.
     notifier: Box<dyn INotifier + Send + Sync>,

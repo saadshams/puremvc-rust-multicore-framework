@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc, Weak};
-use crate::interfaces::{INotification, INotifier};
+use crate::interfaces::{INotification, INotifier, IView};
 
 /// The trait definition for a PureMVC MultiCore `IMediator`.
 ///
@@ -22,7 +22,7 @@ use crate::interfaces::{INotification, INotifier};
 /// The `IView` will then create an `IObserver` object encapsulating that `IMediator`'s `handleNotification` method
 /// and register the `IObserver` for each `INotification` name returned by the `IMediator`'s `listNotificationInterests` method.
 ///
-/// See `INotification`, `IView`
+/// See [`INotification`], [`IView`]
 pub trait IMediator: INotifier {
     /// Get the `IMediator` instance's name.
     ///

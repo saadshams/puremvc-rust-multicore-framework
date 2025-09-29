@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, RwLock};
-use crate::interfaces::{IModel, IProxy};
+use crate::interfaces::{IModel, IProxy, IFacade};
 static INSTANCE_MAP: LazyLock<RwLock<HashMap<String, Arc<dyn IModel>>>> = LazyLock::new(|| Default::default());
 
 /// A PureMVC MultiCore `IModel` implementation.
@@ -15,7 +15,7 @@ static INSTANCE_MAP: LazyLock<RwLock<HashMap<String, Arc<dyn IModel>>>> = LazyLo
 /// Your application must register `IProxy` instances with the `IModel`. Typically, you use an
 /// `ICommand` to create and register `IProxy` instances once the `IFacade` has initialized the core actors.
 ///
-/// See `IProxy`, `IFacade`
+/// See [`IProxy`], [`IFacade`]
 pub struct Model {
     /// The Multiton Key for this Core
     key: String,

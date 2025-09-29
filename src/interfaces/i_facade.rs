@@ -1,5 +1,5 @@
 use std::sync::{Arc, RwLock};
-use crate::interfaces::{ICommand, IMediator, INotification, INotifier, IProxy};
+use crate::interfaces::{ICommand, IMediator, INotification, INotifier, IProxy, IModel, IView, IController};
 
 /// The trait definition for a PureMVC MultiCore `IFacade`.
 ///
@@ -15,7 +15,7 @@ use crate::interfaces::{ICommand, IMediator, INotification, INotifier, IProxy};
 /// and `IProxy`s all have a built-in reference to their `IFacade` after initialization, so they're
 /// all plugged in and ready to communicate with each other.
 ///
-/// See `IModel`, `IView`, `IController`, `IProxy`, `IMediator`, `ICommand`, `INotification`
+/// See [`IModel`], [`IView`], [`IController`], [`IProxy`], [`IMediator`], [`ICommand`], [`INotification`]
 pub trait IFacade: INotifier {
     /// Initialize the `IFacade` Multiton instance.
     ///

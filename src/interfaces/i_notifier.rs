@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::sync::{Arc};
-use crate::interfaces::IFacade;
+use crate::interfaces::{IFacade, INotification};
 
 /// The trait definition for a PureMVC `INotifier`.
 ///
@@ -15,7 +15,7 @@ use crate::interfaces::IFacade;
 /// method for sending `INotification`s, but also eases implementation as these types have
 /// frequent `IFacade` interactions and usually require access to the `IFacade` anyway.
 ///
-/// See `IFacade`, `INotification`
+/// See [`IFacade`], [`INotification`]
 pub trait INotifier: Any + Send + Sync {
     /// Get the Multiton key for this `INotifier`.
     ///
